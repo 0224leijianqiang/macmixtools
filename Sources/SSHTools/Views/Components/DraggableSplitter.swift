@@ -8,10 +8,15 @@ struct DraggableSplitter: View {
     
     var body: some View {
         ZStack {
-            // Static Divider background
-            Divider()
+            // Completely transparent background
+            Color.clear
             
-            // Moving Dashed Guideline (Visual only)
+            // Minimalist handle (only visible on hover if you prefer, or very subtle)
+            RoundedRectangle(cornerRadius: 1)
+                .fill(DesignSystem.Colors.textSecondary.opacity(0.2))
+                .frame(width: 40, height: 2)
+            
+            // Hit area for gesture (Topmost)
             GhostGuideline(orientation: .horizontal, color: DesignSystem.Colors.blue)
                 .offset(y: offset)
                 .opacity(isDragging ? 1 : 0)

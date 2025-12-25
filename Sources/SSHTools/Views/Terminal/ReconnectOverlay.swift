@@ -2,13 +2,14 @@ import SwiftUI
 
 struct ReconnectOverlay: View {
     let isConnected: Bool
+    let isConnecting: Bool
     let error: String?
     let onReconnect: () -> Void
     
     var body: some View {
-        if !isConnected {
+        if !isConnected && !isConnecting {
             ZStack {
-                Color.white.opacity(0.8)
+                DesignSystem.Colors.background.opacity(0.9)
                 
                 VStack(spacing: 16) {
                     Image(systemName: "terminal.fill")

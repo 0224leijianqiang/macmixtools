@@ -40,6 +40,27 @@ if [ -f "Sources/SSHTools/AppIcon.icns" ]; then
     cp "Sources/SSHTools/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/"
 fi
 
+# Copy SPM generated resource bundles
+# Finding the build directory used by SPM (it might vary slightly based on platform)
+SPM_BUILD_DIR=".build/apple/Products/Release"
+if [ ! -d "$SPM_BUILD_DIR" ]; then
+    # Fallback for some environments
+    SPM_BUILD_DIR=".build/release" 
+fi
+
+if [ -d "$SPM_BUILD_DIR/SSHTools_SSHTools.bundle" ]; then
+    echo "   - Copying SSHTools resources..."
+    cp -R "$SPM_BUILD_DIR/SSHTools_SSHTools.bundle" "$APP_BUNDLE/Contents/Resources/"
+fi
+
+# Also check for other dependency bundles (like SwiftTerm or others if they generate bundles)
+for bundle in "$SPM_BUILD_DIR"/*.bundle; do
+    if [ -d "$bundle" ] && [ "$(basename "$bundle")" != "SSHTools_SSHTools.bundle" ]; then
+        echo "   - Copying dependency resource: $(basename "$bundle")..."
+        cp -R "$bundle" "$APP_BUNDLE/Contents/Resources/"
+    fi
+done
+
 # 5. Create Info.plist
 echo "📝 Generating Info.plist..."
 cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF

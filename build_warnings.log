@@ -1,0 +1,17 @@
+warning: 'swiftterm': found 1 file(s) which are unhandled; explicitly declare them as resources or exclude from the target
+    /Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.build/checkouts/SwiftTerm/Sources/SwiftTerm/Mac/README.md
+[0/1] Planning build
+[1/1] Compiling plugin GenerateManual
+[2/2] Compiling plugin GenerateDoccReference
+Building for debugging...
+[2/5] Write swift-version--58304C5D6DBC2206.txt
+[4/8] Emitting module Crypto
+[5/9] Emitting module Atomics
+[6/9] Emitting module _RopeModule
+[7/9] Emitting module _CryptoExtras
+[8/11] Emitting module NIOSSH
+[9/11] Emitting module AsyncKit
+[10/13] Emitting module MySQLKit
+[11/13] Emitting module Citadel
+[12/14] Emitting module SSHTools
+Build complete! (7.47s)

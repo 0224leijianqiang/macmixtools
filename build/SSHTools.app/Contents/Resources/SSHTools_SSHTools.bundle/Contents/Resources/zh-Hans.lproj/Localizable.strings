@@ -1,0 +1,102 @@
+/* Sidebar & Common */
+"Servers" = "服务器";
+"Add" = "添加";
+"SSH Terminal" = "SSH 终端";
+"Redis" = "Redis";
+"Configure" = "配置";
+"Open SFTP" = "打开 SFTP";
+"Open in New Tab" = "在新标签页打开";
+"Close" = "关闭";
+"Connect" = "连接";
+"Delete" = "删除";
+"Cancel" = "取消";
+"Save" = "保存";
+"Error" = "错误";
+
+/* Home */
+"Welcome Home" = "欢迎回家";
+"Manage your connections and tasks" = "管理您的连接和任务";
+"Todo List" = "待办事项";
+"Add a new task..." = "添加新任务...";
+"No tasks yet. Enjoy your day!" = "暂无任务，享受美好一天！";
+"Todo Reminder" = "任务提醒";
+"Home" = "首页";
+
+/* Settings Sheet */
+"Configuration" = "配置";
+"General" = "常规";
+"Name" = "名称";
+"Host" = "主机";
+"Port" = "端口";
+"Username" = "用户名";
+"Authentication" = "认证";
+"Use Private Key" = "使用私钥";
+"Key Path" = "密钥路径";
+"Browse" = "浏览";
+"Password (Optional)" = "密码 (可选)";
+"Redis Settings" = "Redis 设置";
+"Database Index" = "数据库索引";
+
+/* Terminal / Tabs */
+"Settings" = "设置";
+"No Open Tabs" = "无打开的标签页";
+"Connected" = "已连接";
+"Disconnected" = "已断开";
+"Connecting to" = "正在连接";
+"Waiting for shell path..." = "等待 Shell 路径...";
+"Not Connected" = "未连接";
+
+/* SFTP */
+"Path" = "路径";
+"Upload File" = "上传文件";
+"Download" = "下载";
+"items" = "项";
+
+/* Redis View */
+"Keys" = "键";
+"Type" = "类型";
+"Value" = "值";
+"TTL" = "过期时间";
+"Refresh" = "刷新";
+"Search keys..." = "搜索键...";
+"Load More" = "加载更多";
+"Select a key to view details" = "选择键以查看详情";
+"Update Value" = "更新值";
+"Delete Key" = "删除键";
+
+/* MySQL */
+"MySQL Database" = "MySQL 数据库";
+"Database" = "数据库";
+"Databases" = "数据库";
+"Tables" = "数据表";
+"Rows" = "行数";
+"Structure" = "结构";
+"Data" = "数据";
+"Execute" = "执行";
+"Query" = "查询";
+"Result" = "结果";
+"No tables found" = "未找到数据表";
+"Select a table" = "选择一个数据表";
+"Pagination" = "分页";
+"Previous" = "上一页";
+"Next" = "下一页";
+"Page" = "页";
+"MySQL Settings" = "MySQL 设置";
+
+/* HTTP Client */
+"Tools" = "工具";
+"HTTP Client" = "HTTP 客户端";
+"Method" = "方法";
+"URL" = "链接";
+"Send" = "发送";
+"Headers" = "请求头";
+"Body" = "请求体";
+"Response" = "响应";
+"Status" = "状态";
+"Time" = "耗时";
+"Size" = "大小";
+"Preview" = "预览";
+"No response yet" = "暂无响应";
+"Add Header" = "添加请求头";
+"Key" = "键";
+"Enter URL" = "输入链接";
