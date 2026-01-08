@@ -1,0 +1,285 @@
+{
+  "": {
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/master.swiftdeps"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Exports.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/Exports.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/Exports.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/Exports~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/Exports.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/Exports.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLConnection.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnection.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnection.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnection~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnection.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnection.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLConnectionHandler.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnectionHandler.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnectionHandler.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnectionHandler~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnectionHandler.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLConnectionHandler.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLData.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLData.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLData.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLData~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLData.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLData.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLDataConvertible.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDataConvertible.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDataConvertible.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDataConvertible~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDataConvertible.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDataConvertible.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLDatabase.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDatabase.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDatabase.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDatabase~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDatabase.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLDatabase.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLError.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLError.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLError.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLError~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLError.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLError.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLQueryCommand.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLQueryCommand.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLQueryCommand.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLQueryCommand~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLQueryCommand.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLQueryCommand.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLRow.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLRow.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLRow.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLRow~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLRow.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLRow.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLSimpleQueryCommand.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLSimpleQueryCommand.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLSimpleQueryCommand.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLSimpleQueryCommand~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLSimpleQueryCommand.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLSimpleQueryCommand.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/MySQLTime.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLTime.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLTime.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLTime~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLTime.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLTime.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Packet/MySQLPacket.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacket.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacket.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacket~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacket.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacket.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Packet/MySQLPacketDecoder.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketDecoder.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketDecoder.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketDecoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketDecoder.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketDecoder.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Packet/MySQLPacketEncoder.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketEncoder.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketEncoder.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketEncoder~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketEncoder.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketEncoder.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Packet/MySQLPacketSequence.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketSequence.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketSequence.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketSequence~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketSequence.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLPacketSequence.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+BinaryResultSetRow.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+BinaryResultSetRow.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+BinaryResultSetRow.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+BinaryResultSetRow~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+BinaryResultSetRow.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+BinaryResultSetRow.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+COM_QUERY.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+COM_QUERY_Response.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY_Response.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY_Response.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY_Response~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY_Response.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUERY_Response.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+COM_QUIT.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUIT.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUIT.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUIT~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUIT.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_QUIT.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+COM_STMT_CLOSE.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_CLOSE.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_CLOSE.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_CLOSE~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_CLOSE.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_CLOSE.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+COM_STMT_EXECUTE.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_EXECUTE.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_EXECUTE.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_EXECUTE~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_EXECUTE.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_EXECUTE.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+COM_STMT_PREPARE.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+COM_STMT_PREPARE_OK.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE_OK.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE_OK.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE_OK~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE_OK.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+COM_STMT_PREPARE_OK.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+CapabilityFlags.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CapabilityFlags.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CapabilityFlags.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CapabilityFlags~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CapabilityFlags.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CapabilityFlags.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+CharacterSet.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CharacterSet.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CharacterSet.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CharacterSet~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CharacterSet.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+CharacterSet.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+ColumnDefinition41.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnDefinition41.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnDefinition41.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnDefinition41~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnDefinition41.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnDefinition41.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+ColumnFlags.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnFlags.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnFlags.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnFlags~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnFlags.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ColumnFlags.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+DataType.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+DataType.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+DataType.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+DataType~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+DataType.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+DataType.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+ERR_Packet.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ERR_Packet.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ERR_Packet.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ERR_Packet~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ERR_Packet.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ERR_Packet.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+ErrorCode.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ErrorCode.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ErrorCode.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ErrorCode~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ErrorCode.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+ErrorCode.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+HandshakeResponse41.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeResponse41.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeResponse41.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeResponse41~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeResponse41.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeResponse41.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+HandshakeV10.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeV10.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeV10.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeV10~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeV10.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+HandshakeV10.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+NullBitmap.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+NullBitmap.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+NullBitmap.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+NullBitmap~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+NullBitmap.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+NullBitmap.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+OK_Packet.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+OK_Packet.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+OK_Packet.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+OK_Packet~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+OK_Packet.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+OK_Packet.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+SSLRequest.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+SSLRequest.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+SSLRequest.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+SSLRequest~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+SSLRequest.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+SSLRequest.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+StatusFlags.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+StatusFlags.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+StatusFlags.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+StatusFlags~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+StatusFlags.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+StatusFlags.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol+TextResultSetRow.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+TextResultSetRow.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+TextResultSetRow.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+TextResultSetRow~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+TextResultSetRow.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol+TextResultSetRow.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Protocol/MySQLProtocol.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/MySQLProtocol.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Utilities/CryptoUtils.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/CryptoUtils.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/CryptoUtils.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/CryptoUtils~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/CryptoUtils.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/CryptoUtils.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/mysql-nio/Sources/MySQLNIO/Utilities/NIOUtils.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/NIOUtils.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/NIOUtils.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/NIOUtils~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/NIOUtils.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/MySQLNIO.build/NIOUtils.dia"
+  }
+}

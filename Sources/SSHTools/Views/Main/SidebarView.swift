@@ -134,13 +134,21 @@ struct SidebarView: View {
     }
     
     private func addConnection(type: ConnectionType) {
-        var newConnection = SSHConnection(name: type == .ssh ? "New Server" : (type == .redis ? "New Redis" : "New MySQL"), host: "", username: "")
+        var newConnection = SSHConnection(
+            name: type == .ssh ? "New Server" :
+                (type == .redis ? "New Redis" :
+                    (type == .clickhouse ? "New ClickHouse" : "New MySQL")),
+            host: "",
+            username: ""
+        )
         newConnection.type = type
         if type == .redis {
             newConnection.port = AppConstants.Ports.redis
             newConnection.username = "" 
         } else if type == .mysql {
             newConnection.port = AppConstants.Ports.mysql
+        } else if type == .clickhouse {
+            newConnection.port = AppConstants.Ports.clickhouse
         }
         store.connections.append(newConnection)
         selection = newConnection.id
@@ -257,6 +265,9 @@ private struct SidebarAddMenu: View {
             }
             Button(action: { onAdd(.mysql) }) {
                 Label("MySQL Database".localized, systemImage: "server.rack")
+            }
+            Button(action: { onAdd(.clickhouse) }) {
+                Label("ClickHouse Database".localized, systemImage: "server.rack")
             }
         } label: {
             Image(systemName: "plus.circle.fill")

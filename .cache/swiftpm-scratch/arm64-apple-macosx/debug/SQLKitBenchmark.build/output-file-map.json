@@ -1,0 +1,54 @@
+{
+  "": {
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/master.swiftdeps"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/sql-kit/Sources/SQLKitBenchmark/SQLBenchmark+Codable.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Codable.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Codable.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Codable~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Codable.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Codable.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/sql-kit/Sources/SQLKitBenchmark/SQLBenchmark+Enum.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Enum.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Enum.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Enum~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Enum.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Enum.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/sql-kit/Sources/SQLKitBenchmark/SQLBenchmark+JSONPaths.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+JSONPaths.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+JSONPaths.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+JSONPaths~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+JSONPaths.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+JSONPaths.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/sql-kit/Sources/SQLKitBenchmark/SQLBenchmark+Planets.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Planets.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Planets.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Planets~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Planets.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Planets.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/sql-kit/Sources/SQLKitBenchmark/SQLBenchmark+Union.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Union.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Union.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Union~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Union.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Union.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/sql-kit/Sources/SQLKitBenchmark/SQLBenchmark+Upsert.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Upsert.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Upsert.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Upsert~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Upsert.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmark+Upsert.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/sql-kit/Sources/SQLKitBenchmark/SQLBenchmarker.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmarker.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmarker.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmarker~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmarker.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/SQLKitBenchmark.build/SQLBenchmarker.dia"
+  }
+}

@@ -16,46 +16,24 @@ struct NewKeySheet: View {
     @State private var score = ""
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 标题
-            HStack {
-                Text("Create New Key")
-                    .font(DesignSystem.Typography.headline)
-                Spacer()
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(DesignSystem.Spacing.medium)
-            .background(DesignSystem.Colors.surface)
-            
-            Divider()
-            
+        SheetScaffold(
+            title: "Create New Key",
+            minSize: NSSize(width: 520, height: 520),
+            onClose: { dismiss() }
+        ) {
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.large) {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                        Text("Key Information")
-                            .font(DesignSystem.Typography.caption.weight(.bold))
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                        
+                    FormSection(title: "Key Information", systemImage: "tag") {
                         TextField("Key Name", text: $keyName)
                             .textFieldStyle(ModernTextFieldStyle(icon: "tag"))
                         
                         Picker("Type", selection: $selectedType) {
-                            ForEach(types, id: \.self) {
-                                Text($0).tag($0)
-                            }
+                            ForEach(types, id: \.self) { Text($0).tag($0) }
                         }
                         .pickerStyle(.segmented)
                     }
                     
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                        Text("Initial Value")
-                            .font(DesignSystem.Typography.caption.weight(.bold))
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                        
+                    FormSection(title: "Initial Value", systemImage: "text.badge.plus") {
                         if selectedType == "String" {
                             TextField("Value", text: $value)
                                 .textFieldStyle(ModernTextFieldStyle())
@@ -78,12 +56,9 @@ struct NewKeySheet: View {
                         }
                     }
                 }
-                .padding(DesignSystem.Spacing.large)
+                .padding()
             }
-            
-            Divider()
-            
-            // 按钮
+        } footer: {
             HStack {
                 Button("Cancel") { dismiss() }
                     .buttonStyle(ModernButtonStyle(variant: .secondary))
@@ -99,10 +74,6 @@ struct NewKeySheet: View {
                 .buttonStyle(ModernButtonStyle(variant: .primary))
                 .disabled(keyName.isEmpty)
             }
-            .padding(DesignSystem.Spacing.medium)
-            .background(DesignSystem.Colors.surface)
         }
-        .frame(width: 450, height: 450)
-        .background(DesignSystem.Colors.background)
     }
 }

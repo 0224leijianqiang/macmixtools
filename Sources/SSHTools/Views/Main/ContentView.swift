@@ -7,6 +7,8 @@ struct ContentView: View {
     @State private var sidebarSelection: UUID?
     @State private var editingConnectionID: IdentifiableUUID?
     @State private var sidebarWidth: CGFloat = 220
+    @GestureState private var dragOffset: CGFloat = 0
+    @State private var isDraggingSidebar = false
     
     var body: some View {
         HStack(spacing: 0) {
@@ -15,12 +17,27 @@ struct ContentView: View {
                         tabManager: tabManager, 
                         selection: $sidebarSelection, 
                         editingConnectionID: $editingConnectionID)
-                .frame(width: sidebarWidth)
+                .frame(width: sidebarWidth + dragOffset)
             
-            // 2. Subtle Divider
-            Rectangle()
-                .fill(DesignSystem.Colors.border)
-                .frame(width: 1)
+            // 2. Draggable Divider
+            VerticalDraggableSplitter(isDragging: $isDraggingSidebar)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .updating($dragOffset) { value, state, _ in
+                            state = value.translation.width
+                        }
+                        .onChanged { _ in
+                            isDraggingSidebar = true
+                        }
+                        .onEnded { value in
+                            isDraggingSidebar = false
+                            let newWidth = sidebarWidth + value.translation.width
+                            if newWidth > 150 && newWidth < 500 {
+                                sidebarWidth = newWidth
+                            }
+                        }
+                )
             
             // 3. Detail Area
             TabsView(tabManager: tabManager, connections: $store.connections)
@@ -74,6 +91,8 @@ struct ContentView: View {
             tabManager.openTab(content: .redis(connection))
         case .mysql:
             tabManager.openTab(content: .mysql(connection))
+        case .clickhouse:
+            tabManager.openTab(content: .clickhouse(connection))
         case .ssh:
             tabManager.openTab(content: .terminal(connection))
         }

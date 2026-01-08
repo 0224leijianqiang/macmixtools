@@ -28,30 +28,15 @@ struct RedisImportSheet: View {
     let types = ["List", "Set", "Hash"]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Import Data to Redis")
-                    .font(DesignSystem.Typography.headline)
-                Spacer()
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding()
-            .background(DesignSystem.Colors.surface)
-            
-            Divider()
-            
+        SheetScaffold(
+            title: "Import Data to Redis",
+            minSize: NSSize(width: 820, height: 720),
+            onClose: { dismiss() }
+        ) {
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.large) {
                     // File Selection Section
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                        Label("File Source", systemImage: "filemenu.and.selection")
-                            .font(DesignSystem.Typography.body.weight(.bold))
-                        
+                    FormSection(title: "File Source", systemImage: "filemenu.and.selection") {
                         HStack {
                             if fileName.isEmpty {
                                 Text("No file selected")
@@ -60,25 +45,21 @@ struct RedisImportSheet: View {
                                 Label(fileName, systemImage: "doc.text.fill")
                                     .foregroundColor(DesignSystem.Colors.blue)
                             }
-                            
+
                             Spacer()
-                            
-                            Button("Select CSV") {
-                                selectFile()
-                            }
-                            .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+
+                            Button("Select CSV") { selectFile() }
+                                .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
                         }
                         .padding()
                         .background(DesignSystem.Colors.surfaceSecondary)
                         .cornerRadius(DesignSystem.Radius.medium)
+                        .outlined(cornerRadius: DesignSystem.Radius.medium)
                     }
-                    
+
                     if !headers.isEmpty {
                         // Configuration Section
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                            Label("Redis Configuration", systemImage: "gearshape.fill")
-                                .font(DesignSystem.Typography.body.weight(.bold))
-                            
+                        FormSection(title: "Redis Configuration", systemImage: "gearshape.fill") {
                             VStack(spacing: DesignSystem.Spacing.small) {
                                 HStack {
                                     Text("Key Name")
@@ -86,13 +67,12 @@ struct RedisImportSheet: View {
                                     TextField("e.g. my_list_key", text: $targetKey)
                                         .textFieldStyle(ModernTextFieldStyle())
                                 }
-                                
+
                                 HStack {
                                     Text("Data Type")
                                         .frame(width: 100, alignment: .leading)
                                     Picker("", selection: $targetType) {
-                                        ForEach(types, id: \.self) {
-                                            type in
+                                        ForEach(types, id: \.self) { type in
                                             Text(type).tag(type)
                                         }
                                     }
@@ -100,52 +80,47 @@ struct RedisImportSheet: View {
                                 }
                             }
                         }
-                        
+
                         // Mapping Section
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                            Label("Column Mapping", systemImage: "arrow.left.arrow.right")
-                                .font(DesignSystem.Typography.body.weight(.bold))
-                            
+                        FormSection(title: "Column Mapping", systemImage: "arrow.left.arrow.right") {
                             VStack(spacing: DesignSystem.Spacing.small) {
                                 if targetType == "Hash" {
                                     HStack {
                                         Text("Field Column")
                                             .frame(width: 100, alignment: .leading)
                                         Picker("", selection: $selectedFieldColumn) {
-                                            ForEach(0..<headers.count, id: \.self) {
-                                                i in
+                                            ForEach(0..<headers.count, id: \.self) { i in
                                                 Text(headers[i]).tag(i)
                                             }
                                         }
                                     }
                                 }
-                                
+
                                 HStack {
                                     Text("Value Column")
                                         .frame(width: 100, alignment: .leading)
                                     Picker("", selection: $selectedValueColumn) {
-                                        ForEach(0..<headers.count, id: \.self) {
-                                            i in
+                                        ForEach(0..<headers.count, id: \.self) { i in
                                             Text(headers[i]).tag(i)
                                         }
                                     }
                                 }
                             }
                         }
-                        
+
                         // Transformation Section
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
+                        FormSection(title: "Data Transformation", systemImage: "wand.and.stars") {
                             Toggle("Enable Data Transformation", isOn: $isTransformEnabled)
                                 .toggleStyle(.switch)
-                            
+
                             if isTransformEnabled {
                                 VStack(spacing: 8) {
                                     HStack {
                                         Text("JavaScript (ES6 supported)")
                                             .font(DesignSystem.Typography.caption)
-                                        
+
                                         Spacer()
-                                        
+
                                         Button(action: { withAnimation { showAIScriptHelper.toggle() } }) {
                                             HStack(spacing: 4) {
                                                 Image(systemName: "sparkles")
@@ -163,23 +138,21 @@ struct RedisImportSheet: View {
                                                     .textFieldStyle(.roundedBorder)
                                                     .frame(width: 250)
                                                     .onSubmit { generateScript() }
-                                                
+
                                                 HStack {
                                                     if isGeneratingScript {
                                                         ProgressView().scaleEffect(0.5)
                                                     }
                                                     Spacer()
-                                                    Button("Generate") {
-                                                        generateScript()
-                                                    }
-                                                    .buttonStyle(ModernButtonStyle(variant: .primary, size: .small))
-                                                    .disabled(aiScriptPrompt.isEmpty || isGeneratingScript)
+                                                    Button("Generate") { generateScript() }
+                                                        .buttonStyle(ModernButtonStyle(variant: .primary, size: .small))
+                                                        .disabled(aiScriptPrompt.isEmpty || isGeneratingScript)
                                                 }
                                             }
                                             .padding()
                                         }
                                     }
-                                    
+
                                     TextEditor(text: $transformScript)
                                         .font(.monospaced(.body)())
                                         .frame(height: 150)
@@ -187,22 +160,20 @@ struct RedisImportSheet: View {
                                         .background(DesignSystem.Colors.surfaceSecondary)
                                         .cornerRadius(4)
                                         .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.gray.opacity(0.2)))
-                                    
+
                                     HStack {
-                                        Button("Preview Transformation") {
-                                            runTransformationPreview()
-                                        }
-                                        .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
-                                        
+                                        Button("Preview Transformation") { runTransformationPreview() }
+                                            .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+
                                         Spacer()
                                     }
-                                    
+
                                     if let error = transformationError {
                                         Text(error)
                                             .font(.caption)
                                             .foregroundColor(.red)
                                     }
-                                    
+
                                     if !previewTransformedData.isEmpty {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text("Result Preview (First 3 items):")
@@ -223,14 +194,9 @@ struct RedisImportSheet: View {
                         }
 
                         // Preview Section
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                            Text("Data Preview (First 5 rows)")
-                                .font(DesignSystem.Typography.caption.weight(.bold))
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            
+                        FormSection(title: "Data Preview (First 5 rows)", systemImage: "tablecells") {
                             VStack(spacing: 0) {
-                                ForEach(csvData.prefix(5).indices, id: \.self) {
-                                    rowIndex in
+                                ForEach(csvData.prefix(5).indices, id: \.self) { rowIndex in
                                     HStack {
                                         let row = csvData[rowIndex]
                                         if targetType == "Hash" {
@@ -248,35 +214,30 @@ struct RedisImportSheet: View {
                             }
                             .background(DesignSystem.Colors.surfaceSecondary)
                             .cornerRadius(DesignSystem.Radius.small)
+                            .outlined()
                         }
                     }
                 }
                 .padding()
             }
-            
-            Divider()
-            
-            // Footer
+        } footer: {
             HStack {
                 Button("Cancel") { dismiss() }
                     .buttonStyle(ModernButtonStyle(variant: .secondary))
-                
+
                 Spacer()
-                
+
                 Button(action: performImport) {
-                    if viewModel.isLoading {
+                    if viewModel.isPerformingWrite {
                         ProgressView().scaleEffect(0.5)
                     } else {
                         Text("Start Import")
                     }
                 }
                 .buttonStyle(ModernButtonStyle(variant: .primary))
-                .disabled(targetKey.isEmpty || headers.isEmpty || viewModel.isLoading)
+                .disabled(targetKey.isEmpty || headers.isEmpty || viewModel.isPerformingWrite)
             }
-            .padding()
-            .background(DesignSystem.Colors.surface)
         }
-        .frame(width: 500, height: 600)
     }
     
     private func selectFile() {

@@ -1,0 +1,112 @@
+d5123eb3c0afaea67cddbda7f67c8dd295089798	not-for-merge	branch 'incremental-cleanup' of https://github.com/vapor/mysql-nio
+e62e6aaec387bdf65f5255fdb5c4ad29298bc12a	not-for-merge	branch 'main' of https://github.com/vapor/mysql-nio
+fad6d8784dad9bf20a932e59ab90ef2a0b1ae2a1	not-for-merge	branch 'restart-rewrite' of https://github.com/vapor/mysql-nio
+4ca095c96caaaeefa98f5fab7d5058067572a0e7	not-for-merge	'refs/pull/1/head' of https://github.com/vapor/mysql-nio
+2bb64be6cb826140ba642be83628eba6e3632b84	not-for-merge	'refs/pull/10/head' of https://github.com/vapor/mysql-nio
+104d414e24ef34780e73ccaf59a6b3a740362ec4	not-for-merge	'refs/pull/100/head' of https://github.com/vapor/mysql-nio
+0da8c2dc4a461cc5be1f186f81a58be3d8079d42	not-for-merge	'refs/pull/101/head' of https://github.com/vapor/mysql-nio
+3fcc88c565b81023ca961c353b2b61c3738fe078	not-for-merge	'refs/pull/103/head' of https://github.com/vapor/mysql-nio
+0579fe36d13b387239bc2e33401e71b7e7e33c6d	not-for-merge	'refs/pull/105/head' of https://github.com/vapor/mysql-nio
+f810860d0a36fd16c54c8fb605c275927e27c1f8	not-for-merge	'refs/pull/105/merge' of https://github.com/vapor/mysql-nio
+2c5805c64307784c5024920b8da9a6d4e6bcbabe	not-for-merge	'refs/pull/108/head' of https://github.com/vapor/mysql-nio
+388151dd7b64cc979ad6c9c613f4dbbf0414f58f	not-for-merge	'refs/pull/11/head' of https://github.com/vapor/mysql-nio
+545b4c3f098f3cdb920386e5abfd8119cec0719e	not-for-merge	'refs/pull/110/head' of https://github.com/vapor/mysql-nio
+8ea15f1a0b8fa9e59d56dabd8fffa692cbd532d4	not-for-merge	'refs/pull/113/head' of https://github.com/vapor/mysql-nio
+67520c2d35507fe44f5a256c10aa6414a70a49ad	not-for-merge	'refs/pull/114/head' of https://github.com/vapor/mysql-nio
+566940a33d821ba400d843eaf5c280e2ec9c8ed0	not-for-merge	'refs/pull/116/head' of https://github.com/vapor/mysql-nio
+2b27e2e174776f24df9991a39ab082a19a07f447	not-for-merge	'refs/pull/117/head' of https://github.com/vapor/mysql-nio
+16e787eb6586c2cd4e462e189347923a07ec6808	not-for-merge	'refs/pull/12/head' of https://github.com/vapor/mysql-nio
+30036c2a75c03e429b7d7383dc811c1ebf259ef4	not-for-merge	'refs/pull/13/head' of https://github.com/vapor/mysql-nio
+f0370c14a756cfc1d42063caf63467eec520979f	not-for-merge	'refs/pull/14/head' of https://github.com/vapor/mysql-nio
+40b569c7d3be08ccb57e5f5178df173c7ca20152	not-for-merge	'refs/pull/16/head' of https://github.com/vapor/mysql-nio
+ae194e4ae993fa4c1882c10b53a0de8427f878b8	not-for-merge	'refs/pull/17/head' of https://github.com/vapor/mysql-nio
+25fdde3d4fb3983eb3bb23bd47b7a35531031bd9	not-for-merge	'refs/pull/19/head' of https://github.com/vapor/mysql-nio
+517c682195b40eb850885a3234e11afe2c2ae669	not-for-merge	'refs/pull/2/head' of https://github.com/vapor/mysql-nio
+ba57ead7e2df384b3510bcf8d13bb2d9a0ba8ef7	not-for-merge	'refs/pull/20/head' of https://github.com/vapor/mysql-nio
+a9bf1a37268fd106d15d390d800e311178da3f66	not-for-merge	'refs/pull/24/head' of https://github.com/vapor/mysql-nio
+2dc5fe6e2ef4d7181df8b91f83e05dbaa57b22fd	not-for-merge	'refs/pull/25/head' of https://github.com/vapor/mysql-nio
+3e3493c56808c08276c5bdbd6f937e40b5edce75	not-for-merge	'refs/pull/26/head' of https://github.com/vapor/mysql-nio
+f20f37ac2cea5a14881f8044f8db07feaae6f90d	not-for-merge	'refs/pull/27/head' of https://github.com/vapor/mysql-nio
+42f8078787208b0441bfe337c72220310a181fd9	not-for-merge	'refs/pull/28/head' of https://github.com/vapor/mysql-nio
+6770afa1958830bd1558108aed095783b6af2126	not-for-merge	'refs/pull/29/head' of https://github.com/vapor/mysql-nio
+58dda0d6f161dab6f2fc1594b941abc5def2959f	not-for-merge	'refs/pull/3/head' of https://github.com/vapor/mysql-nio
+dce70274bd0c5b39cd3465287ec84d2a90f97d6f	not-for-merge	'refs/pull/32/head' of https://github.com/vapor/mysql-nio
+c26dc737b9802b3806c1e1ca45b471d4e91b5752	not-for-merge	'refs/pull/34/head' of https://github.com/vapor/mysql-nio
+b1c0d87f2ac18f412d3a9659f3f618ceabf514a1	not-for-merge	'refs/pull/35/head' of https://github.com/vapor/mysql-nio
+b6fde75c0f54b6169d8a6abbd37c66d3eeba20cf	not-for-merge	'refs/pull/37/head' of https://github.com/vapor/mysql-nio
+ff78fb12ae1e36d68f22317d58480b2324dbc2db	not-for-merge	'refs/pull/38/head' of https://github.com/vapor/mysql-nio
+028bcc601ea0b76a2f28deaafe240e65e02a7f5c	not-for-merge	'refs/pull/4/head' of https://github.com/vapor/mysql-nio
+e56f7708f84e5a381a97cc2d938165fb2c92c669	not-for-merge	'refs/pull/40/head' of https://github.com/vapor/mysql-nio
+2e8b85f1aefd6fd1583f23c3eb08be2bd254fab0	not-for-merge	'refs/pull/41/head' of https://github.com/vapor/mysql-nio
+e0ad5462bc82000f3584c0dee0a42665f06ffa15	not-for-merge	'refs/pull/48/head' of https://github.com/vapor/mysql-nio
+7d57b332fb8c37f26d14ebee138ebde7ec24e483	not-for-merge	'refs/pull/5/head' of https://github.com/vapor/mysql-nio
+9f87119e33b938710f2b6c90b306f37566423d72	not-for-merge	'refs/pull/50/head' of https://github.com/vapor/mysql-nio
+9307c0e54710a6cdbdbc0f137cf81006c52c5f6c	not-for-merge	'refs/pull/52/head' of https://github.com/vapor/mysql-nio
+0e9f0a465ad8823e81cf80bdc4f483075638abec	not-for-merge	'refs/pull/53/head' of https://github.com/vapor/mysql-nio
+aeb0fae25f9e85e273a6c033838b896653603e6b	not-for-merge	'refs/pull/54/head' of https://github.com/vapor/mysql-nio
+ef56cb3ef73f5474530df72648709f43d1dbdda9	not-for-merge	'refs/pull/56/head' of https://github.com/vapor/mysql-nio
+468e11c599683f1a13ca3e08222152f70688518e	not-for-merge	'refs/pull/57/head' of https://github.com/vapor/mysql-nio
+ffa2ccd3d0f6e227b86b66d776b00935877becec	not-for-merge	'refs/pull/58/head' of https://github.com/vapor/mysql-nio
+0ab3a6ae7f53db3747e515716981a624bd5756d5	not-for-merge	'refs/pull/6/head' of https://github.com/vapor/mysql-nio
+e2218458e6ca819c3881d97d2643848ff44d26a3	not-for-merge	'refs/pull/61/head' of https://github.com/vapor/mysql-nio
+44412829a00d456ed43bfd0c52c74b3c2e864fcb	not-for-merge	'refs/pull/64/head' of https://github.com/vapor/mysql-nio
+12e67e11828bd3bb584c26b0cf2e8b8ce2608c33	not-for-merge	'refs/pull/65/head' of https://github.com/vapor/mysql-nio
+e3c27d3b6d578eba65a5e9c90a9c00c976b911d3	not-for-merge	'refs/pull/66/head' of https://github.com/vapor/mysql-nio
+b7056bc50a2aae3928c1b8e88952ea29395ab564	not-for-merge	'refs/pull/67/head' of https://github.com/vapor/mysql-nio
+5d09e01bf4204efd4d02b260d393a6c98b395e35	not-for-merge	'refs/pull/68/head' of https://github.com/vapor/mysql-nio
+df625770b7cd478e9222e97d7c9bb10b8991b6ff	not-for-merge	'refs/pull/7/head' of https://github.com/vapor/mysql-nio
+2b73b5aa21e2096aaf9d92a6fd82d120e8b1b3f6	not-for-merge	'refs/pull/72/head' of https://github.com/vapor/mysql-nio
+cbabb82ca72235ab36b1f3745832b0a6c63595f9	not-for-merge	'refs/pull/73/head' of https://github.com/vapor/mysql-nio
+fbc9571f6af50be89b9752068beaf1daa04688c8	not-for-merge	'refs/pull/74/head' of https://github.com/vapor/mysql-nio
+a13f0f0ba25c5c0601c628f2dafec482e1b0af3c	not-for-merge	'refs/pull/77/head' of https://github.com/vapor/mysql-nio
+84f00d7b8f6c8b78fcea0772f260acfcdf3f2003	not-for-merge	'refs/pull/78/head' of https://github.com/vapor/mysql-nio
+bf3368117f0640ee2cfdcfe418108217799f1a84	not-for-merge	'refs/pull/79/head' of https://github.com/vapor/mysql-nio
+9bcfccbaeb82b7faf66ab8722a504b59b7863559	not-for-merge	'refs/pull/83/head' of https://github.com/vapor/mysql-nio
+18088f9599a21d04f893c51f30e320012bcda952	not-for-merge	'refs/pull/88/head' of https://github.com/vapor/mysql-nio
+af24fd1a7e0a655d9d6723b1424a2e41dffeff07	not-for-merge	'refs/pull/9/head' of https://github.com/vapor/mysql-nio
+911a747192e6257de690472a88e3e351954589fb	not-for-merge	'refs/pull/90/head' of https://github.com/vapor/mysql-nio
+453f8025d7f94a466e3c46b7898ca240cb76efef	not-for-merge	'refs/pull/93/head' of https://github.com/vapor/mysql-nio
+b652d4360731713064aae604f3ba2cc81a1ad078	not-for-merge	'refs/pull/94/head' of https://github.com/vapor/mysql-nio
+522615b146ef3f0fcb9aeeac3a6de1b1507680a3	not-for-merge	'refs/pull/95/head' of https://github.com/vapor/mysql-nio
+9f2754c575aada6c8d84049642734f5988518667	not-for-merge	'refs/pull/97/head' of https://github.com/vapor/mysql-nio
+d10165bf36ba46e4c856d094ae3506a615610926	not-for-merge	'refs/pull/98/head' of https://github.com/vapor/mysql-nio
+687a9bab6b2fd6a68ff7977b735110d2ce0e5c58	not-for-merge	tag '1.0.0' of https://github.com/vapor/mysql-nio
+57e3477d5a1aba74437205d762b7f92bac40a899	not-for-merge	tag '1.0.0-alpha.1' of https://github.com/vapor/mysql-nio
+03528416399ee582c31917afa25d2f920ad21b63	not-for-merge	tag '1.0.0-alpha.1.1' of https://github.com/vapor/mysql-nio
+eebaa4063d5e2382f9ed54263f68716dea53e1c1	not-for-merge	tag '1.0.0-beta.2' of https://github.com/vapor/mysql-nio
+bb9c164b2e66b501543c7e325996c9d61451bdf8	not-for-merge	tag '1.0.0-beta.2.1' of https://github.com/vapor/mysql-nio
+fca88a382811faed3f47bc7f3186e97c750fa5e8	not-for-merge	tag '1.0.0-beta.2.2' of https://github.com/vapor/mysql-nio
+45321a5bae0df89dfff51f6534183fbbeaf8494b	not-for-merge	tag '1.0.0-beta.2.3' of https://github.com/vapor/mysql-nio
+fec7ceb0e5974f313d794015b4079c98ee16c591	not-for-merge	tag '1.0.0-beta.2.4' of https://github.com/vapor/mysql-nio
+01df65b8655e2d7131182cc0fcddd1e0a950aa80	not-for-merge	tag '1.0.0-rc.1' of https://github.com/vapor/mysql-nio
+819479d53d34c6d53a5bdaa04798d39a459bb7fa	not-for-merge	tag '1.0.0-rc.1.1' of https://github.com/vapor/mysql-nio
+2cc8433a39a0d2025d7252757b56c094c837ca5f	not-for-merge	tag '1.0.0-rc.1.2' of https://github.com/vapor/mysql-nio
+c4df27fa4de175efde7fb963dc96b9266f3affb8	not-for-merge	tag '1.0.0-rc.1.3' of https://github.com/vapor/mysql-nio
+594a25de2de8365c086e12ef96a4b153a9c55af5	not-for-merge	tag '1.0.0-rc.1.4' of https://github.com/vapor/mysql-nio
+59cf4a6e010c40bd91902ad43f3ae2254ceb1e2c	not-for-merge	tag '1.0.0-rc.2' of https://github.com/vapor/mysql-nio
+9fba8d7f695070d6b23c4d0a4df211656be60f15	not-for-merge	tag '1.0.0-rc.2.1' of https://github.com/vapor/mysql-nio
+6a9235582076122badc5428c8d5b6c41f9e40e1a	not-for-merge	tag '1.0.0-rc.2.2' of https://github.com/vapor/mysql-nio
+9fafa5e08eab1bdac86180f393a117eefc6814f3	not-for-merge	tag '1.0.0-rc.2.3' of https://github.com/vapor/mysql-nio
+6ac341adbf2cfa5c903e785c03b90a08153d1362	not-for-merge	tag '1.0.0-rc.2.4' of https://github.com/vapor/mysql-nio
+11b69fe90fb282c4a385b3b7ddb3011033672e48	not-for-merge	tag '1.0.0-rc.2.5' of https://github.com/vapor/mysql-nio
+a3d241fa552d70633b806d9eae60503d910cd473	not-for-merge	tag '1.0.0-rc.2.6' of https://github.com/vapor/mysql-nio
+687a9bab6b2fd6a68ff7977b735110d2ce0e5c58	not-for-merge	tag '1.0.0-rc.2.7' of https://github.com/vapor/mysql-nio
+b72fdcd939179c4c46c41e1779222879dcb6a598	not-for-merge	tag '1.1.0' of https://github.com/vapor/mysql-nio
+714de3ddc1e947d0aad9bf7ccb8971b6fe576afd	not-for-merge	tag '1.2.0' of https://github.com/vapor/mysql-nio
+1604c35d4ea69409d6b281bf315468819bfa2b74	not-for-merge	tag '1.2.1' of https://github.com/vapor/mysql-nio
+1e85541257ef8166017aabcde4fa8de0c41111b8	not-for-merge	tag '1.3.0' of https://github.com/vapor/mysql-nio
+2a17a53911fc1ffda88da584d25c0e89e38dc81d	not-for-merge	tag '1.3.1' of https://github.com/vapor/mysql-nio
+4cbef4c0903c9792ff1f8dc4b55532276fa70c99	not-for-merge	tag '1.3.2' of https://github.com/vapor/mysql-nio
+e453cf5537ea897da113df90cca1cf82b50f43ce	not-for-merge	tag '1.3.3' of https://github.com/vapor/mysql-nio
+5b0f3775e5793c6e35f224733f3276163aacd096	not-for-merge	tag '1.3.4' of https://github.com/vapor/mysql-nio
+eab410dd154fae63deef5841c58455028e05a47f	not-for-merge	tag '1.3.5' of https://github.com/vapor/mysql-nio
+f0e8ad7e18e870e8665311d70bf3f01dcd6024a8	not-for-merge	tag '1.4.0' of https://github.com/vapor/mysql-nio
+aa71663485728cfa2131674006bad784a187f984	not-for-merge	tag '1.5.0' of https://github.com/vapor/mysql-nio
+fee3f5f8393cd7b4e72ce7fd636bee3b573e9e27	not-for-merge	tag '1.6.0' of https://github.com/vapor/mysql-nio
+12f282bd0282774a70ad5f7acc4639381839cea3	not-for-merge	tag '1.6.1' of https://github.com/vapor/mysql-nio
+4d2aa3800ec47856a888bcb7a30034087e70b788	not-for-merge	tag '1.7.0' of https://github.com/vapor/mysql-nio
+605fe1d67cc87a52fe248799c9744f3edd976b92	not-for-merge	tag '1.7.1' of https://github.com/vapor/mysql-nio
+d60444dc7b1525000eb443baa08bf79f059202ad	not-for-merge	tag '1.7.2' of https://github.com/vapor/mysql-nio
+257e719cdb87df74d1c655730ddb71d8c0d8fba7	not-for-merge	tag '1.7.3' of https://github.com/vapor/mysql-nio
+853b43413941a7fc0cfe44ef0ae81b6dd049f8e5	not-for-merge	tag '1.8.0' of https://github.com/vapor/mysql-nio
+e62e6aaec387bdf65f5255fdb5c4ad29298bc12a	not-for-merge	tag '1.9.0' of https://github.com/vapor/mysql-nio

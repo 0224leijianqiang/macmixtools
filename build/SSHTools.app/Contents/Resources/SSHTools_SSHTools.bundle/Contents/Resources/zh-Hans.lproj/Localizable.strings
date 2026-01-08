@@ -99,4 +99,7 @@
 "No response yet" = "暂无响应";
 "Add Header" = "添加请求头";
 "Key" = "键";
-"Enter URL" = "输入链接";
+"Terminal Background" = "终端背景";
+"Use Local Proxy" = "使用本地代理";
+"Host" = "主机";
+"Port" = "端口";

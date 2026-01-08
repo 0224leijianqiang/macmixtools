@@ -100,3 +100,6 @@
 "Add Header" = "Add Header";
 "Key" = "Key";
 "Enter URL" = "Enter URL";
+
+/* Settings */
+"Use Local Proxy" = "Use Local Proxy";

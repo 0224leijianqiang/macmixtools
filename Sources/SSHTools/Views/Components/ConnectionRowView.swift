@@ -63,6 +63,7 @@ struct ConnectionRowView: View {
         case .ssh: return DesignSystem.Colors.green
         case .redis: return DesignSystem.Colors.orange
         case .mysql: return DesignSystem.Colors.blue
+        case .clickhouse: return DesignSystem.Colors.purple
         }
     }
 }

@@ -4,6 +4,7 @@ import AppKit
 struct SQLCodeEditor: NSViewRepresentable {
     @Binding var text: String
     var tables: [String]
+    var columns: [String] = []
     var onExecute: () -> Void
     
     // Standard MySQL Keywords for completion
@@ -11,7 +12,8 @@ struct SQLCodeEditor: NSViewRepresentable {
         "SELECT", "FROM", "WHERE", "ORDER BY", "GROUP BY", "LIMIT", "INSERT INTO",
         "UPDATE", "DELETE", "JOIN", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN",
         "ON", "AS", "DISTINCT", "COUNT", "SUM", "AVG", "MIN", "MAX", "DESC", "ASC",
-        "AND", "OR", "IN", "IS NULL", "IS NOT NULL", "LIKE", "BETWEEN", "VALUES", "SET"
+        "AND", "OR", "IN", "IS NULL", "IS NOT NULL", "LIKE", "BETWEEN", "VALUES", "SET",
+        "HAVING", "EXISTS", "UNION", "ALL", "CASE", "WHEN", "THEN", "ELSE", "END"
     ]
 
     func makeCoordinator() -> Coordinator {
@@ -19,8 +21,9 @@ struct SQLCodeEditor: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let scrollView = NSTextView.scrollableTextView()
-        let textView = scrollView.documentView as! NSTextView
+        let textView = SQLCompletionTextView()
+        let scrollView = NSScrollView()
+        scrollView.documentView = textView
         
         scrollView.borderType = .noBorder
         scrollView.hasVerticalScroller = true
@@ -29,6 +32,14 @@ struct SQLCodeEditor: NSViewRepresentable {
         scrollView.scrollerStyle = .overlay // Ensure scroller doesn't take up space
         scrollView.contentView.automaticallyAdjustsContentInsets = false
         
+        textView.minSize = NSSize(width: 0, height: 0)
+        textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.containerSize = NSSize(width: scrollView.contentSize.width, height: CGFloat.greatestFiniteMagnitude)
+        textView.textContainer?.widthTracksTextView = true
+
         textView.delegate = context.coordinator
         textView.font = NSFont.monospacedSystemFont(ofSize: 13, weight: .regular)
         textView.isAutomaticQuoteSubstitutionEnabled = false
@@ -50,6 +61,7 @@ struct SQLCodeEditor: NSViewRepresentable {
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         let textView = nsView.documentView as! NSTextView
+        context.coordinator.parent = self
         if textView.string != text {
             textView.string = text
             context.coordinator.applyHighlighting(textView)
@@ -80,6 +92,15 @@ struct SQLCodeEditor: NSViewRepresentable {
             // Cancel previous completion request
             NSObject.cancelPreviousPerformRequests(withTarget: textView, selector: #selector(textView.complete(_:)), object: nil)
             
+            // Check if this was a deletion
+            if let event = NSApp.currentEvent, event.type == .keyDown {
+                let keyCode = event.keyCode
+                // 51 is the keycode for Backspace/Delete on macOS
+                if keyCode == 51 {
+                    return
+                }
+            }
+
             // Check if we should show completions
             let selectedRange = textView.selectedRange()
             if selectedRange.length == 0 && selectedRange.location > 0 {
@@ -169,12 +190,41 @@ struct SQLCodeEditor: NSViewRepresentable {
         func textView(_ textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
             let partialString = (textView.string as NSString).substring(with: charRange).uppercased()
             
-            // Combine keywords and table names
-            let allSuggestions = parent.keywords + parent.tables
+            // Combine keywords, table names and column names
+            let allSuggestions = parent.keywords + parent.tables + parent.columns
             
             return allSuggestions.filter { 
                 $0.uppercased().hasPrefix(partialString)
             }.sorted()
+        }
+    }
+}
+
+final class SQLCompletionTextView: NSTextView {
+    override func insertCompletion(_ word: String, forPartialWordRange charRange: NSRange, movement: Int, isFinal flag: Bool) {
+        super.insertCompletion(word, forPartialWordRange: charRange, movement: movement, isFinal: flag)
+        guard flag else { return }
+        // Only append a space when the user *accepts* a completion (Tab/Enter/Click),
+        // not when completions are being previewed while typing.
+        let isAcceptedByKey = movement == NSTabTextMovement || movement == NSReturnTextMovement
+        let isAcceptedByMouse: Bool = {
+            guard let event = NSApp.currentEvent else { return false }
+            return event.type == .leftMouseDown || event.type == .leftMouseUp
+        }()
+        guard isAcceptedByKey || isAcceptedByMouse else { return }
+
+        let cursor = selectedRange().location
+        let nsText = string as NSString
+        if cursor <= nsText.length {
+            if cursor == nsText.length {
+                insertText(" ", replacementRange: NSRange(location: cursor, length: 0))
+                return
+            }
+
+            let nextChar = nsText.substring(with: NSRange(location: cursor, length: 1))
+            if nextChar.rangeOfCharacter(from: .whitespacesAndNewlines) == nil {
+                insertText(" ", replacementRange: NSRange(location: cursor, length: 0))
+            }
         }
     }
 }

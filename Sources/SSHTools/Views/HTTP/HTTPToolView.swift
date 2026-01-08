@@ -226,8 +226,9 @@ struct HTTPToolView: View {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 14))
                 }
-                .buttonStyle(ModernButtonStyle(variant: .secondary))
+                .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
                 .popover(isPresented: $viewModel.showHistory, arrowEdge: .bottom) {
+                    // ... (rest of popover)
                     VStack(alignment: .leading) {
                         HStack {
                             Text("Request History")
@@ -298,10 +299,11 @@ struct HTTPToolView: View {
                         }
                     }
                 }
-                .buttonStyle(ModernButtonStyle(variant: .primary))
+                .buttonStyle(ModernButtonStyle(variant: .primary, size: .small))
                 .disabled(viewModel.isLoading)
             }
-            .padding()
+            .padding(.horizontal, DesignSystem.spacingMedium)
+            .frame(height: 44)
             .background(DesignSystem.surfaceColor)
             .overlay(
                 Rectangle().frame(height: 1).foregroundColor(DesignSystem.borderColor),

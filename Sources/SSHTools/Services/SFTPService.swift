@@ -94,75 +94,150 @@ class SFTPService {
         let taskID = task.id
         TransferManager.shared.addTask(task)
         
-        // 3. Prepare Local File
-        if FileManager.default.fileExists(atPath: targetURL.path) {
-            try? FileManager.default.removeItem(at: targetURL)
-        }
-        FileManager.default.createFile(atPath: targetURL.path, contents: nil)
-        let localHandle = try FileHandle(forWritingTo: targetURL)
-        defer { try? localHandle.close() }
+        let start = Date()
+        Logger.log("SFTP: download start remote=\(remotePath) size=\(totalSize)", level: .info)
         
-        // 4. Open Remote Handle
-        let handle = try await sftp.openFile(filePath: remotePath, flags: .read)
-        defer { 
-            Task { try? await handle.close() }
-        }
-        
-        // 5. Optimized Concurrent Pipelined Download
-        let chunkSize: UInt32 = 128 * 1024 
-        let pipelineDepth = 12 // Increased depth
-        var bytesRead: Int64 = 0
-        var writeOffset: UInt64 = 0
-        var chunkBuffer: [UInt64: Data] = [:] // Buffer for out-of-order chunks
-        
-        try await withThrowingTaskGroup(of: (UInt64, Data).self) { group in
-            var fetchOffset: UInt64 = 0
+        do {
+            // 3. Prepare Writer
+            let writer = try FileChunkWriter(url: targetURL)
             
-            // Initial pipeline fill
-            for _ in 0..<pipelineDepth {
-                if fetchOffset < UInt64(totalSize) {
-                    let currentOffset = fetchOffset
-                    let length = min(UInt32(totalSize - Int64(currentOffset)), chunkSize)
-                    group.addTask {
-                        let buffer = try await handle.read(from: currentOffset, length: length)
-                        return (currentOffset, buffer.getData(at: 0, length: buffer.readableBytes) ?? Data())
-                    }
-                    fetchOffset += UInt64(length)
-                }
+            // Handle empty file case immediately
+            if totalSize == 0 {
+                try await writer.close()
+                TransferManager.shared.completeTask(id: taskID)
+                return
             }
             
-            // Process chunks
-            while bytesRead < totalSize {
-                guard let (chunkOffset, data) = try await group.next() else { break }
-                
-                chunkBuffer[chunkOffset] = data
-                
-                // Write any contiguous chunks starting from writeOffset
-                while let nextData = chunkBuffer[writeOffset] {
-                    try localHandle.seek(toOffset: writeOffset)
-                    localHandle.write(nextData)
-                    bytesRead += Int64(nextData.count)
-                    writeOffset += UInt64(nextData.count)
-                    chunkBuffer.removeValue(forKey: writeOffset - UInt64(nextData.count))
+            // 4. Open Remote Handle
+            let handle = try await sftp.openFile(filePath: remotePath, flags: .read)
+            defer { 
+                Task { try? await handle.close() }
+            }
+            
+            // 5. Concurrent Download
+            let chunkSize: UInt32 = SettingsManager.shared.sftpDownloadChunkBytes
+            let maxConcurrency = 4
+            let progressTracker = ThreadSafeProgress(totalSize: totalSize, taskID: taskID)
+            var activeTasks = 0
+            
+            try await withThrowingTaskGroup(of: Int64.self) { group in
+                for offset in stride(from: 0, to: totalSize, by: Int(chunkSize)) {
+                    // Wait if we reached max concurrency
+                    if activeTasks >= maxConcurrency {
+                        _ = try await group.next()
+                        activeTasks -= 1
+                    }
                     
-                    let progress = totalSize > 0 ? Double(bytesRead) / Double(totalSize) : 0
-                    TransferManager.shared.updateTask(id: taskID, progress: progress, transferredSize: bytesRead)
+                    // Add new task
+                    group.addTask {
+                        let chunkStart = offset
+                        let chunkTotal = UInt32(min(Int64(chunkSize), totalSize - chunkStart))
+                        var chunkBytesRead: Int64 = 0
+                        
+                        while chunkBytesRead < chunkTotal {
+                            let currentOffset = UInt64(chunkStart + chunkBytesRead)
+                            let needed = chunkTotal - UInt32(chunkBytesRead)
+                            
+                            let buffer = try await handle.read(from: currentOffset, length: needed)
+                            let readable = buffer.readableBytes
+                            
+                            if readable == 0 { break } // EOF
+                            
+                            if let data = buffer.getData(at: 0, length: readable) {
+                                try await writer.write(data: data, at: currentOffset)
+                                chunkBytesRead += Int64(readable)
+                                await progressTracker.addBytes(Int64(readable))
+                            } else {
+                                break
+                            }
+                        }
+                        return chunkBytesRead
+                    }
+                    activeTasks += 1
                 }
                 
-                // Keep pipeline full
-                if fetchOffset < UInt64(totalSize) {
-                    let currentOffset = fetchOffset
-                    let length = min(UInt32(totalSize - Int64(currentOffset)), chunkSize)
-                    group.addTask {
-                        let buffer = try await handle.read(from: currentOffset, length: length)
-                        return (currentOffset, buffer.getData(at: 0, length: buffer.readableBytes) ?? Data())
-                    }
-                    fetchOffset += UInt64(length)
+                // Wait for remaining tasks
+                while let _ = try await group.next() {
+                    activeTasks -= 1
+                }
+            }
+            
+            try await writer.close()
+            
+            // Final verification and completion
+            let finalBytes = await progressTracker.getCurrentBytes()
+            if finalBytes != totalSize {
+                let msg = "Download incomplete (\(finalBytes)/\(totalSize) bytes)"
+                throw NSError(domain: "SFTPService", code: 2, userInfo: [NSLocalizedDescriptionKey: msg])
+            }
+            
+            let end = Date()
+            let elapsed = max(end.timeIntervalSince(start), 0.001)
+            let mbps = (Double(finalBytes) / 1024.0 / 1024.0) / elapsed
+            Logger.log(String(format: "SFTP: download done %.2f MB in %.2fs (avg %.2f MB/s)", Double(finalBytes) / 1024.0 / 1024.0, elapsed, mbps), level: .info)
+            
+            TransferManager.shared.completeTask(id: taskID)
+            
+        } catch {
+            let msg = error.localizedDescription
+            TransferManager.shared.failTask(id: taskID, message: msg)
+            Logger.log("SFTP: download failed - \(msg)", level: .error)
+            throw error
+        }
+    }
+
+    actor ThreadSafeProgress {
+        private let totalSize: Int64
+        private let taskID: UUID
+        private var bytesTransferred: Int64 = 0
+        private var lastUpdate = Date.distantPast
+        
+        init(totalSize: Int64, taskID: UUID) {
+            self.totalSize = totalSize
+            self.taskID = taskID
+        }
+        
+        func addBytes(_ count: Int64) {
+            bytesTransferred += count
+            
+            let now = Date()
+            // Throttle UI updates to ~10 times per second to save CPU
+            if now.timeIntervalSince(lastUpdate) >= 0.1 || bytesTransferred == totalSize {
+                lastUpdate = now
+                let progress = totalSize > 0 ? Double(bytesTransferred) / Double(totalSize) : 0
+                let currentBytes = bytesTransferred
+                
+                // Ensure UI update happens on Main thread
+                DispatchQueue.main.async {
+                    TransferManager.shared.updateTask(id: self.taskID, progress: progress, transferredSize: currentBytes)
                 }
             }
         }
         
-        TransferManager.shared.completeTask(id: taskID)
+        func getCurrentBytes() -> Int64 {
+            return bytesTransferred
+        }
+    }
+
+    actor FileChunkWriter {
+        private let handle: FileHandle
+        
+        init(url: URL) throws {
+            if FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.removeItem(at: url)
+            }
+            FileManager.default.createFile(atPath: url.path, contents: nil)
+            self.handle = try FileHandle(forWritingTo: url)
+        }
+        
+        func write(data: Data, at offset: UInt64) throws {
+            try handle.seek(toOffset: offset)
+            try handle.write(contentsOf: data)
+        }
+        
+        func close() throws {
+            try handle.close()
+        }
     }
     
     func upload(sftp: SFTPClient, localURL: URL, remotePath: String) async throws {
@@ -188,44 +263,23 @@ class SFTPService {
         let handle = try await sftp.openFile(filePath: remotePath, flags: [.write, .create, .truncate])
         defer { Task { try? await handle.close() } }
         
-        // Optimized Concurrent Pipelined Upload
-        let chunkSize = 128 * 1024 
-        let pipelineDepth = 12
+        // Sequential streaming upload with throttled UI updates.
+        let chunkSize = 512 * 1024
         var bytesWritten: Int64 = 0
-        
-        try await withThrowingTaskGroup(of: Int64.self) { group in
-            var readOffset: UInt64 = 0
-            
-            // Initial fill
-            for _ in 0..<pipelineDepth {
-                if let data = try localHandle.read(upToCount: chunkSize), !data.isEmpty {
-                    let currentOffset = readOffset
-                    let buffer = ByteBuffer(data: data)
-                    let count = Int64(data.count)
-                    group.addTask {
-                        try await handle.write(buffer, at: currentOffset)
-                        return count
-                    }
-                    readOffset += UInt64(count)
-                }
-            }
-            
-            // Drain and refill
-            while let written = try await group.next() {
-                bytesWritten += written
+        var offset: UInt64 = 0
+        var lastProgressUpdate = Date.distantPast
+
+        while let data = try localHandle.read(upToCount: chunkSize), !data.isEmpty {
+            let buffer = ByteBuffer(data: data)
+            try await handle.write(buffer, at: offset)
+            bytesWritten += Int64(data.count)
+            offset += UInt64(data.count)
+
+            let now = Date()
+            if now.timeIntervalSince(lastProgressUpdate) >= 0.15 || bytesWritten == totalSize {
+                lastProgressUpdate = now
                 let progress = totalSize > 0 ? Double(bytesWritten) / Double(totalSize) : 0
                 TransferManager.shared.updateTask(id: taskID, progress: progress, transferredSize: bytesWritten)
-                
-                if let data = try localHandle.read(upToCount: chunkSize), !data.isEmpty {
-                    let currentOffset = readOffset
-                    let buffer = ByteBuffer(data: data)
-                    let count = Int64(data.count)
-                    group.addTask {
-                        try await handle.write(buffer, at: currentOffset)
-                        return count
-                    }
-                    readOffset += UInt64(count)
-                }
             }
         }
         

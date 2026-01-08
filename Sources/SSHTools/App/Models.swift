@@ -33,6 +33,7 @@ enum ConnectionType: String, Codable, CaseIterable, Identifiable {
     case ssh
     case redis
     case mysql
+    case clickhouse
     
     var id: String { self.rawValue }
     var icon: String {
@@ -40,6 +41,7 @@ enum ConnectionType: String, Codable, CaseIterable, Identifiable {
         case .ssh: return "terminal.fill"
         case .redis: return "cylinder.split.1x2.fill"
         case .mysql: return "server.rack"
+        case .clickhouse: return "server.rack"
         }
     }
 }
@@ -88,6 +90,16 @@ class RemoteFile: Identifiable, ObservableObject {
     }
 }
 
+struct SSHAuthProfile: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var alias: String
+    var username: String
+    var useKey: Bool = true
+    var keyPath: String = ""
+    var password: String = "" // In a real app, use Keychain. For this prototype, we follow existing pattern.
+    var keyPassphrase: String = ""
+}
+
 struct SSHConnection: Identifiable, Codable, Hashable {
     var id = UUID()
     var type: ConnectionType = .ssh
@@ -100,6 +112,9 @@ struct SSHConnection: Identifiable, Codable, Hashable {
     var database: String = ""
     var redisDB: Int = 0
     
+    // Auth Profile Reference
+    var authProfileId: UUID? = nil
+    
     // In-memory only, not persisted to UserDefaults
     var password: String = ""
     var keyPassphrase: String = ""
@@ -109,7 +124,45 @@ struct SSHConnection: Identifiable, Codable, Hashable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, type, name, host, port, username, useKey, keyPath, database, redisDB, password, keyPassphrase
+        case id, type, name, host, port, username, useKey, keyPath, database, redisDB, authProfileId, password, keyPassphrase
+    }
+}
+
+extension SSHConnection {
+    // Helper to get effective credentials (from profile or manual)
+    var effectiveUsername: String {
+        if let profileId = authProfileId, let profile = AuthProfileManager.shared.profiles.first(where: { $0.id == profileId }) {
+            return profile.username
+        }
+        return username
+    }
+    
+    var effectiveUseKey: Bool {
+        if let profileId = authProfileId, let profile = AuthProfileManager.shared.profiles.first(where: { $0.id == profileId }) {
+            return profile.useKey
+        }
+        return useKey
+    }
+    
+    var effectiveKeyPath: String {
+        if let profileId = authProfileId, let profile = AuthProfileManager.shared.profiles.first(where: { $0.id == profileId }) {
+            return profile.keyPath
+        }
+        return keyPath
+    }
+    
+    var effectivePassword: String {
+        if let profileId = authProfileId, let profile = AuthProfileManager.shared.profiles.first(where: { $0.id == profileId }) {
+            return profile.password
+        }
+        return password
+    }
+    
+    var effectiveKeyPassphrase: String {
+        if let profileId = authProfileId, let profile = AuthProfileManager.shared.profiles.first(where: { $0.id == profileId }) {
+            return profile.keyPassphrase
+        }
+        return keyPassphrase
     }
 }
 

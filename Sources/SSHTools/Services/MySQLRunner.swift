@@ -30,7 +30,7 @@ class MySQLRunner: ObservableObject {
     
     private func getCachedPool(connection: SSHConnection, database: String? = nil) -> EventLoopGroupConnectionPool<MySQLConnectionSource> {
         let db = database ?? (connection.database.isEmpty ? nil : connection.database)
-        let poolKey = "\(connection.host):\(connection.port):\(connection.username):\(db ?? "none")"
+        let poolKey = "\(connection.host):\(connection.port):\(connection.effectiveUsername):\(db ?? "none")"
         
         lock.lock()
         defer { lock.unlock() }
@@ -43,8 +43,8 @@ class MySQLRunner: ObservableObject {
         let config = MySQLConfiguration(
             hostname: connection.host,
             port: port,
-            username: connection.username,
-            password: connection.password,
+            username: connection.effectiveUsername,
+            password: connection.effectivePassword,
             database: db,
             tlsConfiguration: .none
         )

@@ -15,7 +15,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/vapor/mysql-kit.git", from: "4.0.0"),
         .package(url: "https://github.com/orlandos-nl/Citadel.git", from: "0.11.1"),
-        .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", from: "1.0.0"),
+        .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", from: "1.5.1"),
         .package(url: "https://github.com/swift-server/RediStack.git", from: "1.0.0"),
     ],
     targets: [

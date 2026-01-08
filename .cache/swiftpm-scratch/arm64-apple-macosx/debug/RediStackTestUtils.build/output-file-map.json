@@ -1,0 +1,47 @@
+{
+  "": {
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/master.swiftdeps"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/RediStack/Sources/RediStackTestUtils/EmbeddedMockRedisServer.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/EmbeddedMockRedisServer.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/EmbeddedMockRedisServer.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/EmbeddedMockRedisServer~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/EmbeddedMockRedisServer.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/EmbeddedMockRedisServer.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/RediStack/Sources/RediStackTestUtils/Extensions/General.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/General.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/General.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/General~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/General.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/General.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/RediStack/Sources/RediStackTestUtils/Extensions/RediStack.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RediStack.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RediStack.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RediStack~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RediStack.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RediStack.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/RediStack/Sources/RediStackTestUtils/RedisConnectionPoolIntegrationTestCase.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisConnectionPoolIntegrationTestCase.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisConnectionPoolIntegrationTestCase.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisConnectionPoolIntegrationTestCase~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisConnectionPoolIntegrationTestCase.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisConnectionPoolIntegrationTestCase.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/RediStack/Sources/RediStackTestUtils/RedisIntegrationTestCase.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisIntegrationTestCase.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisIntegrationTestCase.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisIntegrationTestCase~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisIntegrationTestCase.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/RedisIntegrationTestCase.dia"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/RediStack/Sources/RediStackTestUtils/_Deprecations.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/_Deprecations.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/_Deprecations.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/_Deprecations~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/_Deprecations.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/RediStackTestUtils.build/_Deprecations.dia"
+  }
+}

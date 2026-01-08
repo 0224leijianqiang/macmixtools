@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/NIO.build/master.swiftdeps"
+  },
+  "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/swift-nio/Sources/NIO/Exports.swift": {
+    "dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/NIO.build/Exports.d",
+    "object": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/NIO.build/Exports.swift.o",
+    "swiftmodule": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/NIO.build/Exports~partial.swiftmodule",
+    "swift-dependencies": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/NIO.build/Exports.swiftdeps",
+    "diagnostics": "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/NIO.build/Exports.dia"
+  }
+}

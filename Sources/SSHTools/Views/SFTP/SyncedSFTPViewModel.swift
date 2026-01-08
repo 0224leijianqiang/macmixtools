@@ -21,6 +21,7 @@ class SyncedSFTPViewModel: ObservableObject {
     @Published var selectedFileIds = Set<UUID>()
     @Published var showHiddenFiles = false
     @Published var searchText = ""
+    @Published private(set) var filesRevision: UInt64 = 0
     
     // Editor State
     @Published var activeEditorFile: RemoteFile?
@@ -33,33 +34,46 @@ class SyncedSFTPViewModel: ObservableObject {
     
     private var rawFiles: [RemoteFile] = []
     private var cancellables = Set<AnyCancellable>()
+    private var refreshTask: Task<Void, Never>?
+    private var refreshGeneration: UInt64 = 0
+    private let refreshRequests = PassthroughSubject<Void, Never>()
+    private var lastListedPath: String?
     
     init(runner: SSHRunner, path: String, onNavigate: @escaping (String) -> Void) {
         self.runner = runner
         self.path = path.isEmpty ? "/" : path
         self.onNavigate = onNavigate
+
+        // Debounce refresh requests so rapid `cd`/navigation doesn't spam listDirectory calls.
+        refreshRequests
+            .debounce(for: .milliseconds(180), scheduler: RunLoop.main)
+            .sink { [weak self] in
+                self?.refreshNow()
+            }
+            .store(in: &cancellables)
         
         // Observe SFTP connection
         runner.$sftp
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sftp in
                 if sftp != nil {
-                    self?.refresh()
+                    self?.requestRefresh()
                 }
             }
             .store(in: &cancellables)
             
         // Observe current path changes from the runner (Terminal)
         runner.$currentPath
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] newPath in
+            .map { newPath in newPath.isEmpty ? "/" : newPath }
+            .removeDuplicates()
+            .debounce(for: .milliseconds(150), scheduler: RunLoop.main)
+            .sink { [weak self] cleanPath in
                 guard let self = self else { return }
-                let cleanPath = newPath.isEmpty ? "/" : newPath
                 if self.path != cleanPath {
                     Logger.log("SFTP: Syncing path from terminal: \(cleanPath)", level: .info)
                     self.path = cleanPath
-                    self.refresh()
                 }
+                self.requestRefresh()
             }
             .store(in: &cancellables)
             
@@ -73,6 +87,7 @@ class SyncedSFTPViewModel: ObservableObject {
     }
     
     deinit {
+        refreshTask?.cancel()
         // We don't disconnect the runner here because it's shared with terminal in this context,
         // but if it were a standalone SFTP tab, we would.
         // However, we should release the reference count if it was incremented.
@@ -86,6 +101,12 @@ class SyncedSFTPViewModel: ObservableObject {
             sortField = field
             sortAscending = true
         }
+        applyFiltersAndSort()
+    }
+
+    func setSort(field: SortField, ascending: Bool) {
+        sortField = field
+        sortAscending = ascending
         applyFiltersAndSort()
     }
     
@@ -111,7 +132,14 @@ class SyncedSFTPViewModel: ObservableObject {
             case .name:
                 result = lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
             case .size:
-                result = lhs.size.localizedStandardCompare(rhs.size) == .orderedAscending
+                // Sort by numeric bytes for files; fall back to name for ties / directories.
+                if lhs.isDirectory && rhs.isDirectory {
+                    result = lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+                } else if lhs.rawSize != rhs.rawSize {
+                    result = lhs.rawSize < rhs.rawSize
+                } else {
+                    result = lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+                }
             case .date:
                 result = lhs.date.localizedStandardCompare(rhs.date) == .orderedAscending
             }
@@ -119,29 +147,55 @@ class SyncedSFTPViewModel: ObservableObject {
         }
         
         self.files = sorted
+        self.filesRevision &+= 1
     }
     
     func refresh() {
+        requestRefresh(immediate: true)
+    }
+
+    private func requestRefresh(immediate: Bool = false) {
+        if immediate {
+            refreshNow()
+        } else {
+            refreshRequests.send()
+        }
+    }
+
+    private func refreshNow() {
         guard let sftp = runner.sftp else {
             errorMessage = "SFTP not connected"
             return
         }
+
+        refreshTask?.cancel()
+        refreshGeneration &+= 1
+        let gen = refreshGeneration
+        let requestedPath = self.path
+        Logger.log("SFTP: refreshNow gen=\(gen) path=\(requestedPath)", level: .debug)
         
         isLoading = true
         errorMessage = nil
-        selectedFileIds.removeAll()
+        if lastListedPath != requestedPath {
+            selectedFileIds.removeAll()
+        }
         
-        Task { [weak self] in
-            guard let self = self else { return }
+        refreshTask = Task { [weak self] in
+            guard let self else { return }
             do {
-                let mappedFiles = try await SFTPService.shared.listDirectory(sftp: sftp, at: self.path)
+                let mappedFiles = try await SFTPService.shared.listDirectory(sftp: sftp, at: requestedPath)
+                if Task.isCancelled { return }
                 await MainActor.run {
+                    guard gen == self.refreshGeneration else { return }
                     self.rawFiles = mappedFiles
+                    self.lastListedPath = requestedPath
                     self.applyFiltersAndSort()
                     self.isLoading = false
                 }
             } catch {
+                if Task.isCancelled { return }
                 await MainActor.run {
+                    guard gen == self.refreshGeneration else { return }
                     self.errorMessage = "Failed to list files: \(error.localizedDescription)"
                     self.isLoading = false
                 }
@@ -167,9 +221,10 @@ class SyncedSFTPViewModel: ObservableObject {
                 }
             }
             
+            let deletedCount = successCount
             await MainActor.run {
-                if successCount > 0 {
-                    ToastManager.shared.show(message: "Deleted \(successCount) items", type: .success)
+                if deletedCount > 0 {
+                    ToastManager.shared.show(message: "Deleted \(deletedCount) items", type: .success)
                     self.refresh()
                 }
             }

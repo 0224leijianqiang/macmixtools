@@ -63,6 +63,32 @@ class SettingsManager: ObservableObject {
             UserDefaults.standard.set(userTheme.rawValue, forKey: "user_theme")
         }
     }
+
+    /// SFTP download chunk size in MB (tunable for throughput vs memory/latency).
+    @Published var sftpDownloadChunkMB: Int {
+        didSet {
+            UserDefaults.standard.set(sftpDownloadChunkMB, forKey: "sftp_download_chunk_mb")
+        }
+    }
+    
+    // MARK: - Proxy Settings
+    @Published var enableLocalProxy: Bool {
+        didSet {
+            UserDefaults.standard.set(enableLocalProxy, forKey: "enable_local_proxy")
+        }
+    }
+    
+    @Published var localProxyHost: String {
+        didSet {
+            UserDefaults.standard.set(localProxyHost, forKey: "local_proxy_host")
+        }
+    }
+    
+    @Published var localProxyPort: String {
+        didSet {
+            UserDefaults.standard.set(localProxyPort, forKey: "local_proxy_port")
+        }
+    }
     
     init() {
         self.defaultDownloadPath = UserDefaults.standard.string(forKey: AppConstants.StorageKeys.defaultDownloadPath) ?? ""
@@ -78,6 +104,19 @@ class SettingsManager: ObservableObject {
         
         let savedTheme = UserDefaults.standard.string(forKey: "user_theme") ?? AppTheme.system.rawValue
         self.userTheme = AppTheme(rawValue: savedTheme) ?? .system
+
+        let savedChunk = UserDefaults.standard.integer(forKey: "sftp_download_chunk_mb")
+        self.sftpDownloadChunkMB = savedChunk <= 0 ? 4 : savedChunk
+        
+        self.enableLocalProxy = UserDefaults.standard.bool(forKey: "enable_local_proxy")
+        self.localProxyHost = UserDefaults.standard.string(forKey: "local_proxy_host") ?? "127.0.0.1"
+        self.localProxyPort = UserDefaults.standard.string(forKey: "local_proxy_port") ?? "7890"
+    }
+
+    var sftpDownloadChunkBytes: UInt32 {
+        // Clamp to a reasonable range so users can't accidentally set something huge.
+        let mb = min(max(sftpDownloadChunkMB, 1), 16)
+        return UInt32(mb) * 1024 * 1024
     }
     
     func selectDownloadDirectory() {

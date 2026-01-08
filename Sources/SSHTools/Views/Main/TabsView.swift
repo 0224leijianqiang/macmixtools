@@ -39,10 +39,13 @@ struct TabsView: View {
                             .font(DesignSystem.Typography.headline)
                             .foregroundColor(DesignSystem.Colors.textSecondary)
                     }
-                } else if let selectedID = tabManager.selectedTabID,
-                          let selectedTab = tabManager.tabs.first(where: { $0.id == selectedID }) {
-                    TabContentView(tab: selectedTab, connections: $connections, tabManager: tabManager)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ForEach(tabManager.tabs) { tab in
+                        TabContentView(tab: tab, connections: $connections, tabManager: tabManager)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .opacity(tabManager.selectedTabID == tab.id ? 1 : 0)
+                            .allowsHitTesting(tabManager.selectedTabID == tab.id)
+                    }
                 }
             }
         }
@@ -113,6 +116,8 @@ struct TabContentView: View {
                 }
             }
         case .mysql(let connection):
+            MySQLView(connection: connection)
+        case .clickhouse(let connection):
             MySQLView(connection: connection)
         case .httpClient:
             HTTPToolView()

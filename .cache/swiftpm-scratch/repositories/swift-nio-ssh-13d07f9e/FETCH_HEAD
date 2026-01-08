@@ -1,0 +1,32 @@
+c997b6b12b8ef51a9b50701d98e3fab250d9a044	not-for-merge	branch 'citadel2' of https://github.com/Joannis/swift-nio-ssh
+f5e22a8fc911cb552e61f339c81a79fbd0ad83b9	not-for-merge	branch 'feature/jo-usernames' of https://github.com/Joannis/swift-nio-ssh
+282f9b75d66fae85dd80bf900ff41c74060bb1e2	not-for-merge	branch 'jo-rsa-private-keys' of https://github.com/Joannis/swift-nio-ssh
+a00502fa4f48f6c7b13639e97efd280189294fb5	not-for-merge	branch 'jo-sanity-checks-missing-swiftformat' of https://github.com/Joannis/swift-nio-ssh
+ce71d29c844e11dc48c48c68f94ab8ebe2108acc	not-for-merge	branch 'jo-ssh-packet-limits' of https://github.com/Joannis/swift-nio-ssh
+546f78f45d299683ff2a0a25c9d2ee9ca9bf7b6e	not-for-merge	branch 'jo-unknown-global-requests' of https://github.com/Joannis/swift-nio-ssh
+eb4355b94c3acfef24b4623003eb37ffec08a5d9	not-for-merge	branch 'main' of https://github.com/Joannis/swift-nio-ssh
+5181b30eeb832313e756dd31af2d9e71233e59e9	not-for-merge	branch 'master' of https://github.com/Joannis/swift-nio-ssh
+e863512ba71b5409e7c775dcff5c1b595979d866	not-for-merge	'refs/pull/1/head' of https://github.com/Joannis/swift-nio-ssh
+ab9c6b7c11ee68c60666b6349275bec15c5d853e	not-for-merge	'refs/pull/10/head' of https://github.com/Joannis/swift-nio-ssh
+79ba5b400b4a5153de6c659450a37ae405d4e802	not-for-merge	'refs/pull/11/head' of https://github.com/Joannis/swift-nio-ssh
+bef0e13379f715a3e95470a277ca367ed577be50	not-for-merge	'refs/pull/2/head' of https://github.com/Joannis/swift-nio-ssh
+ab7af52ac23275fe47c118b59e0c35ff58e2bc07	not-for-merge	'refs/pull/3/head' of https://github.com/Joannis/swift-nio-ssh
+843b70790db928d999372afdb55182955b768bdb	not-for-merge	'refs/pull/4/head' of https://github.com/Joannis/swift-nio-ssh
+907f91a64bd50a4f35290ef76374ee073a8fe902	not-for-merge	'refs/pull/5/head' of https://github.com/Joannis/swift-nio-ssh
+45f1a9c5b6cb529c44c110038aee32c8d00ceeb9	not-for-merge	'refs/pull/6/head' of https://github.com/Joannis/swift-nio-ssh
+86e2af5818135d7d6bbcf69cbe979ec6383fce2a	not-for-merge	'refs/pull/7/head' of https://github.com/Joannis/swift-nio-ssh
+70eab032065a768c3a2c6c883788fdfdb84996b2	not-for-merge	'refs/pull/7/merge' of https://github.com/Joannis/swift-nio-ssh
+51359a578a6d285a5859118e6a9a854c02104c52	not-for-merge	'refs/pull/8/head' of https://github.com/Joannis/swift-nio-ssh
+daea1ae7a71fa3d58c97ebdb4f8a0820f289ccc7	not-for-merge	'refs/pull/9/head' of https://github.com/Joannis/swift-nio-ssh
+5fce512197609f397d823f08593baa497a270114	not-for-merge	tag '0.0.1' of https://github.com/Joannis/swift-nio-ssh
+5760fccf453116606954f0ca21b9cfa25131d924	not-for-merge	tag '0.1.0' of https://github.com/Joannis/swift-nio-ssh
+e4623788946a4b9f34a01185f71c3debdfe25bf9	not-for-merge	tag '0.2.0' of https://github.com/Joannis/swift-nio-ssh
+b6bd90eb55df00e07e2d62be2492d2a0690a9a30	not-for-merge	tag '0.2.1' of https://github.com/Joannis/swift-nio-ssh
+2c03c37aaa9a883b2b41dfcb9aa8c1856cd17433	not-for-merge	tag '0.2.3' of https://github.com/Joannis/swift-nio-ssh
+d5fc603de485eca5a1e657361e3a8452875d108b	not-for-merge	tag '0.3.0' of https://github.com/Joannis/swift-nio-ssh
+70506c0345480a9070ef71b58cff2b3f3e6a7662	not-for-merge	tag '0.3.1' of https://github.com/Joannis/swift-nio-ssh
+01e03b888734b03f1005b0ca329d7b5af50208e7	not-for-merge	tag '0.3.2' of https://github.com/Joannis/swift-nio-ssh
+0b3992e7acfdbf765aecd5e20bd8831d33d42453	not-for-merge	tag '0.3.3' of https://github.com/Joannis/swift-nio-ssh
+b93961a2988607a756cbc21a811f406f27aa9ab6	not-for-merge	tag '0.3.4' of https://github.com/Joannis/swift-nio-ssh
+791437a67f5394b13060314c778c0f63124803b1	not-for-merge	tag '0.3.5' of https://github.com/Joannis/swift-nio-ssh
+c997b6b12b8ef51a9b50701d98e3fab250d9a044	not-for-merge	tag '0.4.0' of https://github.com/Joannis/swift-nio-ssh

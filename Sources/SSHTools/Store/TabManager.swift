@@ -7,6 +7,7 @@ enum TabContent: Identifiable, Equatable {
     case sftp(SSHConnection)
     case redis(SSHConnection)
     case mysql(SSHConnection)
+    case clickhouse(SSHConnection)
     case httpClient
     case devToolbox
     
@@ -17,6 +18,7 @@ enum TabContent: Identifiable, Equatable {
         case .sftp(let conn): return "sftp_\(conn.id)"
         case .redis(let conn): return "redis_\(conn.id)"
         case .mysql(let conn): return "mysql_\(conn.id)"
+        case .clickhouse(let conn): return "clickhouse_\(conn.id)"
         case .httpClient: return "http_client"
         case .devToolbox: return "dev_toolbox"
         }
@@ -29,6 +31,7 @@ enum TabContent: Identifiable, Equatable {
         case .sftp(let conn): return conn.id
         case .redis(let conn): return conn.id
         case .mysql(let conn): return conn.id
+        case .clickhouse(let conn): return conn.id
         }
     }
     
@@ -39,6 +42,7 @@ enum TabContent: Identifiable, Equatable {
         case .sftp(let conn): return "SFTP".localized + ": \(conn.name)"
         case .redis(let conn): return "Redis".localized + ": \(conn.name)"
         case .mysql(let conn): return "MySQL: \(conn.name)"
+        case .clickhouse(let conn): return "ClickHouse: \(conn.name)"
         case .httpClient: return "HTTP Client".localized
         case .devToolbox: return "Dev Toolbox".localized
         }
@@ -51,6 +55,7 @@ enum TabContent: Identifiable, Equatable {
         case .sftp(_): return "folder"
         case .redis: return "cylinder.split.1x2"
         case .mysql: return "server.rack"
+        case .clickhouse: return "server.rack"
         case .httpClient: return "network"
         case .devToolbox: return "wrench.and.screwdriver.fill"
         }
@@ -166,6 +171,10 @@ class TabManager: ObservableObject {
         case .mysql(_):
             // Future optimization for MySQL
             break
+
+        case .clickhouse(_):
+            // Future optimization for ClickHouse
+            break
             
         case .home, .httpClient, .devToolbox:
             // No specific cleanup needed for static tools
@@ -190,6 +199,8 @@ class TabManager: ObservableObject {
                     newContent = .redis(updatedConnection)
                 case .mysql:
                     newContent = .mysql(updatedConnection)
+                case .clickhouse:
+                    newContent = .clickhouse(updatedConnection)
                 }
                 
                 let updatedTab = TabItem(id: tab.id, content: newContent)

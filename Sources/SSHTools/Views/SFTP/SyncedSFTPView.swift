@@ -112,71 +112,6 @@ struct SyncedSFTPView: View {
             .frame(height: 36)
             .background(DesignSystem.Colors.surface)
             
-            // Selection Bar (Only shows when multiple items selected)
-            if !viewModel.selectedFileIds.isEmpty {
-                HStack {
-                    Text("\(viewModel.selectedFileIds.count) items selected".localized)
-                        .font(.caption.bold())
-                    Spacer()
-                    Button("Download".localized) { viewModel.downloadSelectedFiles() }
-                        .buttonStyle(.link)
-                    Button("Delete".localized) {
-                        ErrorHandler.showConfirmation("Delete selected files?".localized) { confirmed in
-                            if confirmed { viewModel.deleteSelectedFiles() }
-                        }
-                    }
-                    .buttonStyle(.link)
-                    .foregroundColor(.red)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-                .background(DesignSystem.Colors.blue.opacity(0.1))
-            }
-            
-            // Table Header
-            HStack(spacing: 12) {
-                Button(action: { viewModel.toggleSort(field: .name) }) {
-                    HStack {
-                        Text("Name".localized)
-                        SortIndicator(field: .name, currentField: viewModel.sortField, ascending: viewModel.sortAscending)
-                    }
-                }
-                .buttonStyle(.plain)
-                .frame(minWidth: 100, maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 28) // Alignment with icon + text
-                
-                Text("Permissions".localized)
-                    .frame(width: 85, alignment: .leading)
-                
-                Text("Owner".localized)
-                    .frame(width: 80, alignment: .leading)
-                
-                Button(action: { viewModel.toggleSort(field: .size) }) {
-                    HStack {
-                        Text("Size".localized)
-                        SortIndicator(field: .size, currentField: viewModel.sortField, ascending: viewModel.sortAscending)
-                    }
-                }
-                .buttonStyle(.plain)
-                .frame(width: 70, alignment: .trailing)
-                
-                Button(action: { viewModel.toggleSort(field: .date) }) {
-                    HStack {
-                        Text("Date".localized)
-                        SortIndicator(field: .date, currentField: viewModel.sortField, ascending: viewModel.sortAscending)
-                    }
-                }
-                .buttonStyle(.plain)
-                .frame(width: 120, alignment: .trailing)
-                
-                Spacer().frame(width: 80) // Spacer for actions column
-            }
-            .font(.system(size: 11, weight: .bold))
-            .foregroundColor(.secondary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(DesignSystem.Colors.surfaceSecondary.opacity(0.5))
-            
             if let error = viewModel.errorMessage {
                 Text(error)
                     .foregroundColor(.red)
@@ -184,31 +119,7 @@ struct SyncedSFTPView: View {
                     .padding()
                 Spacer()
             } else {
-                List {
-                    ForEach(viewModel.files) { file in
-                        FileRowView(file: file,
-                                    path: viewModel.path,
-                                    isSelected: viewModel.selectedFileIds.contains(file.id),
-                                    onDownload: { viewModel.download(file: file) },
-                                    onEdit: { _ in viewModel.editFile(file) },
-                                    onNavigate: self.onNavigate,
-                                    onRename: { newName in viewModel.renameFile(file, to: newName) },
-                                    onShowRename: {
-                                        viewModel.activeRenameFile = file
-                                        viewModel.isRenameOpen = true
-                                    },
-                                    onSelect: {
-                                        if viewModel.selectedFileIds.contains(file.id) {
-                                            viewModel.selectedFileIds.remove(file.id)
-                                        } else {
-                                            viewModel.selectedFileIds.insert(file.id)
-                                        }
-                                    },
-                                    onDelete: { viewModel.deleteFile(file) })
-                        .tag(file.id)
-                    }
-                }
-                .listStyle(.plain)
+                SFTPTableView(viewModel: viewModel, onNavigate: onNavigate)
                 .safeAreaInset(edge: .bottom) {
                     Color.clear.frame(height: 10) // Reduced to 10pt
                 }
@@ -255,7 +166,6 @@ struct SyncedSFTPView: View {
             if self.editedPath != newPath {
                 self.editedPath = newPath
             }
-            viewModel.refresh()
         }
         .onAppear {
             viewModel.refresh()
@@ -289,9 +199,6 @@ struct StandaloneSFTPView: View {
         .onAppear {
             runner.connect(connection: connection)
         }
-        .onDisappear {
-            runner.disconnect()
-        }
         .background(DesignSystem.Colors.background)
     }
 }
@@ -300,24 +207,18 @@ struct FileRowView: View {
     @ObservedObject var file: RemoteFile
     let path: String
     let isSelected: Bool
+    let selectionCount: Int
     let onDownload: () -> Void
     let onEdit: (String) -> Void
     let onNavigate: (String) -> Void
     let onRename: (String) -> Void
     let onShowRename: () -> Void
-    let onSelect: () -> Void
+    let onDownloadSelected: () -> Void
+    let onDeleteSelected: () -> Void
     let onDelete: () -> Void
     
     var body: some View {
         HStack(spacing: 12) {
-            // Selection Checkbox
-            Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                .foregroundColor(isSelected ? .white : .secondary)
-                .font(.system(size: 14))
-                .onTapGesture {
-                    onSelect()
-                }
-            
             Image(systemName: file.isDirectory ? "folder.fill" : "doc")
                 .foregroundColor(file.isDirectory ? DesignSystem.Colors.blue : (isSelected ? .white : DesignSystem.Colors.text))
                 .frame(width: 16)
@@ -367,45 +268,50 @@ struct FileRowView: View {
         }
         .padding(.vertical, 2)
         .padding(.horizontal, 8)
-        .background(isSelected ? DesignSystem.Colors.blue.opacity(0.7) : Color.clear)
-        .cornerRadius(4)
         .contentShape(Rectangle())
-        .onTapGesture {
-            onSelect()
-        }
-        .gesture(TapGesture(count: 2).onEnded {
+        .onTapGesture(count: 2) {
             let fullPath = path.hasSuffix("/") ? path + file.name : path + "/" + file.name
             if file.isDirectory {
                 onNavigate(fullPath)
             }
             // Double-click to edit removed as per user request
-        })
+        }
         .contextMenu {
-            Button(action: onShowRename) {
-                Label("Rename", systemImage: "pencil.and.outline")
-            }
-            
-            Button(action: {
-                let fullPath = path.hasSuffix("/") ? path + file.name : path + "/" + file.name
-                let pasteboard = NSPasteboard.general
-                pasteboard.clearContents()
-                pasteboard.setString(fullPath, forType: .string)
-                ToastManager.shared.show(message: "Path copied".localized, type: .success)
-            }) {
-                Label("Copy Path", systemImage: "doc.on.doc")
-            }
-            
-            Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
-            }
-            
-            if !file.isDirectory {
-                Button(action: { onEdit(path.hasSuffix("/") ? path + file.name : path + "/" + file.name) }) {
-                    Label("Edit", systemImage: "pencil")
+            if selectionCount > 1 {
+                Button(action: onDownloadSelected) {
+                    Label("Download", systemImage: "arrow.down.circle")
                 }
                 
-                Button(action: onDownload) {
-                    Label("Download", systemImage: "arrow.down.circle")
+                Button(role: .destructive, action: onDeleteSelected) {
+                    Label("Delete", systemImage: "trash")
+                }
+            } else {
+                Button(action: onShowRename) {
+                    Label("Rename", systemImage: "pencil.and.outline")
+                }
+                
+                Button(action: {
+                    let fullPath = path.hasSuffix("/") ? path + file.name : path + "/" + file.name
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.setString(fullPath, forType: .string)
+                    ToastManager.shared.show(message: "Path copied".localized, type: .success)
+                }) {
+                    Label("Copy Path", systemImage: "doc.on.doc")
+                }
+                
+                Button(role: .destructive, action: onDelete) {
+                    Label("Delete", systemImage: "trash")
+                }
+                
+                if !file.isDirectory {
+                    Button(action: { onEdit(path.hasSuffix("/") ? path + file.name : path + "/" + file.name) }) {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    
+                    Button(action: onDownload) {
+                        Label("Download", systemImage: "arrow.down.circle")
+                    }
                 }
             }
         }

@@ -15,38 +15,21 @@ struct FileEditorSheet: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Edit: \(fileName)")
-                    .font(DesignSystem.Typography.headline)
-                Spacer()
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(DesignSystem.Spacing.medium)
-            .background(DesignSystem.Colors.surface)
-            
-            Divider()
-            
-            // Editor
-            TextEditor(text: $content)
-                .font(DesignSystem.Typography.monospace)
-                .padding(DesignSystem.Spacing.small)
-                .background(DesignSystem.Colors.surfaceSecondary)
+        SheetScaffold(
+            title: "Edit: \(fileName)",
+            minSize: NSSize(width: 700, height: 500),
+            onClose: { dismiss() }
+        ) {
+            PlainTextEditor(text: $content, font: .monospacedSystemFont(ofSize: 13, weight: .regular), inset: DesignSystem.Spacing.small)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            Divider()
-            
-            // Footer
+                .background(DesignSystem.Colors.surfaceSecondary)
+                .cornerRadius(DesignSystem.Radius.small)
+                .outlined()
+                .padding()
+        } footer: {
             HStack {
-                Button("Cancel") {
-                    dismiss()
-                }
-                .buttonStyle(ModernButtonStyle(variant: .secondary))
+                Button("Cancel") { dismiss() }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
                 
                 Spacer()
                 
@@ -56,9 +39,6 @@ struct FileEditorSheet: View {
                 }
                 .buttonStyle(ModernButtonStyle(variant: .primary))
             }
-            .padding(DesignSystem.Spacing.medium)
-            .background(DesignSystem.Colors.surface)
         }
-        .frame(minWidth: 600, minHeight: 400)
     }
 }

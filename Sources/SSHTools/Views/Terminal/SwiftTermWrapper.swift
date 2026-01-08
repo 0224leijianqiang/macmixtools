@@ -14,45 +14,24 @@ class AppTerminalView: MacTerminalView {
         self.layer?.backgroundColor = NSColor.clear.cgColor
     }
     
-    // Prevent clearing selection on new data (crucial for tail -f)
-    override func linefeed(source: Terminal) {
-        // Essential: call super to ensure cursor moves correctly and scrolling works
-        super.linefeed(source: source)
-    }
-    
     override func validateUserInterfaceItem(_ item: NSValidatedUserInterfaceItem) -> Bool {
         let action = item.action
-        if action == #selector(copy(_:)) {
-            return self.selectionActive
-        }
-        if action == #selector(paste(_:)) {
-            return NSPasteboard.general.canReadItem(withDataConformingToTypes: [NSPasteboard.PasteboardType.string.rawValue])
-        }
-        
+
         // Enable background setting actions
         if action == #selector(selectBackgroundImage(_:)) ||
            action == #selector(selectBackgroundColor(_:)) ||
            action == #selector(resetBackground(_:)) {
             return true
         }
-        
+
+        if action == #selector(toggleMouseReporting(_:)) {
+            return true
+        }
+
         return super.validateUserInterfaceItem(item)
     }
     
-    @objc override func copy(_ sender: Any) {
-        if let selectedText = self.getSelection(), !selectedText.isEmpty {
-            let pasteboard = NSPasteboard.general
-            pasteboard.clearContents()
-            pasteboard.setString(selectedText, forType: .string)
-            ToastManager.shared.show(message: "Copied to clipboard", type: .success)
-        } else {
-            super.copy(sender)
-        }
-    }
-    
-    @objc override func paste(_ sender: Any) {
-        super.paste(sender)
-    }
+    // Manual overrides removed to let SwiftTerm handle them via delegate
     
     @objc func selectBackgroundImage(_ sender: Any) {
         SettingsManager.shared.selectTerminalBackgroundImage()
@@ -78,14 +57,28 @@ class AppTerminalView: MacTerminalView {
         SettingsManager.shared.clearTerminalBackgroundImage()
         SettingsManager.shared.terminalBackgroundColor = ""
     }
+
+    @objc func toggleMouseReporting(_ sender: NSMenuItem) {
+        self.allowMouseReporting.toggle()
+        sender.state = self.allowMouseReporting ? .on : .off
+    }
+}
+
+/// A view that doesn't intercept mouse events (for overlay purposes)
+class NonInteractiveOverlayView: NSView {
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        // Never intercept mouse events - always return nil to pass through
+        return nil
+    }
 }
 
 /// A stable container to isolate SwiftTerm from SwiftUI's layout engine
 class TerminalContainer: NSView {
+    // ... existing properties ...
     let terminalView: AppTerminalView
     private let backgroundImageView = NSImageView()
-    private let overlayView = NSView()
-    private var eventMonitor: Any?
+    private let overlayView = NonInteractiveOverlayView()
+    private var eventMonitors: [Any] = []
     private var cancellables = Set<AnyCancellable>()
     
     init(terminalView: AppTerminalView) {
@@ -93,14 +86,22 @@ class TerminalContainer: NSView {
         super.init(frame: NSRect(x: 0, y: 0, width: 600, height: 400))
         
         setupViews()
-        setupEventMonitor()
+        setupFocusMonitor()
         setupSettingsObservation()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    deinit {
+        for monitor in eventMonitors {
+            NSEvent.removeMonitor(monitor)
+        }
+        eventMonitors.removeAll()
+    }
+
+    // ... setupViews ...
     private func setupViews() {
         self.wantsLayer = true
         self.layer?.backgroundColor = NSColor.black.cgColor
@@ -116,31 +117,37 @@ class TerminalContainer: NSView {
         overlayView.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.4).cgColor
         overlayView.frame = self.bounds
         overlayView.autoresizingMask = [.height, .width]
+        // Critical: Make overlayView ignore mouse events so it doesn't block terminal selection
+        overlayView.isHidden = false
         self.addSubview(overlayView)
         
-        // 3. Terminal View
+        // 3. Terminal View (must be on top to receive mouse events)
         terminalView.frame = self.bounds
         terminalView.autoresizingMask = [.height, .width]
         
         self.addSubview(terminalView)
     }
-    
-    override func mouseDown(with event: NSEvent) {
-        self.window?.makeFirstResponder(self.terminalView)
-        super.mouseDown(with: event)
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        // overlayView is now NonInteractiveOverlayView which returns nil from hitTest
+        // So it won't intercept events, but we still check to be safe
+        let view = super.hitTest(point)
+        return view
     }
-    
-    private func setupEventMonitor() {
-        // Intercept Command+C before it reaches terminalView and clears selection
-        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self = self, self.window?.firstResponder == self.terminalView else { return event }
-            
-            if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "c" {
-                self.terminalView.copy(self)
-                return nil // Swallow the event
+
+    private func setupFocusMonitor() {
+        let focusMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self else { return event }
+            guard self.window?.windowNumber == event.windowNumber else { return event }
+
+            let local = self.terminalView.convert(event.locationInWindow, from: nil)
+            if self.terminalView.bounds.contains(local) {
+                self.window?.makeFirstResponder(self.terminalView)
             }
             return event
         }
+
+        if let focusMonitor { eventMonitors.append(focusMonitor) }
     }
     
     private func setupSettingsObservation() {
@@ -239,6 +246,9 @@ struct SwiftTermView: NSViewRepresentable {
             // but we can ensure standard behavior.
             terminalView.terminal.options = options
         }
+
+        // Prefer selection/copy over mouse-reporting-by-default (tmux/vim can otherwise hijack drags).
+        terminalView.allowMouseReporting = false
         
         terminalView.terminalDelegate = context.coordinator
         
@@ -247,9 +257,28 @@ struct SwiftTermView: NSViewRepresentable {
         
         // Context Menu
         let menu = NSMenu()
-        menu.addItem(withTitle: "Copy".localized, action: #selector(AppTerminalView.copy(_:)), keyEquivalent: "c")
-        menu.addItem(withTitle: "Paste".localized, action: #selector(AppTerminalView.paste(_:)), keyEquivalent: "v")
+        let copyItem = NSMenuItem(title: "Copy".localized, action: #selector(AppTerminalView.copy(_:)), keyEquivalent: "c")
+        copyItem.target = terminalView
+        menu.addItem(copyItem)
         
+        let pasteItem = NSMenuItem(title: "Paste".localized, action: #selector(AppTerminalView.paste(_:)), keyEquivalent: "v")
+        pasteItem.target = terminalView
+        menu.addItem(pasteItem)
+
+        let selectAllItem = NSMenuItem(title: "Select All".localized, action: #selector(AppTerminalView.selectAll(_:)), keyEquivalent: "a")
+        selectAllItem.target = terminalView
+        menu.addItem(selectAllItem)
+        
+        menu.addItem(NSMenuItem.separator())
+
+        let mouseReportingItem = NSMenuItem(
+            title: "Mouse Reporting".localized,
+            action: #selector(AppTerminalView.toggleMouseReporting(_:)),
+            keyEquivalent: ""
+        )
+        mouseReportingItem.target = terminalView
+        mouseReportingItem.state = terminalView.allowMouseReporting ? .on : .off
+        menu.addItem(mouseReportingItem)
         menu.addItem(NSMenuItem.separator())
         
         let bgMenu = NSMenuItem(title: "Appearance".localized, action: nil, keyEquivalent: "")
@@ -287,7 +316,7 @@ struct SwiftTermView: NSViewRepresentable {
         terminalView.menu = menu
         
         DispatchQueue.main.async {
-            runner.terminalView = terminalView
+            runner.terminalOutput = terminalView
         }
         
         return container

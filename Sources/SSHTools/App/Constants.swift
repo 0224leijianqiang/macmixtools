@@ -7,6 +7,7 @@ enum AppConstants {
         static let ssh = "22"
         static let redis = "6379"
         static let mysql = "3306"
+        static let clickhouse = "8123"
     }
     
     /// 默认路径
@@ -24,7 +25,7 @@ enum AppConstants {
     
     /// Redis 相关
     enum Redis {
-        static let maxDatabases = 16
+        static let maxDatabases = 50
         static let defaultDatabase = 0
         static let scanCount = 100
         static let maxScanCount = 10000
@@ -85,4 +86,3 @@ struct Logger {
     }
     #endif
 }
-

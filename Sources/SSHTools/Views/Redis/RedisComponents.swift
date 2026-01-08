@@ -1,289 +1,9 @@
 import SwiftUI
 
-struct HashEditor: View {
-    let data: [String: String]
-    var onUpdate: (String, String) -> Void
-    var onDelete: (String) -> Void
-    
-    struct HashEditTarget: Identifiable {
-        let id = UUID()
-        let field: String
-        let value: String
-    }
-    
-    @State private var editingTarget: HashEditTarget?
-    @State private var isAdding = false
-    @State private var keySortAscending: Bool? = nil
-    @State private var valueSortAscending: Bool? = nil
-    @State private var searchText: String = ""
-    @State private var debouncedSearchText: String = ""
-    @State private var cachedSortedKeys: [(index: Int, key: String)] = []
-    @State private var lastDataCount: Int = 0
-    @State private var lastKeySort: Bool? = nil
-    @State private var lastValueSort: Bool? = nil
-    
-    private func updateCachedKeys() {
-        let keys = Array(data.keys)
-        var indexed = keys.enumerated().map { ($0.offset + 1, $0.element) }
-        
-        if let keySort = keySortAscending {
-            indexed.sort(by: { item1, item2 in
-                keySort ? item1.1 < item2.1 : item1.1 > item2.1
-            })
-        } else if let valueSort = valueSortAscending {
-            indexed.sort(by: { item1, item2 in
-                let val1 = data[item1.1] ?? ""
-                let val2 = data[item2.1] ?? ""
-                return valueSort ? val1 < val2 : val1 > val2
-            })
-        }
-        
-        if !debouncedSearchText.isEmpty {
-            indexed = indexed.filter { item in
-                item.1.localizedCaseInsensitiveContains(debouncedSearchText) ||
-                (data[item.1] ?? "").localizedCaseInsensitiveContains(debouncedSearchText)
-            }
-        }
-        
-        cachedSortedKeys = indexed
-        lastDataCount = data.count
-        lastKeySort = keySortAscending
-        lastValueSort = valueSortAscending
-    }
-    
-    private var sortedKeysWithIndex: [(index: Int, key: String)] {
-        return cachedSortedKeys
-    }
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // 工具栏
-            HStack {
-                Button(action: { isAdding = true }) {
-                    Label("Add Row", systemImage: "plus")
-                }
-                .buttonStyle(ModernButtonStyle(variant: .primary, size: .small))
-                
-                Spacer() 
-                
-                Button(action: exportToCSV) {
-                    Label("Export CSV", systemImage: "square.and.arrow.down")
-                }
-                .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
-            }
-            .padding(DesignSystem.Spacing.small)
-            .background(DesignSystem.Colors.surface)
-            
-            Divider() 
-            
-            List {
-                // 表头
-                HStack(spacing: 0) {
-                    Text("ID")
-                        .font(DesignSystem.Typography.caption.weight(.bold))
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                        .frame(width: 60, alignment: .leading)
-                        .padding(.leading, DesignSystem.Spacing.medium)
-                    
-                    Divider() 
-                    
-                    HStack {
-                        Text("Key")
-                            .font(DesignSystem.Typography.caption.weight(.bold))
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                        
-                        Button(action: {
-                            if keySortAscending == true { keySortAscending = false }
-                            else { keySortAscending = true }
-                            valueSortAscending = nil
-                        }) {
-                            Image(systemName: keySortAscending == nil ? "arrow.up.arrow.down" : (keySortAscending! ? "arrow.up" : "arrow.down"))
-                                .font(.system(size: 9))
-                                .foregroundColor(keySortAscending != nil ? DesignSystem.Colors.blue : DesignSystem.Colors.textSecondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .frame(width: 200, alignment: .leading)
-                    .padding(.leading, DesignSystem.Spacing.medium)
-                    
-                    Divider() 
-                    
-                    HStack {
-                        Text("Value")
-                            .font(DesignSystem.Typography.caption.weight(.bold))
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                        
-                        Button(action: {
-                            if valueSortAscending == true { valueSortAscending = false }
-                            else { valueSortAscending = true }
-                            keySortAscending = nil
-                        }) {
-                            Image(systemName: valueSortAscending == nil ? "arrow.up.arrow.down" : (valueSortAscending! ? "arrow.up" : "arrow.down"))
-                                .font(.system(size: 9))
-                                .foregroundColor(valueSortAscending != nil ? DesignSystem.Colors.blue : DesignSystem.Colors.textSecondary)
-                        }
-                        .buttonStyle(.plain)
-                        
-                        Spacer() 
-                        
-                        HStack(spacing: DesignSystem.Spacing.tiny) {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 10))
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("Search...", text: $searchText)
-                                .textFieldStyle(.plain)
-                                .font(DesignSystem.Typography.caption)
-                                .frame(width: 120)
-                            if !searchText.isEmpty {
-                                Button(action: { searchText = "" }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 10))
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(DesignSystem.Colors.background.opacity(0.5))
-                        .cornerRadius(DesignSystem.Radius.small)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, DesignSystem.Spacing.medium)
-                    .padding(.trailing, DesignSystem.Spacing.medium)
-                }
-                .frame(height: DesignSystem.Layout.headerHeight)
-                .frame(maxWidth: AppConstants.UI.tableMaxWidth)
-                .background(Color.gray.opacity(0.1))
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowSeparator(.hidden)
-                
-                ForEach(sortedKeysWithIndex, id: \.key) { item in
-                    HStack(spacing: 0) {
-                        Text("\(item.index)")
-                            .font(DesignSystem.Typography.monospace)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                            .frame(width: 60, alignment: .leading)
-                            .padding(.leading, DesignSystem.Spacing.medium)
-                        
-                        Divider() 
-                        
-                        Text(item.key)
-                            .font(DesignSystem.Typography.body)
-                            .frame(width: 200, alignment: .leading)
-                            .padding(.leading, DesignSystem.Spacing.medium)
-                            .lineLimit(1)
-                        
-                        Divider() 
-                        
-                        HStack {
-                            Text(data[item.key] ?? "")
-                                .font(DesignSystem.Typography.body)
-                                .lineLimit(1)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            
-                            HStack(spacing: 12) {
-                            Button(action: {
-                                let pasteboard = NSPasteboard.general
-                                pasteboard.clearContents()
-                                pasteboard.setString(data[item.key] ?? "", forType: .string)
-                            }) {
-                                Image(systemName: "doc.on.doc")
-                            }
-                            .buttonStyle(.plain)
-                            .foregroundColor(DesignSystem.Colors.blue)
-                            .help("Copy Value")
-                            
-                            Button(action: {
-                                editingTarget = HashEditTarget(field: item.key, value: data[item.key] ?? "")
-                            }) {
-                                Image(systemName: "pencil")
-                            }
-                            .buttonStyle(.plain)
-                            .foregroundColor(DesignSystem.Colors.blue)
-                            .help("Edit")
-                            
-                            Button(action: {
-                                onDelete(item.key)
-                            }) {
-                                Image(systemName: "trash")
-                            }
-                            .buttonStyle(.plain)
-                            .foregroundColor(DesignSystem.Colors.pink)
-                            .help("Delete")
-                            }
-                        }
-                        .padding(.leading, DesignSystem.Spacing.medium)
-                        .padding(.trailing, DesignSystem.Spacing.medium)
-                    }
-                    .frame(height: DesignSystem.Layout.rowHeight + 8)
-                    .frame(maxWidth: AppConstants.UI.tableMaxWidth)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowSeparator(.visible)
-                }
-            }
-            .listStyle(.plain)
-        }
-        .onAppear {
-            updateCachedKeys()
-        }
-        .onChange(of: data) { oldValue, _ in
-            updateCachedKeys()
-        }
-        .onChange(of: searchText) { oldValue, newValue in
-            // 防抖处理：延迟更新 debouncedSearchText
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: UInt64(AppConstants.UI.searchDebounceInterval * 1_000_000_000))
-                if debouncedSearchText != newValue {
-                    debouncedSearchText = newValue
-                    updateCachedKeys()
-                }
-            }
-        }
-        .onChange(of: debouncedSearchText) { oldValue, _ in
-            updateCachedKeys()
-        }
-        .onChange(of: keySortAscending) { oldValue, _ in
-            updateCachedKeys()
-        }
-        .onChange(of: valueSortAscending) { oldValue, _ in
-            updateCachedKeys()
-        }
-        .sheet(item: $editingTarget) { target in
-            ValueEditorSheet(
-                mode: .hashField(field: target.field, value: data[target.field] ?? target.value),
-                onSave: { newValue in
-                    onUpdate(target.field, newValue)
-                    editingTarget = nil
-                }
-            )
-        }
-        .sheet(isPresented: $isAdding) {
-            ValueEditorSheet(
-                mode: .hashNewField,
-                onSave: { _ in },
-                onSaveWithField: { fieldName, value in
-                    onUpdate(fieldName, value)
-                    isAdding = false
-                }
-            )
-        }
-    }
-    
-    private func exportToCSV() {
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "hash_export.csv"
-        if panel.runModal() == .OK, let url = panel.url {
-            var csv = "Key,Value\n"
-            for item in sortedKeysWithIndex {
-                let val = data[item.key] ?? ""
-                let escapedKey = item.key.replacingOccurrences(of: "\"", with: "\"\"")
-                let escapedVal = val.replacingOccurrences(of: "\"", with: "\"\"")
-                csv += "\"\(escapedKey)\",\"\(escapedVal)\"\n"
-            }
-            try? csv.write(to: url, atomically: true, encoding: .utf8)
-        }
-    }
+func copyToPasteboard(_ text: String) {
+    let pasteboard = NSPasteboard.general
+    pasteboard.clearContents()
+    pasteboard.setString(text, forType: .string)
 }
 
 struct ListEditor: View {
@@ -403,7 +123,7 @@ struct ListEditor: View {
                     .padding(.trailing, DesignSystem.Spacing.medium)
                 }
                 .frame(height: DesignSystem.Layout.headerHeight)
-                .frame(maxWidth: AppConstants.UI.tableMaxWidth)
+                .frame(maxWidth: .infinity)
                 .background(Color.gray.opacity(0.1))
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listRowSeparator(.hidden)
@@ -422,18 +142,27 @@ struct ListEditor: View {
                             Text(item.value)
                                 .font(DesignSystem.Typography.body)
                                 .lineLimit(1)
+                                .truncationMode(.tail)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                                .layoutPriority(1)
+                                .clipped()
+                                .textSelection(.enabled)
+                                .contextMenu {
+                                    Button("Copy Value") {
+                                        copyToPasteboard(item.value)
+                                    }
+                                }
                             
                             HStack(spacing: 12) {
                                 Button(action: {
-                                    let pasteboard = NSPasteboard.general
-                                    pasteboard.clearContents()
-                                    pasteboard.setString(item.value, forType: .string)
+                                    copyToPasteboard(item.value)
                                 }) {
                                     Image(systemName: "doc.on.doc")
                                 }
                                 .buttonStyle(.plain)
                                 .foregroundColor(DesignSystem.Colors.blue)
+                                .accessibilityLabel("Copy")
+                                .help("Copy Value")
                                 
                                 Button(action: {
                                     editingTarget = ListEditTarget(index: item.index, value: item.value)
@@ -442,19 +171,24 @@ struct ListEditor: View {
                                 }
                                 .buttonStyle(.plain)
                                 .foregroundColor(DesignSystem.Colors.blue)
+                                .accessibilityLabel("Edit")
+                                .help("Edit")
                                 
                                 Button(action: { onDelete?(item.index) }) {
                                     Image(systemName: "trash")
                                 }
                                 .buttonStyle(.plain)
                                 .foregroundColor(DesignSystem.Colors.pink)
+                                .accessibilityLabel("Delete")
+                                .help("Delete")
                             }
+                            .fixedSize(horizontal: true, vertical: false)
                         }
                         .padding(.leading, DesignSystem.Spacing.medium)
                         .padding(.trailing, DesignSystem.Spacing.medium)
                     }
                     .frame(height: DesignSystem.Layout.rowHeight + 8)
-                    .frame(maxWidth: AppConstants.UI.tableMaxWidth)
+                    .frame(maxWidth: .infinity)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .listRowSeparator(.visible)
                 }
@@ -662,9 +396,32 @@ struct SetEditor: View {
                         HStack {
                             Text(item.value)
                                 .font(DesignSystem.Typography.body)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                                .layoutPriority(1)
+                                .clipped()
+                                .textSelection(.enabled)
+                                .contextMenu {
+                                    Button("Copy Member") {
+                                        copyToPasteboard(item.value)
+                                    }
+                                }
                             
                             HStack(spacing: 12) {
+                                Button(action: {
+                                    copyToPasteboard(item.value)
+                                }) {
+                                    Image(systemName: "doc.on.doc")
+                                        .frame(width: 20, height: 20)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .foregroundColor(DesignSystem.Colors.blue)
+                                .padding(4)
+                                .accessibilityLabel("Copy")
+                                .help("Copy")
+                                
                                 Button(action: {
                                     editingTarget = SetEditTarget(value: item.value)
                                 }) {
@@ -675,6 +432,8 @@ struct SetEditor: View {
                                 .buttonStyle(.plain)
                                 .foregroundColor(DesignSystem.Colors.blue)
                                 .padding(4)
+                                .accessibilityLabel("Edit")
+                                .help("Edit")
                                 
                                 Button(action: { 
                                     onDelete(item.value) 
@@ -686,7 +445,10 @@ struct SetEditor: View {
                                 .buttonStyle(.plain)
                                 .foregroundColor(DesignSystem.Colors.pink)
                                 .padding(4)
+                                .accessibilityLabel("Delete")
+                                .help("Delete")
                             }
+                            .fixedSize(horizontal: true, vertical: false)
                         }
                         .padding(.leading, DesignSystem.Spacing.medium)
                         .padding(.trailing, DesignSystem.Spacing.medium)
@@ -873,12 +635,14 @@ struct ZSetEditor: View {
                             }
                             .buttonStyle(.plain)
                             .foregroundColor(DesignSystem.Colors.blue)
+                            .accessibilityLabel("Edit")
                             
                             Button(action: { onDelete(item.member) }) {
                                 Image(systemName: "trash")
                             }
                             .buttonStyle(.plain)
                             .foregroundColor(DesignSystem.Colors.pink)
+                            .accessibilityLabel("Delete")
                         }
                         .padding(.trailing, DesignSystem.Spacing.medium)
                     }
@@ -946,24 +710,34 @@ struct ZSetScoreEditorSheet: View {
     }
     
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.large) {
-            Text("Edit Score for \(member)")
-                .font(DesignSystem.Typography.headline)
-            
-            Text("Current Score: \(String(format: "%.2f", currentScore))")
-                .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.textSecondary)
-            
-            TextField("New Score", value: $newScore, formatter: NumberFormatter())
-                .textFieldStyle(ModernTextFieldStyle())
-            
+        SheetScaffold(
+            title: "Edit Score",
+            subtitle: member,
+            minSize: NSSize(width: 460, height: 260),
+            onClose: {
+                onCancel()
+                dismiss()
+            }
+        ) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
+                Text("Current Score: \(String(format: "%.2f", currentScore))")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+
+                TextField("New Score", value: $newScore, formatter: NumberFormatter())
+                    .textFieldStyle(ModernTextFieldStyle())
+            }
+            .padding()
+        } footer: {
             HStack {
-                Button("Cancel") { 
+                Button("Cancel") {
                     onCancel()
                     dismiss()
                 }
                 .buttonStyle(ModernButtonStyle(variant: .secondary))
+
                 Spacer()
+
                 Button("Save") {
                     onSave(newScore)
                     dismiss()
@@ -971,8 +745,6 @@ struct ZSetScoreEditorSheet: View {
                 .buttonStyle(ModernButtonStyle(variant: .primary))
             }
         }
-        .padding(DesignSystem.Spacing.large)
-        .frame(width: 350, height: 220)
     }
 }
 

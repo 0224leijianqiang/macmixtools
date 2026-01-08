@@ -52,6 +52,7 @@ class TerminalViewModel: ObservableObject {
     }
     
     deinit {
+        cancellables.removeAll()
         // Essential for resource recovery when tab is closed
         runner.disconnect()
         monitorService.stopMonitoring()

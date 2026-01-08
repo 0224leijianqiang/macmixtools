@@ -41,10 +41,12 @@ struct RedisView: View {
     }
     
     var body: some View {
-        NavigationSplitView {
+        HSplitView {
             sidebar
-        } detail: {
+                .frame(minWidth: 250, maxWidth: 400)
+            
             detailPane
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .sheet(isPresented: $showSettings) {
             RedisSettingsView(connection: connection) { updatedConnection in
@@ -92,6 +94,40 @@ struct RedisView: View {
     @ViewBuilder
     private var sidebar: some View {
         VStack(spacing: 0) {
+            // Connection Info & Status Header
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "cylinder.split.1x2.fill")
+                        .foregroundColor(DesignSystem.Colors.blue)
+                    Text(connection.name)
+                        .font(.headline)
+                        .lineLimit(1)
+                }
+                
+                Spacer()
+                
+                Button(action: { showSettings = true }) {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(viewModel.client.isConnected ? DesignSystem.Colors.green : DesignSystem.Colors.pink)
+                            .frame(width: 6, height: 6)
+                        Text(viewModel.client.isConnected ? "Connected" : "Disconnected")
+                            .font(.system(size: 10))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(DesignSystem.Colors.surfaceSecondary)
+                    .cornerRadius(DesignSystem.Radius.small)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, DesignSystem.Spacing.medium)
+            .frame(height: 44)
+            .background(DesignSystem.Colors.surface)
+            
+            Divider()
+
             // 数据库切换和新增key
             HStack(spacing: DesignSystem.Spacing.small) {
                 HStack(spacing: 6) {
@@ -107,12 +143,12 @@ struct RedisView: View {
                             }
                         }
                     )) {
-                        ForEach(0..<16, id: \.self) { db in
-                            Text("DB \(db)").tag(db)
+                        ForEach(0..<AppConstants.Redis.maxDatabases, id: \.self) { db in
+                            Text("DB \(db) (\(viewModel.keyCount(for: db)))").tag(db)
                         }
                     }
                     .pickerStyle(.menu)
-                    .frame(width: 80)
+                    .frame(width: 140)
                     .labelsHidden()
                 }
                 .padding(4)
@@ -129,9 +165,10 @@ struct RedisView: View {
                     .help("Import Data")
                     
                     Button(action: { showNewKeySheet = true }) {
-                        Label("New Key", systemImage: "plus")
+                        Image(systemName: "plus")
                     }
                     .buttonStyle(ModernButtonStyle(variant: .primary, size: .small))
+                    .help("New Key")
                 }
             }
             .padding(DesignSystem.Spacing.medium)
@@ -183,6 +220,21 @@ struct RedisView: View {
                             }
                             .buttonStyle(.plain)
                         }
+
+                        HStack(spacing: 4) {
+                            Image(systemName: "key.fill")
+                                .font(.system(size: 10))
+                            Text("\(currentDBKeyCount)")
+                                .font(DesignSystem.Typography.caption.weight(.medium))
+                            if viewModel.isLoadingKeys || viewModel.isSwitchingDatabase {
+                                ProgressView().scaleEffect(0.4)
+                            }
+                        }
+                        .foregroundColor(DesignSystem.Colors.blue)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(DesignSystem.Colors.blue.opacity(0.1))
+                        .cornerRadius(DesignSystem.Radius.small)
                         
                         Button(action: {
                             viewModel.loadKeys()
@@ -227,24 +279,6 @@ struct RedisView: View {
                     }
                 }
                 .zIndex(10)
-                
-                HStack {
-                    Spacer()
-                    HStack(spacing: 4) {
-                        Image(systemName: "key.fill")
-                            .font(.system(size: 10))
-                        Text("\(currentDBKeyCount)")
-                            .font(DesignSystem.Typography.caption.weight(.medium))
-                        if viewModel.isLoading {
-                            ProgressView().scaleEffect(0.4)
-                        }
-                    }
-                    .foregroundColor(DesignSystem.Colors.blue)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(DesignSystem.Colors.blue.opacity(0.1))
-                    .cornerRadius(DesignSystem.Radius.small)
-                }
             }
             .padding(DesignSystem.Spacing.medium)
             .background(DesignSystem.Colors.surface)
@@ -274,34 +308,6 @@ struct RedisView: View {
                 .listRowInsets(EdgeInsets())
             }
             .listStyle(.plain)
-        }
-        .navigationTitle(connection.name)
-        .toolbar {
-            ToolbarItemGroup {
-                Button(action: { showSettings = true }) {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(viewModel.client.isConnected ? DesignSystem.Colors.green : DesignSystem.Colors.pink)
-                            .frame(width: 8, height: 8)
-                        
-                        Text(viewModel.client.isConnected ? "Connected" : "Disconnected")
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(DesignSystem.Colors.surfaceSecondary)
-                    .cornerRadius(DesignSystem.Radius.small)
-                }
-                .buttonStyle(.plain)
-                
-                if !viewModel.client.isConnected {
-                    Button(action: viewModel.reconnect) {
-                        Text("Reconnect")
-                    }
-                    .buttonStyle(ModernButtonStyle(variant: .primary, size: .small))
-                }
-            }
         }
     }
     
@@ -344,8 +350,8 @@ struct RedisView: View {
                         }
                     }
                     .padding(.horizontal, DesignSystem.Spacing.medium)
-                    .padding(.vertical, 6)
                 }
+                .frame(height: 44)
                 .background(DesignSystem.Colors.surface)
                 
                 Divider()
@@ -453,6 +459,8 @@ struct RedisView: View {
             return AnyView(
                 HashEditor(data: dict, onUpdate: { field, val in
                     viewModel.updateHash(key: key, field: field, value: val)
+                }, onRename: { oldField, newField, val in
+                    viewModel.renameHashField(key: key, oldField: oldField, newField: newField, value: val)
                 }, onDelete: { field in
                     viewModel.deleteHashField(key: key, field: field)
                 })
@@ -533,6 +541,9 @@ struct KeyDetailContentView: View {
     
     @Binding var keyToDelete: String?
     @Binding var showDeleteConfirmation: Bool
+
+    @State private var showTTLSheet = false
+    @State private var ttlSecondsText = "3600"
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -556,6 +567,71 @@ struct KeyDetailContentView: View {
                     .padding(.vertical, RedisDesignSystem.spacingTiny)
                     .background(RedisDesignSystem.primaryBlue.opacity(0.1))
                     .cornerRadius(RedisDesignSystem.cornerRadiusSmall)
+
+                if let meta = viewModel.keyMetadata[key],
+                   let size = meta.size,
+                   meta.type == "list" || meta.type == "hash" || meta.type == "set" {
+                    Text("Size: \(size)")
+                        .font(.system(size: RedisDesignSystem.fontSizeTiny, weight: .medium))
+                        .foregroundColor(RedisDesignSystem.secondaryText)
+                        .padding(.horizontal, RedisDesignSystem.spacingSmall)
+                        .padding(.vertical, RedisDesignSystem.spacingTiny)
+                        .background(RedisDesignSystem.secondaryText.opacity(0.08))
+                        .cornerRadius(RedisDesignSystem.cornerRadiusSmall)
+                        .monospacedDigit()
+                }
+
+                // TTL pill
+                Group {
+                    switch viewModel.keyTTL[key] ?? .idle {
+                    case .idle:
+                        EmptyView()
+                    case .loading:
+                        HStack(spacing: 6) {
+                            Text("TTL")
+                                .font(.system(size: RedisDesignSystem.fontSizeTiny, weight: .medium))
+                            ProgressView().scaleEffect(0.6)
+                        }
+                        .foregroundColor(RedisDesignSystem.secondaryText)
+                        .padding(.horizontal, RedisDesignSystem.spacingSmall)
+                        .padding(.vertical, RedisDesignSystem.spacingTiny)
+                        .background(RedisDesignSystem.secondaryText.opacity(0.08))
+                        .cornerRadius(RedisDesignSystem.cornerRadiusSmall)
+                    case .noExpire:
+                        Text("TTL: ∞")
+                            .font(.system(size: RedisDesignSystem.fontSizeTiny, weight: .medium))
+                            .foregroundColor(RedisDesignSystem.secondaryText)
+                            .padding(.horizontal, RedisDesignSystem.spacingSmall)
+                            .padding(.vertical, RedisDesignSystem.spacingTiny)
+                            .background(RedisDesignSystem.secondaryText.opacity(0.08))
+                            .cornerRadius(RedisDesignSystem.cornerRadiusSmall)
+                    case .seconds(let seconds):
+                        Text("TTL: \(seconds)s")
+                            .font(.system(size: RedisDesignSystem.fontSizeTiny, weight: .medium))
+                            .foregroundColor(RedisDesignSystem.secondaryText)
+                            .padding(.horizontal, RedisDesignSystem.spacingSmall)
+                            .padding(.vertical, RedisDesignSystem.spacingTiny)
+                            .background(RedisDesignSystem.secondaryText.opacity(0.08))
+                            .cornerRadius(RedisDesignSystem.cornerRadiusSmall)
+                            .monospacedDigit()
+                    case .missing:
+                        Text("TTL: -")
+                            .font(.system(size: RedisDesignSystem.fontSizeTiny, weight: .medium))
+                            .foregroundColor(RedisDesignSystem.secondaryText)
+                            .padding(.horizontal, RedisDesignSystem.spacingSmall)
+                            .padding(.vertical, RedisDesignSystem.spacingTiny)
+                            .background(RedisDesignSystem.secondaryText.opacity(0.08))
+                            .cornerRadius(RedisDesignSystem.cornerRadiusSmall)
+                    case .error:
+                        Text("TTL: Error")
+                            .font(.system(size: RedisDesignSystem.fontSizeTiny, weight: .medium))
+                            .foregroundColor(RedisDesignSystem.primaryRed)
+                            .padding(.horizontal, RedisDesignSystem.spacingSmall)
+                            .padding(.vertical, RedisDesignSystem.spacingTiny)
+                            .background(RedisDesignSystem.primaryRed.opacity(0.08))
+                            .cornerRadius(RedisDesignSystem.cornerRadiusSmall)
+                    }
+                }
                 
                 Spacer().frame(width: RedisDesignSystem.spacingMedium)
                 
@@ -575,6 +651,40 @@ struct KeyDetailContentView: View {
                     .iconButton(color: RedisDesignSystem.primaryGreen)
                     .buttonStyle(.plain)
                     .help("刷新")
+                    .simultaneousGesture(TapGesture().onEnded {
+                        viewModel.loadTTL(key: key)
+                    })
+
+                    Menu {
+                        Button("Refresh TTL") {
+                            viewModel.loadTTL(key: key)
+                        }
+                        Divider()
+                        Button("Expire in 1 minute") { viewModel.setTTL(key: key, seconds: 60) }
+                        Button("Expire in 5 minutes") { viewModel.setTTL(key: key, seconds: 5 * 60) }
+                        Button("Expire in 1 hour") { viewModel.setTTL(key: key, seconds: 60 * 60) }
+                        Button("Expire in 1 day") { viewModel.setTTL(key: key, seconds: 24 * 60 * 60) }
+                        Divider()
+                        Button("Custom TTL…") {
+                            if case .seconds(let s) = (viewModel.keyTTL[key] ?? .idle) {
+                                ttlSecondsText = "\(s)"
+                            } else {
+                                ttlSecondsText = "3600"
+                            }
+                            showTTLSheet = true
+                        }
+                        if case .seconds = (viewModel.keyTTL[key] ?? .idle) {
+                            Divider()
+                            Button("Remove TTL (Persist)") {
+                                viewModel.persistTTL(key: key)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "timer")
+                    }
+                    .iconButton(color: RedisDesignSystem.primaryBlue)
+                    .buttonStyle(.plain)
+                    .help("TTL / Expire")
                     
                     Button(action: { 
                         keyToDelete = key
@@ -588,7 +698,7 @@ struct KeyDetailContentView: View {
                 }
             }
             .padding(.horizontal, RedisDesignSystem.spacingLarge)
-            .padding(.vertical, RedisDesignSystem.spacingTiny)
+            .frame(height: 44)
             .background(RedisDesignSystem.background)
             
             Divider()
@@ -597,6 +707,75 @@ struct KeyDetailContentView: View {
         }
         .task(id: key) {
             viewModel.loadValue(key: key)
+            viewModel.loadKeySizeIfNeeded(key: key)
+            viewModel.loadTTL(key: key)
+        }
+        .sheet(isPresented: $showTTLSheet) {
+            RedisTTLSettingSheet(
+                key: key,
+                secondsText: $ttlSecondsText,
+                isSaving: viewModel.isPerformingWrite,
+                onSave: { seconds in
+                    viewModel.setTTL(key: key, seconds: seconds)
+                    showTTLSheet = false
+                },
+                onPersist: {
+                    viewModel.persistTTL(key: key)
+                    showTTLSheet = false
+                }
+            )
+        }
+    }
+}
+
+private struct RedisTTLSettingSheet: View {
+    let key: String
+    @Binding var secondsText: String
+    let isSaving: Bool
+    let onSave: (Int) -> Void
+    let onPersist: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        SheetScaffold(
+            title: "TTL / Expire",
+            subtitle: key,
+            minSize: NSSize(width: 520, height: 320),
+            onClose: { dismiss() }
+        ) {
+            VStack(alignment: .leading, spacing: DesignSystem.spacingMedium) {
+                Text("Expire after (seconds)")
+                    .foregroundColor(.secondary)
+
+                TextField("Seconds", text: $secondsText)
+                    .textFieldStyle(ModernTextFieldStyle(icon: "timer"))
+            }
+            .padding()
+        } footer: {
+            HStack(spacing: DesignSystem.spacingSmall) {
+                Button("Cancel") { dismiss() }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
+
+                Spacer()
+
+                Button("Remove TTL") { onPersist() }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
+                    .disabled(isSaving)
+
+                Button(action: {
+                    let seconds = Int(secondsText.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+                    onSave(max(seconds, 0))
+                }) {
+                    if isSaving {
+                        ProgressView().scaleEffect(0.6)
+                    } else {
+                        Text("Set TTL")
+                    }
+                }
+                .buttonStyle(ModernButtonStyle(variant: .primary))
+                .disabled(isSaving)
+            }
         }
     }
 }
@@ -737,98 +916,52 @@ struct RedisSettingsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 标题
-            HStack {
-                Text("Redis 连接设置")
-                    .font(DesignSystem.fontTitle)
-                Spacer()
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(DesignSystem.secondaryColor)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding()
-            .background(DesignSystem.surfaceColor)
-            
-            Divider()
-            
+        SheetScaffold(
+            title: "Redis 连接设置",
+            minSize: NSSize(width: 520, height: 650),
+            onClose: { dismiss() }
+        ) {
             ScrollView {
                 VStack(spacing: DesignSystem.spacingLarge) {
-                    
-                    // 基本信息
-                    VStack(alignment: .leading, spacing: DesignSystem.spacingMedium) {
-                        Label("基本信息", systemImage: "info.circle")
-                            .font(DesignSystem.fontHeadline)
-                            .foregroundColor(DesignSystem.primaryColor)
-                        
+                    FormSection(title: "基本信息", systemImage: "info.circle") {
                         TextField("别名", text: $name)
                             .textFieldStyle(ModernTextFieldStyle(icon: "tag"))
                     }
-                    .padding()
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(DesignSystem.cornerRadiusMedium)
-                    
-                    // 服务器信息
-                    VStack(alignment: .leading, spacing: DesignSystem.spacingMedium) {
-                        Label("服务器信息", systemImage: "server.rack")
-                            .font(DesignSystem.fontHeadline)
-                            .foregroundColor(DesignSystem.primaryColor)
-                        
+
+                    FormSection(title: "服务器信息", systemImage: "server.rack") {
                         TextField("主机", text: $host)
                             .textFieldStyle(ModernTextFieldStyle(icon: "network"))
-                        
+
                         HStack(spacing: DesignSystem.spacingSmall) {
                             TextField("端口", text: $port)
                                 .textFieldStyle(ModernTextFieldStyle(icon: "number"))
-                            
+
                             TextField("数据库索引", value: $database, format: .number)
                                 .textFieldStyle(ModernTextFieldStyle(icon: "cylinder"))
                         }
                     }
-                    .padding()
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(DesignSystem.cornerRadiusMedium)
-                    
-                    // 认证
-                    VStack(alignment: .leading, spacing: DesignSystem.spacingMedium) {
-                        Label("认证", systemImage: "lock.shield")
-                            .font(DesignSystem.fontHeadline)
-                            .foregroundColor(DesignSystem.primaryColor)
-                        
+
+                    FormSection(title: "认证", systemImage: "lock.shield") {
                         SecureField("密码 (可选)", text: $password)
                             .textFieldStyle(ModernTextFieldStyle(icon: "key"))
                     }
-                    .padding()
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(DesignSystem.cornerRadiusMedium)
                 }
                 .padding()
             }
-            
-            Divider()
-            
-            // 按钮
+        } footer: {
             HStack {
-                Button("取消") {
-                    dismiss()
-                }
-                .buttonStyle(ModernButtonStyle(variant: .secondary))
-                
+                Button("取消") { dismiss() }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
+
                 Spacer()
-                
+
                 Button("保存") {
                     saveSettings()
                     dismiss()
                 }
                 .buttonStyle(ModernButtonStyle(variant: .primary))
             }
-            .padding()
-            .background(DesignSystem.surfaceColor)
         }
-        .frame(width: 480, height: 550)
-        .background(DesignSystem.backgroundColor)
     }
     
     private func saveSettings() {
@@ -838,7 +971,8 @@ struct RedisSettingsView: View {
         updatedConnection.host = host
         updatedConnection.port = port.isEmpty ? AppConstants.Ports.redis : port
         updatedConnection.password = password
-        updatedConnection.redisDB = database
+        let maxIndex = max(AppConstants.Redis.maxDatabases - 1, 0)
+        updatedConnection.redisDB = min(max(database, 0), maxIndex)
         
         // 通过回调更新连接信息
         onSave(updatedConnection)

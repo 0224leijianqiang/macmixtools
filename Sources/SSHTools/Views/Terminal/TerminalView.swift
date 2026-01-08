@@ -19,13 +19,56 @@ struct TerminalView: View {
             let terminalHeight = max(0, totalHeight - constrainedSftpHeight - splitterHeight)
             
             VStack(spacing: 0) {
+                // Header
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "terminal.fill")
+                            .foregroundColor(DesignSystem.Colors.blue)
+                        Text(viewModel.connection.name)
+                            .font(.headline)
+                            .lineLimit(1)
+                    }
+                    
+                    Spacer()
+                    
+                    // Connection Status
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(viewModel.runner.isConnected ? DesignSystem.Colors.green : DesignSystem.Colors.pink)
+                            .frame(width: 6, height: 6)
+                        Text(viewModel.runner.isConnected ? "Connected" : "Disconnected")
+                            .font(.system(size: 10))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(DesignSystem.Colors.surfaceSecondary)
+                    .cornerRadius(DesignSystem.Radius.small)
+                }
+                .padding(.horizontal, DesignSystem.Spacing.medium)
+                .frame(height: 44)
+                .background(DesignSystem.Colors.surface)
+                
+                Divider()
+
                 // 1. 终端区域
                 ZStack(alignment: .topTrailing) {
-                    SwiftTermView(runner: viewModel.runner)
+                    XTermWebView(runner: viewModel.runner)
                         .frame(height: terminalHeight)
                         .background(Color.black)
                         .clipped()
                         .allowsHitTesting(true)
+                        .zIndex(0)
+
+                    // Reconnect overlay when connection drops
+                    ReconnectOverlay(
+                        isConnected: viewModel.runner.isConnected,
+                        isConnecting: viewModel.runner.isConnecting,
+                        error: viewModel.runner.error,
+                        onReconnect: { viewModel.connect() }
+                    )
+                    .frame(height: terminalHeight)
+                    .zIndex(25)
                     
                     // 悬浮按钮组 - 右上角
                     HStack(alignment: .top, spacing: 8) {
@@ -49,8 +92,10 @@ struct TerminalView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .allowsHitTesting(true)
                     }
                     .padding(10)
+                    .allowsHitTesting(false) // Container doesn't block, only buttons inside do
                     .zIndex(10)
                     
                     // AI 助手按钮 - 右下角
@@ -78,6 +123,7 @@ struct TerminalView: View {
                             }
                             .buttonStyle(.plain)
                             .padding(20)
+                            .allowsHitTesting(true)
                         }
                     }
                     .zIndex(5)
@@ -101,6 +147,7 @@ struct TerminalView: View {
                                 .allowsHitTesting(true)
                             }
                         }
+                        .allowsHitTesting(true)
                         .zIndex(20)
                     }
                     
@@ -112,6 +159,7 @@ struct TerminalView: View {
                             Spacer()
                         }
                         .padding(.top, 40)
+                        .allowsHitTesting(false) // CRITICAL: Don't block terminal selection
                         .zIndex(30)
                     }
                 }
@@ -157,7 +205,6 @@ struct TerminalView: View {
             }
         }
         .onAppear { viewModel.connect() }
-        .onDisappear { viewModel.disconnect() }
         .background(DesignSystem.Colors.background)
     }
     

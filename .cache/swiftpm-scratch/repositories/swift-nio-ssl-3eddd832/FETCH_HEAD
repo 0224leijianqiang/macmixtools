@@ -1,0 +1,5 @@
+bc146b0f5462e4e4692bd6c3da341d69d20c9930	not-for-merge	branch 'jw-no-prod' of https://github.com/apple/swift-nio-ssl
+8c179eebffe2d463ae2fe6464a3a5d9d53d9ed7b	not-for-merge	branch 'main' of https://github.com/apple/swift-nio-ssl
+abd918baf65dcd06910ee80843438a8d8b26a286	not-for-merge	branch 'nio-ssl-1.2' of https://github.com/apple/swift-nio-ssl
+405b0be5ca11e768ab32ea3f9727dd935360db34	not-for-merge	branch 'nio-ssl-1.4' of https://github.com/apple/swift-nio-ssl
+f4cae555777ecdb8e055f172b7027e2faaea7ce3	not-for-merge	branch 'warnings_as_errors_6_0' of https://github.com/apple/swift-nio-ssl

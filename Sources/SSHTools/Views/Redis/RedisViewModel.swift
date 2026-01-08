@@ -11,6 +11,15 @@ enum RedisValue {
     case unsupported(String)
 }
 
+enum RedisTTLState: Equatable {
+    case idle
+    case loading
+    case noExpire
+    case seconds(Int)
+    case missing
+    case error(String)
+}
+
 struct RedisDBStat: Identifiable {
     let id: String
     let name: String
@@ -40,18 +49,30 @@ struct RedisOverview {
     let dbStats: [RedisDBStat]
 }
 
+struct RedisKeyMetadata: Equatable {
+    let type: String
+    let size: Int?
+}
+
 /// Redis 视图模型，管理 Redis 连接、键值操作和状态
 class RedisViewModel: ObservableObject, Cleanable {
     @Published var keys: [String] = []
     @Published var selectedKey: String?
     @Published var redisValue: RedisValue = .none
-    @Published var isLoading = false
+    @Published var isConnecting = false
+    @Published var isSwitchingDatabase = false
+    @Published var isLoadingKeys = false
+    @Published var isLoadingOverview = false
+    @Published var isLoadingValue = false
+    @Published var isPerformingWrite = false
     @Published var errorMsg: String?
     @Published var searchText: String = ""
     @Published var exactMatch: Bool = false // 精确搜索标记
     @Published var currentDB: Int = 0 // 当前数据库索引
     @Published var overview: RedisOverview?
     @Published var searchHistory: [String] = []
+    @Published var keyMetadata: [String: RedisKeyMetadata] = [:]
+    @Published var keyTTL: [String: RedisTTLState] = [:]
     
     let client = RedisClient()
     var connection: SSHConnection // 改为 var 以支持更新
@@ -59,10 +80,18 @@ class RedisViewModel: ObservableObject, Cleanable {
     private var scanCursor = "0"
     /// 标记是否已成功连接过（用于判断是否需要重新连接）
     private var hasConnected = false
+    private var keyMetadataInFlight: Set<String> = []
+
+    // Request tokens to prevent stale callbacks from overwriting newer state.
+    private var loadKeysToken = UUID()
+    private var loadOverviewToken = UUID()
+    private var loadValueToken = UUID()
+    private var switchDatabaseToken = UUID()
+    private var loadTTLTokenByKey: [String: UUID] = [:]
     
     init(connection: SSHConnection) {
         self.connection = connection
-        self.currentDB = connection.redisDB
+        self.currentDB = min(max(connection.redisDB, 0), AppConstants.Redis.maxDatabases - 1)
         // Load search history
         if let history = UserDefaults.standard.stringArray(forKey: "RedisSearchHistory_\(connection.id)") {
             self.searchHistory = history
@@ -90,10 +119,95 @@ class RedisViewModel: ObservableObject, Cleanable {
     
     func updateConnection(_ newConnection: SSHConnection) {
         self.connection = newConnection
-        self.currentDB = newConnection.redisDB
+        self.currentDB = min(max(newConnection.redisDB, 0), AppConstants.Redis.maxDatabases - 1)
         // 如果已连接，需要重新连接
         if hasConnected {
             reconnect()
+        }
+    }
+
+    func keyCount(for db: Int) -> Int {
+        if let stat = overview?.dbStats.first(where: { $0.name == "db\(db)" }) {
+            return stat.keys
+        }
+        if db == currentDB {
+            return keys.count
+        }
+        return 0
+    }
+
+    var isBusy: Bool {
+        isConnecting || isSwitchingDatabase || isLoadingKeys || isLoadingOverview || isLoadingValue || isPerformingWrite
+    }
+
+    func loadTTL(key: String) {
+        guard client.isConnected else { return }
+
+        let token = UUID()
+        loadTTLTokenByKey[key] = token
+        keyTTL[key] = .loading
+
+        client.sendCommand(["TTL", key]) { res, err in
+            DispatchQueue.main.async {
+                guard self.loadTTLTokenByKey[key] == token else { return }
+
+                if let err = err {
+                    self.keyTTL[key] = .error(err.localizedDescription)
+                    return
+                }
+
+                let ttlRaw: Int? = {
+                    if let v = res as? Int { return v }
+                    if let v = res as? Int64 { return Int(v) }
+                    if let s = res as? String { return Int(s) }
+                    return nil
+                }()
+
+                guard let ttl = ttlRaw else {
+                    self.keyTTL[key] = .error("Invalid TTL response")
+                    return
+                }
+
+                switch ttl {
+                case -2:
+                    self.keyTTL[key] = .missing
+                case -1:
+                    self.keyTTL[key] = .noExpire
+                default:
+                    self.keyTTL[key] = .seconds(max(ttl, 0))
+                }
+            }
+        }
+    }
+
+    func setTTL(key: String, seconds: Int) {
+        let seconds = max(seconds, 0)
+        isPerformingWrite = true
+        client.sendCommand(["EXPIRE", key, "\(seconds)"]) { _, err in
+            DispatchQueue.main.async {
+                self.isPerformingWrite = false
+                if let err = err {
+                    ToastManager.shared.show(message: "EXPIRE failed: \(err.localizedDescription)", type: .error)
+                    return
+                }
+                ToastManager.shared.show(message: "TTL Updated", type: .success)
+                self.loadTTL(key: key)
+            }
+        }
+    }
+
+    func persistTTL(key: String) {
+        isPerformingWrite = true
+        client.sendCommand(["PERSIST", key]) { _, err in
+            DispatchQueue.main.async {
+                self.isPerformingWrite = false
+                if let err = err {
+                    ToastManager.shared.show(message: "PERSIST failed: \(err.localizedDescription)", type: .error)
+                    return
+                }
+                ToastManager.shared.show(message: "TTL Removed", type: .success)
+                self.loadTTL(key: key)
+            }
         }
     }
     
@@ -108,13 +222,13 @@ class RedisViewModel: ObservableObject, Cleanable {
         }
         
         // 防止重复连接
-        guard !isLoading else { return }
+        guard !isConnecting else { return }
         
-        isLoading = true
+        isConnecting = true
         
-        client.connect(host: connection.host, port: connection.port, password: connection.password, db: connection.redisDB) { success in
+        client.connect(host: connection.host, port: connection.port, password: connection.effectivePassword, db: connection.redisDB) { success in
             DispatchQueue.main.async {
-                self.isLoading = false
+                self.isConnecting = false
                 if success {
                     self.hasConnected = true
                     self.loadKeys()
@@ -137,9 +251,15 @@ class RedisViewModel: ObservableObject, Cleanable {
     
     /// 加载 Redis 服务器概览信息（INFO 命令）
     func loadOverview() {
+        guard client.isConnected else { return }
+        let token = UUID()
+        loadOverviewToken = token
+        isLoadingOverview = true
         client.sendCommand(["INFO"]) { res, err in
             if let err = err {
                 DispatchQueue.main.async {
+                    guard self.loadOverviewToken == token else { return }
+                    self.isLoadingOverview = false
                     // 概览失败不影响主流程，只记录错误
                     if self.errorMsg == nil {
                         self.errorMsg = err.localizedDescription
@@ -157,9 +277,17 @@ class RedisViewModel: ObservableObject, Cleanable {
                     infoString = parts.joined(separator: "\n")
                 }
             }
-            guard let info = infoString else { return }
+            guard let info = infoString else {
+                DispatchQueue.main.async {
+                    guard self.loadOverviewToken == token else { return }
+                    self.isLoadingOverview = false
+                }
+                return
+            }
             let overview = self.parseOverview(from: info)
             DispatchQueue.main.async {
+                guard self.loadOverviewToken == token else { return }
+                self.isLoadingOverview = false
                 self.overview = overview
             }
         }
@@ -255,24 +383,29 @@ class RedisViewModel: ObservableObject, Cleanable {
     /// 根据搜索文本和精确匹配设置，执行不同的搜索策略
     func loadKeys() {
         // 防止重复加载
-        guard !isLoading || keys.isEmpty else { return }
-        
-        isLoading = true
+        guard !isLoadingKeys || keys.isEmpty else { return }
+
+        let token = UUID()
+        loadKeysToken = token
+        isLoadingKeys = true
         errorMsg = nil
         
         if searchText.isEmpty {
             // 快速预览随机键
             client.sendCommand(["SCAN", "0", "COUNT", "\(AppConstants.Redis.scanCount)"]) { res, err in
                 DispatchQueue.main.async {
-                    self.isLoading = false
+                    guard self.loadKeysToken == token else { return }
+                    self.isLoadingKeys = false
                     if let err = err {
                         self.errorMsg = err.localizedDescription
                         self.keys = []
                     } else if let array = res as? [Any], array.count == 2,
                        let keysArray = (array[1] as? [Any])?.compactMap({ $0 as? String }) {
                         self.keys = keysArray.sorted()
+                        self.pruneKeyMetadata()
                     } else {
                         self.keys = []
+                        self.pruneKeyMetadata()
                     }
                 }
             }
@@ -282,13 +415,15 @@ class RedisViewModel: ObservableObject, Cleanable {
                 // 精确搜索：只检查该键是否存在
                 client.sendCommand(["TYPE", searchText]) { res, _ in
                     DispatchQueue.main.async {
-                        self.isLoading = false
+                        guard self.loadKeysToken == token else { return }
+                        self.isLoadingKeys = false
                         if let type = res as? String, type != "none" {
                             self.keys = [self.searchText]
                             self.addToHistory(self.searchText) // Add to history only if a result is found
                         } else {
                             self.keys = []
                         }
+                        self.pruneKeyMetadata()
                     }
                 }
             } else {
@@ -323,12 +458,15 @@ class RedisViewModel: ObservableObject, Cleanable {
                 }
                 
                 group.notify(queue: .main) {
-                    self.isLoading = false
+                    guard self.loadKeysToken == token else { return }
+                    self.isLoadingKeys = false
                     if let err = searchError {
                         self.errorMsg = err.localizedDescription
                         self.keys = []
+                        self.pruneKeyMetadata()
                     } else {
                         self.keys = Array(foundKeys).sorted()
+                        self.pruneKeyMetadata()
                         if !self.keys.isEmpty { // Add to history only if results are found
                             self.addToHistory(self.searchText)
                         }
@@ -341,19 +479,32 @@ class RedisViewModel: ObservableObject, Cleanable {
     // MARK: - 数据库切换
     
     /// 切换到指定的数据库
-    /// - Parameter db: 数据库索引（0-15）
+    /// - Parameter db: 数据库索引（0...(maxDatabases-1)）
     func switchDatabase(to db: Int) {
-        isLoading = true
+        errorMsg = nil
+        let token = UUID()
+        switchDatabaseToken = token
+        isSwitchingDatabase = true
+
         client.sendCommand(["SELECT", "\(db)"]) { res, err in
             DispatchQueue.main.async {
+                guard self.switchDatabaseToken == token else { return }
                 if err == nil {
                     self.currentDB = db
+                    
+                    // Clear state so `loadKeys()` isn't blocked by
+                    // `guard !isLoadingKeys || keys.isEmpty`.
+                    self.keys = []
                     self.selectedKey = nil
                     self.redisValue = .none
+                    self.keyMetadata = [:]
+                    self.keyMetadataInFlight.removeAll()
+                    self.isSwitchingDatabase = false
+                    
                     self.loadKeys()
                     self.loadOverview()
                 } else {
-                    self.isLoading = false
+                    self.isSwitchingDatabase = false
                     self.errorMsg = err?.localizedDescription ?? "切换数据库失败"
                 }
             }
@@ -364,8 +515,11 @@ class RedisViewModel: ObservableObject, Cleanable {
     /// 根据键的类型自动选择合适的 Redis 命令
     /// - Parameter key: 要加载的键名
     func loadValue(key: String) {
+        let token = UUID()
+        loadValueToken = token
         DispatchQueue.main.async {
             self.redisValue = .none
+            self.isLoadingValue = true
         }
         Logger.log("Loading value for key: \(key)", level: .debug)
         
@@ -374,6 +528,8 @@ class RedisViewModel: ObservableObject, Cleanable {
             if let err = err {
                 Logger.log("TYPE command error: \(err.localizedDescription)", level: .error)
                 DispatchQueue.main.async {
+                    guard self.loadValueToken == token else { return }
+                    self.isLoadingValue = false
                     self.errorMsg = err.localizedDescription
                     self.redisValue = .unsupported("Error loading type")
                 }
@@ -383,17 +539,22 @@ class RedisViewModel: ObservableObject, Cleanable {
             guard let type = res as? String else {
                 Logger.log("Unknown TYPE response", level: .warning)
                 DispatchQueue.main.async {
+                    guard self.loadValueToken == token else { return }
+                    self.isLoadingValue = false
                     self.redisValue = .unsupported("Unknown Response")
                 }
                 return
             }
             
             Logger.log("Key type is \(type)", level: .debug)
+            self.updateKeyMetadataAndSize(key: key, type: type)
             
             switch type {
             case "string":
                 self.client.sendCommand(["GET", key]) { val, err in
                     DispatchQueue.main.async {
+                        guard self.loadValueToken == token else { return }
+                        self.isLoadingValue = false
                         if let err = err { self.errorMsg = err.localizedDescription }
                         self.redisValue = .string((val as? String) ?? "")
                     }
@@ -401,6 +562,8 @@ class RedisViewModel: ObservableObject, Cleanable {
             case "list":
                 self.client.sendCommand(["LRANGE", key, "0", "-1"]) { val, err in
                     DispatchQueue.main.async {
+                        guard self.loadValueToken == token else { return }
+                        self.isLoadingValue = false
                         if let err = err { self.errorMsg = err.localizedDescription }
                         if let list = (val as? [Any])?.compactMap({ $0 as? String }) {
                             self.redisValue = .list(list)
@@ -412,6 +575,8 @@ class RedisViewModel: ObservableObject, Cleanable {
             case "set":
                 self.client.sendCommand(["SMEMBERS", key]) { val, err in
                     DispatchQueue.main.async {
+                        guard self.loadValueToken == token else { return }
+                        self.isLoadingValue = false
                         if let err = err { self.errorMsg = err.localizedDescription }
                         if let list = (val as? [Any])?.compactMap({ $0 as? String }) {
                             self.redisValue = .set(list.sorted())
@@ -423,6 +588,8 @@ class RedisViewModel: ObservableObject, Cleanable {
             case "zset":
                 self.client.sendCommand(["ZRANGE", key, "0", "-1", "WITHSCORES"]) { val, err in
                     DispatchQueue.main.async {
+                        guard self.loadValueToken == token else { return }
+                        self.isLoadingValue = false
                         if let err = err { self.errorMsg = err.localizedDescription }
                         if let list = (val as? [Any])?.compactMap({ $0 as? String }) {
                             var zitems: [(String, Double)] = []
@@ -443,6 +610,8 @@ class RedisViewModel: ObservableObject, Cleanable {
                 Logger.log("Sending HGETALL", level: .debug)
                 self.client.sendCommand(["HGETALL", key]) { val, err in
                     DispatchQueue.main.async {
+                        guard self.loadValueToken == token else { return }
+                        self.isLoadingValue = false
                         if let err = err {
                             Logger.log("HGETALL error: \(err.localizedDescription)", level: .error)
                             self.errorMsg = err.localizedDescription
@@ -474,10 +643,92 @@ class RedisViewModel: ObservableObject, Cleanable {
                 }
             default:
                 DispatchQueue.main.async {
+                    guard self.loadValueToken == token else { return }
+                    self.isLoadingValue = false
                     self.redisValue = .unsupported(type)
                 }
             }
         }
+    }
+
+    // MARK: - Key 元信息（类型 / size）
+
+    func loadKeySizeIfNeeded(key: String) {
+        guard client.isConnected else { return }
+        guard !keyMetadataInFlight.contains(key) else { return }
+        if let meta = keyMetadata[key], meta.size != nil { return }
+
+        keyMetadataInFlight.insert(key)
+
+        client.sendCommand(["TYPE", key]) { res, err in
+            if let err = err {
+                DispatchQueue.main.async {
+                    self.keyMetadataInFlight.remove(key)
+                    if self.errorMsg == nil {
+                        self.errorMsg = err.localizedDescription
+                    }
+                }
+                return
+            }
+
+            guard let type = res as? String, type != "none" else {
+                DispatchQueue.main.async {
+                    self.keyMetadataInFlight.remove(key)
+                }
+                return
+            }
+
+            self.updateKeyMetadataAndSize(key: key, type: type)
+        }
+    }
+
+    private func updateKeyMetadataAndSize(key: String, type: String) {
+        DispatchQueue.main.async {
+            let existingSize = self.keyMetadata[key]?.size
+            self.keyMetadata[key] = RedisKeyMetadata(type: type, size: existingSize)
+        }
+
+        let sizeCommand: [String]?
+        switch type {
+        case "list":
+            sizeCommand = ["LLEN", key]
+        case "hash":
+            sizeCommand = ["HLEN", key]
+        case "set":
+            sizeCommand = ["SCARD", key]
+        default:
+            sizeCommand = nil
+        }
+
+        guard let sizeCommand else {
+            DispatchQueue.main.async {
+                self.keyMetadataInFlight.remove(key)
+            }
+            return
+        }
+
+        client.sendCommand(sizeCommand) { sizeRes, sizeErr in
+            DispatchQueue.main.async {
+                defer { self.keyMetadataInFlight.remove(key) }
+                guard sizeErr == nil else { return }
+
+                let size: Int?
+                if let i = sizeRes as? Int {
+                    size = i
+                } else if let s = sizeRes as? String {
+                    size = Int(s)
+                } else {
+                    size = nil
+                }
+                self.keyMetadata[key] = RedisKeyMetadata(type: type, size: size)
+            }
+        }
+    }
+
+    private func pruneKeyMetadata() {
+        let currentKeys = Set(keys)
+        keyMetadata = keyMetadata.filter { currentKeys.contains($0.key) }
+        keyMetadataInFlight = keyMetadataInFlight.intersection(currentKeys)
     }
     
     // MARK: - 修改操作
@@ -505,6 +756,46 @@ class RedisViewModel: ObservableObject, Cleanable {
                 if let err = err {
                     self.errorMsg = err.localizedDescription
                 } else {
+                    self.loadValue(key: key)
+                }
+            }
+        }
+    }
+
+    func renameHashField(key: String, oldField: String, newField: String, value: String) {
+        let trimmedNewField = newField.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedNewField.isEmpty else { return }
+
+        let shouldRename = oldField != trimmedNewField
+
+        DispatchQueue.main.async { self.isPerformingWrite = true }
+        client.sendCommand(["HSET", key, trimmedNewField, value]) { [weak self] _, err in
+            guard let self = self else { return }
+            if let err = err {
+                DispatchQueue.main.async {
+                    self.isPerformingWrite = false
+                    ToastManager.shared.show(message: "HSET failed: \(err.localizedDescription)", type: .error)
+                }
+                return
+            }
+
+            if !shouldRename {
+                DispatchQueue.main.async {
+                    self.isPerformingWrite = false
+                    ToastManager.shared.show(message: "Update Successful", type: .success)
+                    self.loadValue(key: key)
+                }
+                return
+            }
+
+            self.client.sendCommand(["HDEL", key, oldField]) { _, err in
+                DispatchQueue.main.async {
+                    self.isPerformingWrite = false
+                    if let err = err {
+                        ToastManager.shared.show(message: "HDEL failed: \(err.localizedDescription)", type: .error)
+                    } else {
+                        ToastManager.shared.show(message: "Rename Successful", type: .success)
+                    }
                     self.loadValue(key: key)
                 }
             }
@@ -557,13 +848,13 @@ class RedisViewModel: ObservableObject, Cleanable {
     func updateSet(key: String, oldValue: String, newValue: String) {
         if oldValue == newValue { return }
         
-        DispatchQueue.main.async { self.isLoading = true }
+        DispatchQueue.main.async { self.isPerformingWrite = true }
         // Remove then Add
         client.sendCommand(["SREM", key, oldValue]) { [weak self] _, err in
             guard let self = self else { return }
             if let err = err {
                 DispatchQueue.main.async {
-                    self.isLoading = false
+                    self.isPerformingWrite = false
                     ToastManager.shared.show(message: "SREM failed: \(err.localizedDescription)", type: .error)
                 }
                 return
@@ -571,7 +862,7 @@ class RedisViewModel: ObservableObject, Cleanable {
             
             self.client.sendCommand(["SADD", key, newValue]) { _, err in
                 DispatchQueue.main.async {
-                    self.isLoading = false
+                    self.isPerformingWrite = false
                     if let err = err {
                         ToastManager.shared.show(message: "SADD failed: \(err.localizedDescription)", type: .error)
                     } else {
@@ -587,11 +878,11 @@ class RedisViewModel: ObservableObject, Cleanable {
         let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
         Logger.log("Redis: SADD \(key) \(trimmedValue)", level: .info)
         
-        DispatchQueue.main.async { self.isLoading = true }
+        DispatchQueue.main.async { self.isPerformingWrite = true }
         client.sendCommand(["SADD", key, trimmedValue]) { [weak self] _, err in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                self.isLoading = false
+                self.isPerformingWrite = false
                 if let err = err {
                     ToastManager.shared.show(message: "Failed to add to set: \(err.localizedDescription)", type: .error)
                 } else {
@@ -604,11 +895,11 @@ class RedisViewModel: ObservableObject, Cleanable {
     
     func deleteFromSet(key: String, value: String) {
         Logger.log("Redis: SREM \(key) \(value)", level: .info)
-        DispatchQueue.main.async { self.isLoading = true }
+        DispatchQueue.main.async { self.isPerformingWrite = true }
         client.sendCommand(["SREM", key, value]) { [weak self] _, err in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                self.isLoading = false
+                self.isPerformingWrite = false
                 if let err = err {
                     self.errorMsg = "Failed to remove from set: \(err.localizedDescription)"
                 }
@@ -701,7 +992,7 @@ class RedisViewModel: ObservableObject, Cleanable {
     }
     
     func importData(key: String, type: String, values: [String], hashData: [String: String], completion: @escaping (Bool) -> Void) {
-        isLoading = true
+        isPerformingWrite = true
         errorMsg = nil
         
         let group = DispatchGroup()
@@ -750,7 +1041,7 @@ class RedisViewModel: ObservableObject, Cleanable {
         }
         
         group.notify(queue: .main) {
-            self.isLoading = false
+            self.isPerformingWrite = false
             if let err = lastError {
                 ToastManager.shared.show(message: "Import error: \(err)", type: .error)
                 completion(false)

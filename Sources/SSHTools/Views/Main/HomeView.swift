@@ -176,6 +176,38 @@ struct HomeView: View {
                                     }
                                 }
                                 
+                                // Proxy Settings
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Toggle(isOn: $settings.enableLocalProxy) {
+                                        Label("Use Local Proxy".localized, systemImage: "network")
+                                            .font(.caption.bold())
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .toggleStyle(.switch)
+                                    
+                                    if settings.enableLocalProxy {
+                                        HStack(spacing: 8) {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("Host".localized)
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                TextField("127.0.0.1", text: $settings.localProxyHost)
+                                                    .textFieldStyle(ModernTextFieldStyle(icon: "server.rack"))
+                                            }
+                                            
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("Port".localized)
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                TextField("7890", text: $settings.localProxyPort)
+                                                    .textFieldStyle(ModernTextFieldStyle(icon: "number"))
+                                                    .frame(width: 100)
+                                            }
+                                        }
+                                        .transition(.move(edge: .top).combined(with: .opacity))
+                                    }
+                                }
+                                
                                 // Gemini Key Setting
                                 VStack(alignment: .leading, spacing: 8) {
                                     Label("Gemini API Key".localized, systemImage: "sparkles")

@@ -63,30 +63,36 @@ done
 
 # 5. Create Info.plist
 echo "📝 Generating Info.plist..."
-cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleExecutable</key>
-    <string>$EXECUTABLE_NAME</string>
-    <key>CFBundleIconFile</key>
-    <string>AppIcon</string>
-    <key>CFBundleIdentifier</key>
-    <string>$BUNDLE_ID</string>
-    <key>CFBundleName</key>
-    <string>$APP_NAME</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
-    <key>LSMinimumSystemVersion</key>
-    <string>13.0</string>
-    <key>NSHighResolutionCapable</key>
-    <true/>
-</dict>
-</plist>
-EOF
+	cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
+	<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+	<plist version="1.0">
+	<dict>
+	    <key>CFBundleExecutable</key>
+	    <string>$EXECUTABLE_NAME</string>
+	    <key>CFBundleIconFile</key>
+	    <string>AppIcon</string>
+	    <key>CFBundleIdentifier</key>
+	    <string>$BUNDLE_ID</string>
+	    <key>CFBundleName</key>
+	    <string>$APP_NAME</string>
+	    <key>CFBundlePackageType</key>
+	    <string>APPL</string>
+	    <key>CFBundleShortVersionString</key>
+	    <string>1.0.0</string>
+	    <key>LSMinimumSystemVersion</key>
+	    <string>13.0</string>
+	    <key>NSHighResolutionCapable</key>
+	    <true/>
+	    <key>NSAppTransportSecurity</key>
+	    <dict>
+	        <!-- ClickHouse uses HTTP (8123) by default; allow it. -->
+	        <key>NSAllowsArbitraryLoads</key>
+	        <true/>
+	    </dict>
+	</dict>
+	</plist>
+	EOF
 
 # 6. Codesign (Ad-hoc signing)
 echo "🔐 Codesigning..."

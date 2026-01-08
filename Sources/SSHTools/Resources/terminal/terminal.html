@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <link rel="stylesheet" href="xterm.css" />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #000;
+        overflow: hidden;
+      }
+      #terminal {
+        width: 100%;
+        height: 100%;
+      }
+      #fallback {
+        position: absolute;
+        inset: 0;
+        padding: 12px;
+        color: #9ef;
+        font-family: ui-monospace, Menlo, Monaco, monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+      }
+      .xterm .xterm-viewport {
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="terminal"></div>
+    <div id="fallback"></div>
+
+    <script src="xterm.js"></script>
+    <script src="xterm-addon-fit.js"></script>
+    <script>
+      (function () {
+        const encoder = new TextEncoder();
+        const fallbackEl = document.getElementById("fallback");
+
+        function bytesToBase64(bytes) {
+          let binary = "";
+          for (let i = 0; i < bytes.length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          return btoa(binary);
+        }
+
+        function base64ToBytes(b64) {
+          const binary = atob(b64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          return bytes;
+        }
+
+        function postMessage(payload) {
+          try {
+            window.webkit.messageHandlers.sshTerm.postMessage(payload);
+          } catch (_) {}
+        }
+
+        window.onerror = function (message, source, lineno, colno, error) {
+          const text =
+            String(message) +
+            "\n" +
+            String(source || "") +
+            ":" +
+            String(lineno || 0) +
+            ":" +
+            String(colno || 0) +
+            (error && error.stack ? "\n" + String(error.stack) : "");
+          if (fallbackEl) fallbackEl.textContent = text;
+          postMessage({ type: "jsError", message: text });
+          return false;
+        };
+
+        if (!window.Terminal) {
+          const msg = "xterm.js failed to load (window.Terminal is missing).";
+          if (fallbackEl) fallbackEl.textContent = msg;
+          postMessage({ type: "jsError", message: msg });
+          return;
+        }
+
+        const term = new Terminal({
+          cursorBlink: true,
+          scrollback: 5000,
+          fontFamily:
+            "Menlo, Monaco, SFMono-Regular, ui-monospace, monospace",
+          fontSize: 13,
+          theme: { background: "#000000", foreground: "#ffffff" },
+        });
+
+        const fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+
+        term.attachCustomKeyEventHandler((ev) => {
+          if (ev.type !== "keydown") return true;
+
+          const key = (ev.key || "").toLowerCase();
+          if (ev.metaKey && key === "c") {
+            const sel = term.getSelection();
+            if (sel && sel.length > 0) {
+              postMessage({ type: "copy", text: sel });
+              return false;
+            }
+            return true;
+          }
+
+          if (ev.metaKey && key === "v") {
+            postMessage({ type: "pasteRequest" });
+            return false;
+          }
+
+          return true;
+        });
+
+        term.onData((data) => {
+          const bytes = encoder.encode(data);
+          postMessage({ type: "input", b64: bytesToBase64(bytes) });
+        });
+
+        term.onResize((size) => {
+          postMessage({ type: "resize", cols: size.cols, rows: size.rows });
+        });
+
+        if (term.parser && typeof term.parser.registerOscHandler === "function") {
+          term.parser.registerOscHandler(7, (data) => {
+            postMessage({ type: "cwd", data: String(data || "") });
+            return true;
+          });
+        }
+
+        window.sshToolsWriteBase64 = function (b64) {
+          try {
+            term.write(base64ToBytes(b64));
+          } catch (_) {}
+        };
+
+        window.sshToolsFocus = function () {
+          try {
+            term.focus();
+          } catch (_) {}
+        };
+
+        term.open(document.getElementById("terminal"));
+        if (fallbackEl) fallbackEl.remove();
+
+        const ro = new ResizeObserver(() => {
+          fitAddon.fit();
+        });
+        ro.observe(document.body);
+
+        requestAnimationFrame(() => {
+          fitAddon.fit();
+          term.focus();
+          postMessage({ type: "ready" });
+        });
+      })();
+    </script>
+  </body>
+</html>

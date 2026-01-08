@@ -1,0 +1,4 @@
+module CNIOSHA1 {
+    umbrella header "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/checkouts/swift-nio/Sources/CNIOSHA1/include/CNIOSHA1.h"
+    export *
+}

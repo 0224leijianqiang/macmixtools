@@ -70,67 +70,44 @@ struct ValueEditorSheet: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 标题栏
-            HStack {
-                Text(title)
-                    .font(DesignSystem.Typography.headline)
-                Spacer()
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(DesignSystem.Spacing.medium)
-            .background(DesignSystem.Colors.surface)
-            
-            Divider()
-            
+        SheetScaffold(
+            title: title,
+            minSize: NSSize(width: 800, height: 600),
+            onClose: { dismiss() }
+        ) {
             // 内容区域
             VStack(spacing: DesignSystem.Spacing.large) {
                 // 字段名输入（仅 Hash 新字段）
                 if showFieldName {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                        Text("Field Name")
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    FormSection(title: "Field Name", systemImage: "key") {
                         TextField("Enter field name", text: $fieldName)
                             .textFieldStyle(ModernTextFieldStyle())
+                            .outlined()
                     }
                     .padding(.horizontal, DesignSystem.Spacing.large)
                 }
                 
                 // 值编辑区域
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                    HStack {
-                        Text(showFieldName ? "Field Value" : "Value")
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                        
-                        Spacer()
-                        
-                        // JSON 格式化按钮
-                        if isJSONFormatted {
+                FormSection(
+                    title: showFieldName ? "Field Value" : "Value",
+                    systemImage: "doc.plaintext",
+                    headerTrailing: {
+                        AnyView(
                             Button(action: formatJSON) {
                                 Label("Format JSON", systemImage: "curlybraces")
                                     .font(DesignSystem.Typography.caption)
                             }
                             .buttonStyle(ModernButtonStyle(variant: .ghost, size: .small))
-                        }
+                            .disabled(!isJSONFormatted)
+                        )
                     }
-                    
+                ) {
                     ZStack(alignment: .topLeading) {
-                        TextEditor(text: $value)
-                            .font(DesignSystem.Typography.monospace)
+                        PlainTextEditor(text: $value, font: .monospacedSystemFont(ofSize: 13, weight: .regular), inset: DesignSystem.Spacing.small)
                             .frame(maxWidth: .infinity, maxHeight: .infinity) // Fill all available space
-                            .padding(DesignSystem.Spacing.small)
                             .background(DesignSystem.Colors.surfaceSecondary)
                             .cornerRadius(DesignSystem.Radius.small)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: DesignSystem.Radius.small)
-                                    .stroke(jsonFormatError != nil ? DesignSystem.Colors.pink : Color.clear, lineWidth: 1)
-                            )
+                            .outlined(color: jsonFormatError != nil ? DesignSystem.Colors.pink : DesignSystem.Colors.border.opacity(0.8))
                             .onChange(of: value) { oldValue, newValue in
                                 checkJSONFormat(newValue)
                             }
@@ -158,29 +135,18 @@ struct ValueEditorSheet: View {
             }
             .padding(.top, DesignSystem.Spacing.large)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            Divider()
-            
-            // 按钮栏
+        } footer: {
             HStack {
-                Button("Cancel") {
-                    dismiss()
-                }
-                .buttonStyle(ModernButtonStyle(variant: .secondary))
+                Button("Cancel") { dismiss() }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
                 
                 Spacer()
                 
-                Button(saveButtonTitle) {
-                    saveValue()
-                }
-                .buttonStyle(ModernButtonStyle(variant: .primary))
-                .disabled(!canSave)
+                Button(saveButtonTitle) { saveValue() }
+                    .buttonStyle(ModernButtonStyle(variant: .primary))
+                    .disabled(!canSave)
             }
-            .padding(DesignSystem.Spacing.medium)
-            .background(DesignSystem.Colors.surface)
         }
-        .frame(minWidth: 800, minHeight: 600) // Significantly larger minimum size
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             checkJSONFormat(value)
         }
@@ -207,49 +173,41 @@ struct ValueEditorSheet: View {
     
     /// 检测是否为 JSON 格式
     private func checkJSONFormat(_ text: String) {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // 检查是否可能是 JSON（以 { 或 [ 开头）
-        if trimmed.hasPrefix("{") || trimmed.hasPrefix("[") {
-            // 尝试解析 JSON
-            if let data = trimmed.data(using: .utf8),
-               let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
-               let formattedData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys]),
-               String(data: formattedData, encoding: .utf8) != nil {
-                isJSONFormatted = true
-                jsonFormatError = nil
-            } else {
-                // 可能是 JSON 但格式错误
-                isJSONFormatted = true
+        isJSONFormatted = JSONFormatting.isCandidate(text)
+        guard isJSONFormatted else {
+            jsonFormatError = nil
+            return
+        }
+
+        if let error = JSONFormatting.validationError(text) {
+            switch error {
+            case .invalidUTF8:
+                jsonFormatError = "无法解析内容"
+            case .invalidJSON:
                 jsonFormatError = "JSON 格式错误，请检查语法"
+            case .formatFailed:
+                jsonFormatError = "格式化失败"
             }
         } else {
-            isJSONFormatted = false
             jsonFormatError = nil
         }
     }
     
     /// 格式化 JSON
     private func formatJSON() {
-        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard let data = trimmed.data(using: .utf8) else {
-            jsonFormatError = "无法解析内容"
-            return
-        }
-        
-        do {
-            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-            let formattedData = try JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys])
-            
-            if let formatted = String(data: formattedData, encoding: .utf8) {
-                value = formatted
-                jsonFormatError = nil
-            } else {
+        switch JSONFormatting.prettyPrinted(value) {
+        case .success(let pretty):
+            value = pretty
+            jsonFormatError = nil
+        case .failure(let error):
+            switch error {
+            case .invalidUTF8:
+                jsonFormatError = "无法解析内容"
+            case .invalidJSON:
+                jsonFormatError = "JSON 格式错误，请检查语法"
+            case .formatFailed:
                 jsonFormatError = "格式化失败"
             }
-        } catch {
-            jsonFormatError = "JSON 格式错误: \(error.localizedDescription)"
         }
     }
     
@@ -268,4 +226,3 @@ struct ValueEditorSheet: View {
         dismiss()
     }
 }
-

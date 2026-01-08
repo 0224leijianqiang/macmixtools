@@ -1,0 +1,3 @@
+module NIOPosix {
+    header "/Users/weijiangming/codex/mac_application/ssh_tools/SSHTools/.cache/swiftpm-scratch/arm64-apple-macosx/debug/NIOPosix.build/include/NIOPosix-Swift.h"
+}

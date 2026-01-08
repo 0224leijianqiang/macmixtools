@@ -40,7 +40,8 @@ struct DevToolboxView: View {
                         .font(.headline)
                     Spacer()
                 }
-                .padding()
+                .padding(.horizontal, DesignSystem.Spacing.medium)
+                .frame(height: 44)
                 .background(DesignSystem.Colors.surface)
                 
                 Divider()

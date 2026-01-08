@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct AIStep: Identifiable, Decodable {
     let id = UUID()
@@ -69,12 +70,13 @@ struct TerminalAIOverlay: View {
                         
                         TextEditor(text: $prompt)
                             .font(.system(size: 12))
+                            .foregroundColor(DesignSystem.Colors.text)
                             .frame(height: 80)
                             .scrollContentBackground(.hidden)
                             .background(Color.clear)
                     }
                     .padding(4)
-                    .background(Color.primary.opacity(0.05))
+                    .background(Color(nsColor: .textBackgroundColor).opacity(0.96))
                     .cornerRadius(6)
                     
                     if !isGenerating {
@@ -130,9 +132,12 @@ struct TerminalAIOverlay: View {
                     }
                     .frame(height: min(CGFloat(steps.count * 44 + 20), 200)) 
                     .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .background(Color(nsColor: .windowBackgroundColor).opacity(0.96))
                 }
             }
-            .background(DesignSystem.Colors.surface)
+            // Use an opaque-ish background so text stays readable even when overlaying a black terminal.
+            .background(Color(nsColor: .windowBackgroundColor).opacity(0.96))
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.2), radius: 15, x: 0, y: 10)
             .overlay(

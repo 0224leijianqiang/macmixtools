@@ -10,7 +10,7 @@
 		</data>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Info.plist</key>
 		<data>
-		6or0bJMLTdV5wXNjiOdPo8N0SPM=
+		pozAc3B5vGHt7oDkKZ20ZW2tyWE=
 		</data>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/AppIcon.icns</key>
 		<data>
@@ -18,29 +18,85 @@
 		</data>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/Assets.car</key>
 		<data>
-		5jUwDQvKhNsTHwM87skGHrQrnMw=
+		ojIfnGfH+6fk14dGBto+cTpoTJI=
 		</data>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/en.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			EEKBgSxBj7/qzRxWeVDjPOkIZCI=
+			+dBkm2lLcEt6Yodb5FyYiqbaXjY=
 			</data>
 			<key>optional</key>
 			<true/>
 		</dict>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/terminal.html</key>
+		<data>
+		p1elNPIhgA0bEb6QbaDBUFLFRgU=
+		</data>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/xterm-addon-fit.js</key>
+		<data>
+		f+uSLS3f4zZKEPoG8C3UOGvkEsg=
+		</data>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/xterm.css</key>
+		<data>
+		U61BwpxSYSxJMwfSj3jItY6Z/lo=
+		</data>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/xterm.js</key>
+		<data>
+		n5G6Hh/aG0gldhg+mXDG9T5EfBA=
+		</data>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/zh-Hans.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			zVkLRlV+Psp2U5pOz7FWtN+Mkj0=
+			8pBc8RUpcebHvd/UzVaMg2GvUak=
 			</data>
 			<key>optional</key>
 			<true/>
 		</dict>
+		<key>Resources/swift-crypto_CCryptoBoringSSL.bundle/Contents/Info.plist</key>
+		<data>
+		UMSjN63o62edrfkiv54AfSE/lxs=
+		</data>
+		<key>Resources/swift-crypto_CCryptoBoringSSL.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		gtyjHWwZ8glpGc7yfO0ng/CvDwQ=
+		</data>
+		<key>Resources/swift-crypto_CCryptoBoringSSLShims.bundle/Contents/Info.plist</key>
+		<data>
+		aby87eTGhkGJUZ+b41PczPawgzw=
+		</data>
+		<key>Resources/swift-crypto_CCryptoBoringSSLShims.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		gtyjHWwZ8glpGc7yfO0ng/CvDwQ=
+		</data>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Info.plist</key>
+		<data>
+		q8n37ow3oHrfLQB+dRLSsGYcTt0=
+		</data>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		gtyjHWwZ8glpGc7yfO0ng/CvDwQ=
+		</data>
+		<key>Resources/swift-crypto_CryptoBoringWrapper.bundle/Contents/Info.plist</key>
+		<data>
+		q4jWy+Q0KcMtK5dm4dbE2WWQzGQ=
+		</data>
+		<key>Resources/swift-crypto_CryptoBoringWrapper.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		gtyjHWwZ8glpGc7yfO0ng/CvDwQ=
+		</data>
+		<key>Resources/swift-crypto__CryptoExtras.bundle/Contents/Info.plist</key>
+		<data>
+		Fv3P/uAIDAcf7Wl/3iYortnwjOc=
+		</data>
+		<key>Resources/swift-crypto__CryptoExtras.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		gtyjHWwZ8glpGc7yfO0ng/CvDwQ=
+		</data>
 		<key>Resources/swift-nio-ssl_NIOSSL.bundle/Contents/Info.plist</key>
 		<data>
-		AahsVoIUZkoIhhkEvHGaOVqAaDk=
+		uP69zkqtBNm7LjbleLxefoU/OFM=
 		</data>
 		<key>Resources/swift-nio-ssl_NIOSSL.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -48,7 +104,7 @@
 		</data>
 		<key>Resources/swift-nio_NIOPosix.bundle/Contents/Info.plist</key>
 		<data>
-		jGdXl4D+j9R+VmxrztKcJjewdHQ=
+		fFweFibFyzRtyVk9t/dXJ3L7YpA=
 		</data>
 		<key>Resources/swift-nio_NIOPosix.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -68,7 +124,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ydx5saEYXUhxynCKoYBMNKJZAqzTjFcxfgRjvpFHtQg=
+			0evRa0IRnAvUN1zavl3rgnZrB7gUQRtk+mnOw7s6joI=
 			</data>
 		</dict>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/AppIcon.icns</key>
@@ -82,32 +138,130 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			jN1G5fJBBmwqy1iPWuWehJQ78gfxTToFfXj4NPmSjUo=
+			15V7fnIyD+m7xiRKWS8DQllbOuMscKdRr+NWp3hS1CY=
 			</data>
 		</dict>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/en.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			MKUMqH4Yb6sNqfB44ooc3KVbeVeOG8rXPJox4fNNU1g=
+			/QJtkWROzKa/qlJ9WV4+Vap2qmwqLXv4jgcRHu2kFEA=
 			</data>
 			<key>optional</key>
 			<true/>
+		</dict>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/terminal.html</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QmFS01Ebp4l3Ar48wEmvF7aDipZXEIREQ37WSvZmyV0=
+			</data>
+		</dict>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/xterm-addon-fit.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			va76Nwsb/ELuiNRv5gckAJAqTUstRc2TQ43amyPJcIk=
+			</data>
+		</dict>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/xterm.css</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			gy8/LGA7Q61DUf8ElwFQzHqHMBQnbbEmpgZcbdgeSHI=
+			</data>
+		</dict>
+		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/xterm.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			8K6g919IVZATrmZDwked1zfSbaQtVSTm0rcJFa5lI8c=
+			</data>
 		</dict>
 		<key>Resources/SSHTools_SSHTools.bundle/Contents/Resources/zh-Hans.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			hW8Be/eWRBNWTUxvjeK8lP8CwY0E12kAo1kGAf+pDT4=
+			Wo9eU8RYCfb7ty0BJlWD2NG2oo/mhEY3zIRxtNc5t3Q=
 			</data>
 			<key>optional</key>
 			<true/>
+		</dict>
+		<key>Resources/swift-crypto_CCryptoBoringSSL.bundle/Contents/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			XTkCe51VsaKwYLag2tvb9B8QlpwnxWDh5+y+7v2C/jM=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_CCryptoBoringSSL.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QvuKMN2Ne6CQDhvxf+ZO2MEs/bipx5Gra04ezrDymcA=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_CCryptoBoringSSLShims.bundle/Contents/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			FLZ9c6yChOocfONGzrOW/bRInPCyhFCb8bQ3boABsXQ=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_CCryptoBoringSSLShims.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QvuKMN2Ne6CQDhvxf+ZO2MEs/bipx5Gra04ezrDymcA=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			9d4ZLfQXjUs1wYl7gOnJ2EZhfVm/g7uKt4ollpjQoHs=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QvuKMN2Ne6CQDhvxf+ZO2MEs/bipx5Gra04ezrDymcA=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_CryptoBoringWrapper.bundle/Contents/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Of6sHLp4LFvuqthJy0qwxPycD7K+q1ivWT6FVaIOoW0=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_CryptoBoringWrapper.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QvuKMN2Ne6CQDhvxf+ZO2MEs/bipx5Gra04ezrDymcA=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto__CryptoExtras.bundle/Contents/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			R7sVwAB5blgQmrDEkMUh4Ad+jKUGayeACl6cc84yeJE=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto__CryptoExtras.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QvuKMN2Ne6CQDhvxf+ZO2MEs/bipx5Gra04ezrDymcA=
+			</data>
 		</dict>
 		<key>Resources/swift-nio-ssl_NIOSSL.bundle/Contents/Info.plist</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Wd8/E/25YCwOueoyTqESpgiZLVN5lQY8U+WYGm3dQb0=
+			NfoQIiIJej70tKwd5akFxJhicm+4BdQ0Hl0Y1gTAqkc=
 			</data>
 		</dict>
 		<key>Resources/swift-nio-ssl_NIOSSL.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
@@ -121,7 +275,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			MveYKieL5Hs4+KZNws9A26gAI+nAjtRLxkgshgy9Tn4=
+			vrG4tgLRtdHt65sx7NLPo4m5OrzgxL4Kyw3FBvXhPa8=
 			</data>
 		</dict>
 		<key>Resources/swift-nio_NIOPosix.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>

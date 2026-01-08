@@ -1,15 +1,193 @@
 import SwiftUI
+import AppKit
+import UniformTypeIdentifiers
+
+private extension View {
+    @ViewBuilder
+    func sshtools_disableFocusRing() -> some View {
+        if #available(macOS 14.0, *) {
+            self.focusEffectDisabled()
+        } else {
+            self
+        }
+    }
+}
 
 struct MySQLView: View {
     @StateObject private var viewModel: MySQLViewModel
+
+    @FocusState private var isDataGridFocused: Bool
+    @State private var showFilterBuilder = false
+    @State private var isExporting = false
+	@State private var exportTitle = "Export"
+	@State private var exportStatus = ""
+	@State private var exportRowsExported: Int = 0
+	@State private var exportTask: Task<Void, Never>? = nil
+	@State private var editCellTarget: EditCellTarget? = nil
+	@State private var isEstimatingMutation = false
     
     // AI SQL Helper State
     @State private var showAIHelper = false
     @State private var aiPrompt = ""
     @State private var isAIGenerating = false
     
-    init(connection: SSHConnection) {
-        _viewModel = StateObject(wrappedValue: MySQLViewModel(connection: connection))
+	init(connection: SSHConnection) {
+		_viewModel = StateObject(wrappedValue: MySQLViewModel(connection: connection))
+	}
+
+	private struct EditCellTarget: Identifiable {
+		let id = UUID()
+		let rowIndex: Int
+		let columnIndex: Int
+		let originalValue: String
+	}
+
+    private func copyToPasteboard(_ string: String, toast: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(string, forType: .string)
+        ToastManager.shared.show(message: toast, type: .success)
+    }
+
+    private var selectedRowIndicesSorted: [Int] {
+        viewModel.selectedRowIndices.sorted()
+    }
+
+    private func selectedRowsData() -> [[String]] {
+        selectedRowIndicesSorted.compactMap { idx in
+            guard viewModel.rows.indices.contains(idx) else { return nil }
+            return viewModel.rows[idx]
+        }
+    }
+
+    private func copySelectedCellIfAny() {
+        let selected = selectedRowIndicesSorted
+        guard selected.count == 1,
+              let rowIndex = selected.first,
+              viewModel.rows.indices.contains(rowIndex),
+              let colIndex = viewModel.selectedColumnIndex,
+              viewModel.rows[rowIndex].indices.contains(colIndex)
+        else { return }
+        copyToPasteboard(viewModel.rows[rowIndex][colIndex], toast: "Copied Cell")
+    }
+
+    private func copySelectedRowsTSV(includeHeaders: Bool) {
+        let rows = selectedRowsData()
+        guard !rows.isEmpty else { return }
+        var lines: [String] = []
+        if includeHeaders, !viewModel.headers.isEmpty {
+            lines.append(viewModel.headers.joined(separator: "\t"))
+        }
+        lines.append(contentsOf: rows.map { $0.joined(separator: "\t") })
+        copyToPasteboard(
+            lines.joined(separator: "\n"),
+            toast: rows.count == 1 ? (includeHeaders ? "Copied Row (TSV+Headers)" : "Copied Row (TSV)") : (includeHeaders ? "Copied Rows (TSV+Headers)" : "Copied Rows (TSV)")
+        )
+    }
+
+    private func copySelectedRowsJSON() {
+        let rows = selectedRowsData()
+        guard !rows.isEmpty else { return }
+        let count = viewModel.headers.count
+        let jsonArray: [[String: String]] = rows.map { row in
+            var dict: [String: String] = [:]
+            let used = min(count, row.count)
+            dict.reserveCapacity(used)
+            for i in 0..<used {
+                dict[viewModel.headers[i]] = row[i]
+            }
+            return dict
+        }
+        do {
+            let data = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
+            let text = String(data: data, encoding: .utf8) ?? "[]"
+            copyToPasteboard(text, toast: rows.count == 1 ? "Copied Row (JSON)" : "Copied Rows (JSON)")
+        } catch {
+            ToastManager.shared.show(message: "JSON encode failed", type: .error)
+        }
+    }
+
+    private func copyGridSelectionProviders() -> [NSItemProvider] {
+        let selected = viewModel.selectedRowIndices.sorted()
+        guard !selected.isEmpty else { return [] }
+
+        if selected.count == 1,
+           let rowIndex = selected.first,
+           viewModel.rows.indices.contains(rowIndex),
+           let colIndex = viewModel.selectedColumnIndex,
+           viewModel.rows[rowIndex].indices.contains(colIndex) {
+            ToastManager.shared.show(message: "Copied Cell", type: .success)
+            return [NSItemProvider(object: viewModel.rows[rowIndex][colIndex] as NSString)]
+        }
+
+        let lines = selected.compactMap { idx -> String? in
+            guard viewModel.rows.indices.contains(idx) else { return nil }
+            return viewModel.rows[idx].joined(separator: "\t")
+        }
+        guard !lines.isEmpty else { return [] }
+
+        ToastManager.shared.show(message: lines.count == 1 ? "Copied Row (TSV)" : "Copied Rows (TSV)", type: .success)
+        return [NSItemProvider(object: lines.joined(separator: "\n") as NSString)]
+    }
+
+    private func pickExportDestination(defaultName: String, ext: String) -> URL? {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = defaultName + "." + ext
+        if #available(macOS 12.0, *) {
+            panel.allowedContentTypes = [UTType(filenameExtension: ext)].compactMap { $0 }
+        } else {
+            panel.allowedFileTypes = [ext]
+        }
+        return panel.runModal() == .OK ? panel.url : nil
+    }
+
+    private func startExportCurrent(format: MySQLViewModel.ExportFormat) {
+        guard let url = pickExportDestination(defaultName: "export_current", ext: format.fileExtension) else { return }
+        do {
+            try viewModel.exportCurrentResult(to: url, format: format)
+            ToastManager.shared.show(message: "Exported", type: .success)
+        } catch {
+            ToastManager.shared.show(message: "Export failed: \(error.localizedDescription)", type: .error)
+        }
+    }
+
+    private func startExportAll(format: MySQLViewModel.ExportFormat) {
+        guard viewModel.currentTable != nil else { return }
+        guard let url = pickExportDestination(defaultName: "export_all", ext: format.fileExtension) else { return }
+
+        exportTask?.cancel()
+        exportRowsExported = 0
+        exportTitle = "Export All"
+        exportStatus = "Starting…"
+        isExporting = true
+
+        exportTask = Task {
+            do {
+                try await viewModel.exportAllTableData(to: url, format: format, pageSize: 1000) { rowsExported in
+                    Task { @MainActor in
+                        exportRowsExported = rowsExported
+                        exportStatus = "Exported \(rowsExported) rows"
+                    }
+                }
+                await MainActor.run {
+                    exportStatus = "Done"
+                    isExporting = false
+                }
+                ToastManager.shared.show(message: "Exported", type: .success)
+            } catch is CancellationError {
+                await MainActor.run {
+                    exportStatus = "Cancelled"
+                    isExporting = false
+                }
+                ToastManager.shared.show(message: "Export cancelled", type: .warning)
+            } catch {
+                await MainActor.run {
+                    exportStatus = "Failed"
+                    isExporting = false
+                }
+                ToastManager.shared.show(message: "Export failed: \(error.localizedDescription)", type: .error)
+            }
+        }
     }
     
     var body: some View {
@@ -17,21 +195,62 @@ struct MySQLView: View {
             // Sidebar: DB & Tables
             VStack(spacing: 0) {
                 // DB Selector Header
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                    Text("Database".localized)
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "server.rack")
+                            .foregroundColor(DesignSystem.Colors.blue)
+                        Text(viewModel.connection.name)
+                            .font(.headline)
+                            .lineLimit(1)
+                    }
+                    
+                    Spacer()
+                    
+                    // Connection Status
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(viewModel.isConnected ? DesignSystem.Colors.green : DesignSystem.Colors.pink)
+                            .frame(width: 6, height: 6)
+                        Text(viewModel.isConnected ? "Connected" : "Disconnected")
+                            .font(.system(size: 10))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(DesignSystem.Colors.surfaceSecondary)
+                    .cornerRadius(DesignSystem.Radius.small)
                     
                     Picker("", selection: $viewModel.currentDatabase) {
                         ForEach(viewModel.databases, id: \.self) { db in
                             Text(db).tag(db)
                         }
                     }
+                    .pickerStyle(.menu)
+                    .frame(width: 100)
                     .labelsHidden()
                     .disabled(viewModel.isLoading)
                 }
-                .padding()
+                .padding(.horizontal, DesignSystem.Spacing.medium)
+                .frame(height: 44)
                 .background(DesignSystem.Colors.surface)
+
+                if let error = viewModel.errorMsg, !error.isEmpty {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(DesignSystem.Colors.pink)
+                        Text(error)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.pink)
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                        Spacer()
+                        Button("Retry") { viewModel.connect() }
+                            .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.medium)
+                    .padding(.vertical, 8)
+                    .background(DesignSystem.Colors.surfaceSecondary)
+                }
                 
                 Divider()
                 
@@ -64,6 +283,7 @@ struct MySQLView: View {
                         ProgressView().scaleEffect(0.5).padding(.trailing)
                     }
                 }
+                .frame(height: 44)
                 .background(DesignSystem.Colors.surface)
                 
                 Divider()
@@ -83,7 +303,57 @@ struct MySQLView: View {
         .onAppear {
             viewModel.connect()
         }
-    }
+		.sheet(isPresented: $isExporting) {
+			SheetScaffold(
+                title: exportTitle,
+                subtitle: exportStatus,
+                minSize: NSSize(width: 520, height: 240),
+                onClose: {
+                    exportTask?.cancel()
+                    exportTask = nil
+                    isExporting = false
+                }
+            ) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 10) {
+                        ProgressView()
+                        Text(exportStatus)
+                            .font(DesignSystem.Typography.body)
+                        Spacer()
+                    }
+                    Text("Rows: \(exportRowsExported)")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                .padding(DesignSystem.Spacing.medium)
+            } footer: {
+                HStack {
+                    Spacer()
+                    Button("Cancel") {
+                        exportTask?.cancel()
+                        exportTask = nil
+                        isExporting = false
+                    }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
+			}
+		}
+			.sheet(item: $editCellTarget) { target in
+				MySQLEditCellSheet(
+					viewModel: viewModel,
+					rowIndex: target.rowIndex,
+					columnIndex: target.columnIndex,
+					originalValue: target.originalValue,
+					onClose: { editCellTarget = nil }
+				)
+			}
+			.alert("Unsafe SQL", isPresented: $viewModel.showUnsafeMutationAlert) {
+				Button("Cancel", role: .cancel) { viewModel.cancelPendingUnsafeMutation() }
+				Button("Run Anyway", role: .destructive) { viewModel.runPendingUnsafeMutationAnyway() }
+			} message: {
+				Text(viewModel.unsafeMutationMessage)
+			}
+		}
+	}
     
     @ViewBuilder
     private var tableDataContent: some View {
@@ -92,28 +362,82 @@ struct MySQLView: View {
             if viewModel.currentTable != nil {
                 VStack(spacing: DesignSystem.Spacing.small) {
                     HStack(spacing: DesignSystem.Spacing.medium) {
-                        HStack {
-                            Text("WHERE")
-                                .font(DesignSystem.Typography.caption.bold())
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("id > 5 AND status = 'active'", text: $viewModel.whereClause)
-                                .textFieldStyle(ModernTextFieldStyle())
-                                .onSubmit { viewModel.loadData() }
+                    HStack {
+                        Text("WHERE")
+                            .font(DesignSystem.Typography.caption.bold())
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                        SQLTextField(text: $viewModel.whereClause, 
+                                       placeholder: "id > 5 AND status = 'active'", 
+                                       tables: viewModel.tables,
+                                       columns: viewModel.allColumns,
+                                       onSubmit: { viewModel.loadData() })
+                                .frame(height: 32)
+                                .padding(.horizontal, 8)
+                                .background(DesignSystem.Colors.surfaceSecondary.opacity(0.5))
+                                .cornerRadius(DesignSystem.Radius.small)
+
+                        if !viewModel.filterPresets.isEmpty {
+                            Menu {
+                                ForEach(viewModel.filterPresets) { preset in
+                                    Button(preset.name) { viewModel.applyFilterPreset(preset) }
+                                }
+                            } label: {
+                                Image(systemName: "bookmark")
+                            }
+                            .menuStyle(.borderlessButton)
+                            .help("Filter Presets")
                         }
-                        
-                        HStack {
-                            Text("ORDER BY")
-                                .font(DesignSystem.Typography.caption.bold())
+
+                        Button(action: { showFilterBuilder = true }) {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                        }
+                        .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                        .help("Filter Builder")
+                        .popover(isPresented: $showFilterBuilder) {
+                            MySQLFilterBuilderPopover(viewModel: viewModel, isPresented: $showFilterBuilder)
+                        }
+                    }
+                    
+                    HStack {
+                        Text("ORDER BY")
+                            .font(DesignSystem.Typography.caption.bold())
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("created_at DESC", text: $viewModel.orderBy)
-                                .textFieldStyle(ModernTextFieldStyle())
-                                .onSubmit { viewModel.loadData() }
+                            SQLTextField(text: $viewModel.orderBy, 
+                                       placeholder: "created_at DESC", 
+                                       tables: viewModel.tables,
+                                       columns: viewModel.allColumns,
+                                       onSubmit: { viewModel.loadData() })
+                                .frame(height: 32)
+                                .padding(.horizontal, 8)
+                                .background(DesignSystem.Colors.surfaceSecondary.opacity(0.5))
+                                .cornerRadius(DesignSystem.Radius.small)
                         }
                         
                         Button(action: { viewModel.loadData() }) {
                             Image(systemName: "play.fill")
                         }
                         .buttonStyle(ModernButtonStyle(variant: .primary))
+
+                        Menu {
+                            Section("Current Result") {
+                                Button("CSV") { startExportCurrent(format: .csv) }
+                                Button("TSV") { startExportCurrent(format: .tsv) }
+                                Button("JSON") { startExportCurrent(format: .json) }
+                            }
+                            Divider()
+                            Section("All Rows") {
+                                Button("CSV") { startExportAll(format: .csv) }
+                                    .disabled(viewModel.currentTable == nil)
+                                Button("TSV") { startExportAll(format: .tsv) }
+                                    .disabled(viewModel.currentTable == nil)
+                                Button("JSON") { startExportAll(format: .json) }
+                                    .disabled(viewModel.currentTable == nil)
+                            }
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .menuStyle(.borderlessButton)
+                        .help("Export")
                     }
                 }
                 .padding()
@@ -125,13 +449,51 @@ struct MySQLView: View {
                             LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
                                 Section(header: tableHeader) {
                                     ForEach(0..<viewModel.rows.count, id: \.self) { idx in
-                                        DataRow(rowIndex: idx, rowData: viewModel.rows[idx], viewModel: viewModel)
+                                        DataRow(
+                                            rowIndex: idx,
+                                            rowData: viewModel.rows[idx],
+                                            viewModel: viewModel,
+                                            onEditCell: { rowIndex, colIndex in
+                                                guard viewModel.rows.indices.contains(rowIndex),
+                                                      viewModel.rows[rowIndex].indices.contains(colIndex) else { return }
+                                                if viewModel.connection.type == .clickhouse {
+                                                    ToastManager.shared.show(message: "ClickHouse does not support UPDATE", type: .warning)
+                                                    return
+                                                }
+                                                if viewModel.primaryKeyColumns.isEmpty {
+                                                    ToastManager.shared.show(message: "No primary key, editing disabled", type: .warning)
+                                                    return
+                                                }
+                                                editCellTarget = EditCellTarget(
+                                                    rowIndex: rowIndex,
+                                                    columnIndex: colIndex,
+                                                    originalValue: viewModel.rows[rowIndex][colIndex]
+                                                )
+                                            }
+                                        )
                                     }
                                 }
                                 .id("scroll-top")
                             }
                             .fixedSize(horizontal: true, vertical: false)
                             .frame(minWidth: geo.size.width, minHeight: geo.size.height, alignment: .topLeading)
+                        }
+                        .focusable(true)
+                        .focused($isDataGridFocused)
+                        .sshtools_disableFocusRing()
+                        .onTapGesture { isDataGridFocused = true }
+                        .onCopyCommand { copyGridSelectionProviders() }
+                        .onExitCommand { viewModel.clearSelection() }
+                        .contextMenu {
+                            Button("Copy Cell") { copySelectedCellIfAny() }
+                                .disabled(!(selectedRowIndicesSorted.count == 1 && viewModel.selectedColumnIndex != nil))
+                            Divider()
+                            Button("Copy Selected Rows (TSV)") { copySelectedRowsTSV(includeHeaders: false) }
+                                .disabled(selectedRowIndicesSorted.isEmpty)
+                            Button("Copy Selected Rows (TSV with Headers)") { copySelectedRowsTSV(includeHeaders: true) }
+                                .disabled(selectedRowIndicesSorted.isEmpty || viewModel.headers.isEmpty)
+                            Button("Copy Selected Rows (JSON)") { copySelectedRowsJSON() }
+                                .disabled(selectedRowIndicesSorted.isEmpty || viewModel.headers.isEmpty)
                         }
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -167,14 +529,15 @@ struct MySQLView: View {
             ZStack(alignment: .bottomTrailing) {
                 SQLCodeEditor(text: $viewModel.sqlEditorText, 
                               tables: viewModel.tables,
+                              columns: viewModel.allColumns,
                               onExecute: { viewModel.executeRawSQL() })
                     .frame(minHeight: 150, maxHeight: 300)
                 
                 // Floating Action Buttons (Bottom Right)
-                if !showAIHelper {
-                    HStack(spacing: 12) {
-                        // AI Button
-                        Button(action: { withAnimation { showAIHelper = true } }) {
+	                if !showAIHelper {
+	                    HStack(spacing: 12) {
+	                        // AI Button
+	                        Button(action: { withAnimation { showAIHelper = true } }) {
                             HStack {
                                 Image(systemName: "sparkles")
                                 Text("AI SQL")
@@ -186,14 +549,47 @@ struct MySQLView: View {
                             .background(Color.white.opacity(0.9))
                             .cornerRadius(20)
                             .shadow(radius: 2)
-                        }
-                        .buttonStyle(.plain)
-                        
-                        // Run Button
-                        Button(action: { viewModel.executeRawSQL() }) {
-                            HStack {
-                                Image(systemName: "play.fill")
-                                Text("Run".localized)
+	                        }
+	                        .buttonStyle(.plain)
+	                        
+	                        if viewModel.canEstimateAffectedRows(sql: viewModel.sqlEditorText),
+	                           viewModel.connection.type != .clickhouse {
+	                            Button(action: {
+	                                guard !isEstimatingMutation else { return }
+	                                isEstimatingMutation = true
+	                                let sql = viewModel.sqlEditorText
+	                                Task {
+	                                    do {
+	                                        if let cnt = try await viewModel.estimateAffectedRows(sql: sql) {
+	                                            ToastManager.shared.show(message: "Estimated affected rows: \(cnt)", type: .info)
+	                                        } else {
+	                                            ToastManager.shared.show(message: "Cannot estimate affected rows", type: .warning)
+	                                        }
+	                                    } catch {
+	                                        ToastManager.shared.show(message: "Estimate failed: \(error.localizedDescription)", type: .error)
+	                                    }
+	                                    await MainActor.run { isEstimatingMutation = false }
+	                                }
+	                            }) {
+	                                HStack {
+	                                    Image(systemName: "magnifyingglass")
+	                                    Text(isEstimatingMutation ? "Estimating…" : "Estimate")
+	                                }
+	                                .padding(.horizontal, 12)
+	                                .padding(.vertical, 8)
+	                                .background(DesignSystem.Colors.surfaceSecondary.opacity(0.8))
+	                                .foregroundColor(DesignSystem.Colors.text)
+	                                .cornerRadius(20)
+	                                .shadow(radius: 2)
+	                            }
+	                            .buttonStyle(.plain)
+	                        }
+
+	                        // Run Button
+	                        Button(action: { viewModel.executeRawSQL() }) {
+	                            HStack {
+	                                Image(systemName: "play.fill")
+	                                Text("Run".localized)
                             }
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
@@ -272,12 +668,50 @@ struct MySQLView: View {
                         LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
                             Section(header: tableHeader) {
                                 ForEach(0..<viewModel.rows.count, id: \.self) { idx in
-                                    DataRow(rowIndex: idx, rowData: viewModel.rows[idx], viewModel: viewModel)
+                                    DataRow(
+                                        rowIndex: idx,
+                                        rowData: viewModel.rows[idx],
+                                        viewModel: viewModel,
+                                        onEditCell: { rowIndex, colIndex in
+                                            guard viewModel.rows.indices.contains(rowIndex),
+                                                  viewModel.rows[rowIndex].indices.contains(colIndex) else { return }
+                                            if viewModel.connection.type == .clickhouse {
+                                                ToastManager.shared.show(message: "ClickHouse does not support UPDATE", type: .warning)
+                                                return
+                                            }
+                                            if viewModel.primaryKeyColumns.isEmpty {
+                                                ToastManager.shared.show(message: "No primary key, editing disabled", type: .warning)
+                                                return
+                                            }
+                                            editCellTarget = EditCellTarget(
+                                                rowIndex: rowIndex,
+                                                columnIndex: colIndex,
+                                                originalValue: viewModel.rows[rowIndex][colIndex]
+                                            )
+                                        }
+                                    )
                                 }
                             }
                         }
                         .fixedSize(horizontal: true, vertical: false)
                         .frame(minWidth: geo.size.width, minHeight: geo.size.height, alignment: .topLeading)
+                    }
+                    .focusable(true)
+                    .focused($isDataGridFocused)
+                    .sshtools_disableFocusRing()
+                    .onTapGesture { isDataGridFocused = true }
+                    .onCopyCommand { copyGridSelectionProviders() }
+                    .onExitCommand { viewModel.clearSelection() }
+                    .contextMenu {
+                        Button("Copy Cell") { copySelectedCellIfAny() }
+                            .disabled(!(selectedRowIndicesSorted.count == 1 && viewModel.selectedColumnIndex != nil))
+                        Divider()
+                        Button("Copy Selected Rows (TSV)") { copySelectedRowsTSV(includeHeaders: false) }
+                            .disabled(selectedRowIndicesSorted.isEmpty)
+                        Button("Copy Selected Rows (TSV with Headers)") { copySelectedRowsTSV(includeHeaders: true) }
+                            .disabled(selectedRowIndicesSorted.isEmpty || viewModel.headers.isEmpty)
+                        Button("Copy Selected Rows (JSON)") { copySelectedRowsJSON() }
+                            .disabled(selectedRowIndicesSorted.isEmpty || viewModel.headers.isEmpty)
                     }
                 }
             } else {
@@ -350,6 +784,15 @@ struct MySQLView: View {
                         if viewModel.columnWidths.indices.contains(index) {
                             viewModel.updateColumnWidth(index: index, width: newWidth)
                         }
+                    },
+                    sortDirection: viewModel.sortColumnName == header ? viewModel.sortDirection : nil,
+                    onToggleSort: {
+                        viewModel.toggleSort(columnName: header)
+                    },
+                    isSelectedColumn: viewModel.selectedColumnIndex == index,
+                    onSelectColumn: {
+                        viewModel.selectColumn(index: index)
+                        isDataGridFocused = true
                     }
                 )
             }
@@ -411,7 +854,7 @@ struct MySQLOverviewView: View {
             VStack(alignment: .leading, spacing: 32) {
                 // Header
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("MySQL Dashboard".localized)
+                    Text(viewModel.databaseProductName == "ClickHouse" ? "ClickHouse Dashboard".localized : "MySQL Dashboard".localized)
                         .font(.system(size: 28, weight: .black, design: .rounded))
                     
                     if let info = viewModel.serverInfo {

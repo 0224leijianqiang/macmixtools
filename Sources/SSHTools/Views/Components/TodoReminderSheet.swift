@@ -38,58 +38,62 @@ struct TodoReminderSheet: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Set Reminder".localized)
-                .font(.headline)
-            
-            Toggle("Enable Reminder".localized, isOn: $hasReminder)
-                .toggleStyle(.switch)
-            
-            if hasReminder {
-                DatePicker("Time".localized, selection: $reminderDate, displayedComponents: [.date, .hourAndMinute])
-                    .datePickerStyle(.stepperField)
-                    .disabled(frequency == .custom) // Custom interval starts now/soon usually
-                
-                Picker("Frequency".localized, selection: $frequency) {
-                    ForEach(ReminderFrequency.allCases, id: \.self) { freq in
-                        Text(freq.localizedName).tag(freq)
-                    }
-                }
-                .pickerStyle(.segmented)
-                
-                if frequency == .custom {
-                    HStack {
-                        TextField("Value", value: $customIntervalValue, formatter: NumberFormatter())
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 60)
-                        
-                        Picker("", selection: $customIntervalUnit) {
-                            ForEach(TimeUnit.allCases, id: \.self) { unit in
-                                Text(unit.rawValue.localized).tag(unit)
-                            }
+        SheetScaffold(
+            title: "Set Reminder".localized,
+            minSize: NSSize(width: 520, height: 420),
+            onClose: { isPresented = false }
+        ) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
+                Toggle("Enable Reminder".localized, isOn: $hasReminder)
+                    .toggleStyle(.switch)
+
+                if hasReminder {
+                    DatePicker("Time".localized, selection: $reminderDate, displayedComponents: [.date, .hourAndMinute])
+                        .datePickerStyle(.stepperField)
+                        .disabled(frequency == .custom)
+
+                    Picker("Frequency".localized, selection: $frequency) {
+                        ForEach(ReminderFrequency.allCases, id: \.self) { freq in
+                            Text(freq.localizedName).tag(freq)
                         }
-                        .frame(width: 100)
-                        
-                        Text("Interval".localized)
+                    }
+                    .pickerStyle(.segmented)
+
+                    if frequency == .custom {
+                        HStack {
+                            TextField("Value", value: $customIntervalValue, formatter: NumberFormatter())
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+
+                            Picker("", selection: $customIntervalUnit) {
+                                ForEach(TimeUnit.allCases, id: \.self) { unit in
+                                    Text(unit.rawValue.localized).tag(unit)
+                                }
+                            }
+                            .frame(width: 120)
+
+                            Text("Interval".localized)
+                            Spacer()
+                        }
                     }
                 }
             }
-            
+            .padding()
+        } footer: {
             HStack {
-                Button("Cancel".localized) {
-                    isPresented = false
-                }
-                .keyboardShortcut(.cancelAction)
-                
+                Button("Cancel".localized) { isPresented = false }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
+                    .keyboardShortcut(.cancelAction)
+
                 Spacer()
-                
+
                 Button("Save".localized) {
                     var updatedItem = item
                     updatedItem.hasReminder = hasReminder
                     if hasReminder {
                         updatedItem.reminderDate = reminderDate
                         updatedItem.reminderFrequency = frequency
-                        
+
                         if frequency == .custom {
                             let multiplier: TimeInterval = customIntervalUnit == .minutes ? 60 : 3600
                             updatedItem.reminderInterval = TimeInterval(customIntervalValue) * multiplier
@@ -104,13 +108,9 @@ struct TodoReminderSheet: View {
                     onSave(updatedItem)
                     isPresented = false
                 }
-                .buttonStyle(ModernButtonStyle(variant: .primary, size: .regular))
+                .buttonStyle(ModernButtonStyle(variant: .primary))
                 .keyboardShortcut(.defaultAction)
             }
-            .padding(.top, 10)
         }
-        .padding()
-        .frame(width: 320)
-        .background(DesignSystem.Colors.background)
     }
 }

@@ -15,32 +15,35 @@ struct RenameSheet: View {
     }
     
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.medium) {
-            Text("Rename".localized)
-                .font(DesignSystem.Typography.headline)
-            
-            TextField("New Name", text: $newName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .frame(width: 300)
-                .onSubmit {
-                    save()
-                }
-            
+        SheetScaffold(
+            title: "Rename".localized,
+            minSize: NSSize(width: 420, height: 220),
+            onClose: { dismiss() }
+        ) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
+                Text("New Name".localized)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                TextField("New Name".localized, text: $newName)
+                    .textFieldStyle(ModernTextFieldStyle(icon: "pencil"))
+                    .outlined()
+                    .onSubmit { save() }
+            }
+            .padding()
+        } footer: {
             HStack {
-                Button("Cancel".localized) {
-                    dismiss()
-                }
-                .keyboardShortcut(.escape, modifiers: [])
-                
-                Button("Rename".localized) {
-                    save()
-                }
-                .keyboardShortcut(.defaultAction)
-                .disabled(newName.isEmpty || newName == currentName)
+                Button("Cancel".localized) { dismiss() }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary))
+                    .keyboardShortcut(.escape, modifiers: [])
+
+                Spacer()
+
+                Button("Rename".localized) { save() }
+                    .buttonStyle(ModernButtonStyle(variant: .primary))
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(newName.isEmpty || newName == currentName)
             }
         }
-        .padding()
-        .frame(width: 350)
     }
     
     private func save() {
