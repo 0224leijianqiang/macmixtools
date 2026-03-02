@@ -292,12 +292,16 @@ class SFTPService {
 
         do {
             try await withThrowingTaskGroup(of: Int64.self) { group in
-                for offset in stride(from: 0, to: totalSize, by: Int64(chunkSize)) {
+                var offset: Int64 = 0
+                while offset < totalSize {
                     try await control.waitIfPaused()
                     if activeTasks >= maxConcurrency {
                         _ = try await group.next()
                         activeTasks -= 1
                     }
+
+                    let currentOffset = offset
+                    offset += Int64(chunkSize)
 
                     group.addTask {
                         try await control.waitIfPaused()
@@ -307,8 +311,8 @@ class SFTPService {
                         let handle = try await sftp.openFile(filePath: remotePath, flags: [.write, .create])
                         defer { Task { try? await handle.close() } }
 
-                        let chunkStart = UInt64(offset)
-                        let chunkLen = min(Int64(chunkSize), totalSize - offset)
+                        let chunkStart = UInt64(currentOffset)
+                        let chunkLen = min(Int64(chunkSize), totalSize - currentOffset)
 
                         try localHandle.seek(toOffset: chunkStart)
                         guard let data = try localHandle.read(upToCount: Int(chunkLen)), !data.isEmpty else {

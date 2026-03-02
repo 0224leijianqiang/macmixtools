@@ -36,9 +36,9 @@ struct HTTPAISpec: Decodable {
         body = try container.decodeIfPresent(String.self, forKey: .body)
 
         if let arrayHeaders = try? container.decodeIfPresent([AIHeaderItem].self, forKey: .headers) {
-            headers = arrayHeaders ?? []
+            headers = arrayHeaders
         } else if let dictHeaders = try? container.decodeIfPresent([String: String].self, forKey: .headers) {
-            headers = (dictHeaders ?? [:]).map { AIHeaderItem(key: $0.key, value: $0.value) }
+            headers = dictHeaders.map { AIHeaderItem(key: $0.key, value: $0.value) }
         } else {
             headers = []
         }
