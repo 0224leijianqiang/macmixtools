@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct TerminalView: View {
     @ObservedObject private var viewModel: TerminalViewModel
@@ -79,6 +80,13 @@ struct TerminalView: View {
                             Text(statusText)
                                 .font(.system(size: 10, weight: .semibold))
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                            Button(action: copyLastOutput) {
+                                Image(systemName: "doc.on.doc")
+                                    .font(.system(size: 10, weight: .semibold))
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundColor(DesignSystem.Colors.blue)
+                            .help("Copy last output")
                             if !viewModel.runner.isConnected && !viewModel.runner.isConnecting {
                                 Button("Reconnect") {
                                     viewModel.connect()
@@ -349,5 +357,17 @@ struct TerminalView: View {
                 .fill(viewModel.runner.isConnected ? DesignSystem.Colors.green : DesignSystem.Colors.pink)
                 .frame(width: 6, height: 6)
         }
+    }
+
+    private func copyLastOutput() {
+        let text = viewModel.runner.getLastOutput()
+        guard !text.isEmpty else {
+            ToastManager.shared.show(message: "No output to copy", type: .warning)
+            return
+        }
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(text, forType: .string)
+        ToastManager.shared.show(message: "Output copied", type: .success)
     }
 }

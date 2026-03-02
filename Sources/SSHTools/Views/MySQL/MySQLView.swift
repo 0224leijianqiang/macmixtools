@@ -278,6 +278,18 @@ struct MySQLView: View {
                     ModeButton(title: "SQL Console", icon: "terminal.fill", mode: .console, currentMode: $viewModel.currentMode)
                     
                     Spacer()
+
+                    Button(action: { copyToPasteboard(viewModel.sqlEditorText, toast: "SQL Copied") }) {
+                        Image(systemName: "doc.on.doc")
+                    }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                    .help("Copy SQL")
+
+                    Button(action: { startExportCurrent(format: .csv) }) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                    .help("Export Current Result (CSV)")
                     
                     if viewModel.isLoading {
                         ProgressView().scaleEffect(0.5).padding(.trailing)

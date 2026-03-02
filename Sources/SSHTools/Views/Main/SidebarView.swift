@@ -73,61 +73,87 @@ struct SidebarView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 4) {
                     if searchText.isEmpty {
-                        sidebarSection(title: "Tools".localized) {
-                            SidebarToolRow(title: "HTTP Client".localized, 
-                                           icon: "network", 
-                                           color: DesignSystem.Colors.blue, 
-                                           id: AppConstants.FixedIDs.httpClient,
-                                           isSelected: selection == AppConstants.FixedIDs.httpClient)
-                                .onTapGesture { selection = AppConstants.FixedIDs.httpClient }
-                            
-                            SidebarToolRow(title: "Dev Toolbox".localized, 
-                                           icon: "wrench.and.screwdriver.fill", 
-                                           color: DesignSystem.Colors.purple, 
-                                           id: AppConstants.FixedIDs.devToolbox,
-                                           isSelected: selection == AppConstants.FixedIDs.devToolbox)
-                                .onTapGesture { selection = AppConstants.FixedIDs.devToolbox }
-                        }
-                    }
-                    
-                    // Grouped Connections
-                    ForEach(store.groups) { group in
-                        let filteredConnections = store.connections.filter { 
-                            group.connectionIds.contains($0.id) && 
-                            (searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) || $0.host.localizedCaseInsensitiveContains(searchText))
-                        }
-                        
-                        if !filteredConnections.isEmpty {
-                            sidebarSection(title: group.name) {
-                                ForEach(filteredConnections) { connection in
-                                    ConnectionItemRow(connection: connection, 
+                        if !recentConnections.isEmpty {
+                            sidebarSection(title: "Recent".localized) {
+                                ForEach(recentConnections) { connection in
+                                    ConnectionItemRow(connection: connection,
                                                      isSelected: selection == connection.id,
                                                      onSelect: { selection = connection.id },
                                                      editingConnectionID: $editingConnectionID,
                                                      tabManager: tabManager,
+                                                     store: store,
+                                                     onDelete: { store.deleteConnection(id: connection.id) })
+                                }
+                            }
+                        }
+
+                        if !favoriteConnections.isEmpty {
+                            sidebarSection(title: "Favorites".localized) {
+                                ForEach(favoriteConnections) { connection in
+                                    ConnectionItemRow(connection: connection,
+                                                     isSelected: selection == connection.id,
+                                                     onSelect: { selection = connection.id },
+                                                     editingConnectionID: $editingConnectionID,
+                                                     tabManager: tabManager,
+                                                     store: store,
                                                      onDelete: { store.deleteConnection(id: connection.id) })
                                 }
                             }
                         }
                     }
-                    
-                    // Orphan Connections
-                    let orphanConnections = store.connections.filter { conn in
-                        !store.groups.contains(where: { $0.connectionIds.contains(conn.id) }) &&
-                        (searchText.isEmpty || conn.name.localizedCaseInsensitiveContains(searchText) || conn.host.localizedCaseInsensitiveContains(searchText))
-                    }
-                    
-                    if !orphanConnections.isEmpty {
-                        sidebarSection(title: "Servers".localized) {
-                            ForEach(orphanConnections) { connection in
-                                ConnectionItemRow(connection: connection, 
-                                                 isSelected: selection == connection.id,
-                                                 onSelect: { selection = connection.id },
-                                                 editingConnectionID: $editingConnectionID,
-                                                 tabManager: tabManager,
-                                                 onDelete: { store.deleteConnection(id: connection.id) })
-                            }
+
+                    sidebarSection(title: "SSH / SFTP".localized) {
+                        ForEach(connections(of: [.ssh, .localTerminal])) { connection in
+                            ConnectionItemRow(connection: connection,
+                                             isSelected: selection == connection.id,
+                                             onSelect: { selection = connection.id },
+                                             editingConnectionID: $editingConnectionID,
+                                             tabManager: tabManager,
+                                             store: store,
+                                             onDelete: { store.deleteConnection(id: connection.id) })
                         }
+                    }
+
+                    sidebarSection(title: "Redis".localized) {
+                        ForEach(connections(of: [.redis])) { connection in
+                            ConnectionItemRow(connection: connection,
+                                             isSelected: selection == connection.id,
+                                             onSelect: { selection = connection.id },
+                                             editingConnectionID: $editingConnectionID,
+                                             tabManager: tabManager,
+                                             store: store,
+                                             onDelete: { store.deleteConnection(id: connection.id) })
+                        }
+                    }
+
+                    sidebarSection(title: "MySQL".localized) {
+                        ForEach(connections(of: [.mysql, .clickhouse])) { connection in
+                            ConnectionItemRow(connection: connection,
+                                             isSelected: selection == connection.id,
+                                             onSelect: { selection = connection.id },
+                                             editingConnectionID: $editingConnectionID,
+                                             tabManager: tabManager,
+                                             store: store,
+                                             onDelete: { store.deleteConnection(id: connection.id) })
+                        }
+                    }
+
+                    sidebarSection(title: "HTTP".localized) {
+                        SidebarToolRow(title: "HTTP Client".localized,
+                                       icon: "network",
+                                       color: DesignSystem.Colors.blue,
+                                       id: AppConstants.FixedIDs.httpClient,
+                                       isSelected: selection == AppConstants.FixedIDs.httpClient)
+                            .onTapGesture { selection = AppConstants.FixedIDs.httpClient }
+                    }
+
+                    sidebarSection(title: "DevTools".localized) {
+                        SidebarToolRow(title: "Dev Toolbox".localized,
+                                       icon: "wrench.and.screwdriver.fill",
+                                       color: DesignSystem.Colors.purple,
+                                       id: AppConstants.FixedIDs.devToolbox,
+                                       isSelected: selection == AppConstants.FixedIDs.devToolbox)
+                            .onTapGesture { selection = AppConstants.FixedIDs.devToolbox }
                     }
                 }
                 .padding(.horizontal, 8)
@@ -137,6 +163,30 @@ struct SidebarView: View {
         .background(DesignSystem.Colors.sidebarBackground)
     }
     
+    private var recentConnections: [SSHConnection] {
+        let list = store.recentConnectionIds.compactMap { id in
+            store.connections.first { $0.id == id }
+        }
+        return filterConnections(list)
+    }
+
+    private var favoriteConnections: [SSHConnection] {
+        let list = store.favoriteConnectionIds.compactMap { id in
+            store.connections.first { $0.id == id }
+        }
+        return filterConnections(list)
+    }
+
+    private func connections(of types: [ConnectionType]) -> [SSHConnection] {
+        let list = store.connections.filter { types.contains($0.type) }
+        return filterConnections(list)
+    }
+
+    private func filterConnections(_ list: [SSHConnection]) -> [SSHConnection] {
+        guard !searchText.isEmpty else { return list }
+        return list.filter { $0.name.localizedCaseInsensitiveContains(searchText) || $0.host.localizedCaseInsensitiveContains(searchText) }
+    }
+
     @ViewBuilder
     private func sidebarSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -264,6 +314,7 @@ private struct ConnectionItemRow: View {
     let onSelect: () -> Void
     @Binding var editingConnectionID: IdentifiableUUID?
     @ObservedObject var tabManager: TabManager
+    @ObservedObject var store: ConnectionsStore
     let onDelete: () -> Void
     @ObservedObject private var localPathStore = LocalTerminalPathStore.shared
     
@@ -285,6 +336,12 @@ private struct ConnectionItemRow: View {
                 }
             }
             Spacer()
+            Button(action: { store.toggleFavorite(id: connection.id) }) {
+                Image(systemName: store.isFavorite(connection.id) ? "star.fill" : "star")
+                    .font(.system(size: 12))
+                    .foregroundColor(store.isFavorite(connection.id) ? .yellow : .secondary)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.vertical, 6)
         .padding(.horizontal, 12)
@@ -293,6 +350,9 @@ private struct ConnectionItemRow: View {
         .contentShape(Rectangle())
         .onTapGesture { onSelect() }
         .contextMenu {
+            Button(action: { store.toggleFavorite(id: connection.id) }) {
+                Label(store.isFavorite(connection.id) ? "Unfavorite" : "Favorite", systemImage: "star")
+            }
             Button(action: { editingConnectionID = IdentifiableUUID(id: connection.id) }) {
                 Label("Settings", systemImage: "gear")
             }

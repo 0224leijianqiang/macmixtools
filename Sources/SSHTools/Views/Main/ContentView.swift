@@ -98,6 +98,8 @@ struct ContentView: View {
         }
         
         guard let connection = store.connections.first(where: { $0.id == id }) else { return }
+
+        store.recordRecent(id: connection.id)
         
         if isConnectionValid(connection) {
             openConnection(connection)

@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 
 
@@ -105,7 +106,21 @@ struct RedisView: View {
                 }
                 
                 Spacer()
-                
+
+                HStack(spacing: 6) {
+                    Button(action: copyCurrentCommand) {
+                        Image(systemName: "terminal")
+                    }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                    .help("Copy Redis command")
+
+                    Button(action: copyCurrentValue) {
+                        Image(systemName: "doc.on.doc")
+                    }
+                    .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                    .help("Copy value")
+                }
+
                 Button(action: { showSettings = true }) {
                     HStack(spacing: 4) {
                         Circle()
@@ -394,6 +409,38 @@ struct RedisView: View {
         case .none: return "Loading..."
         case .unsupported(let t): return "Unsupported (\(t))"
         }
+    }
+
+    private func copyCurrentCommand() {
+        guard let key = viewModel.selectedKey else {
+            ToastManager.shared.show(message: "No key selected", type: .warning)
+            return
+        }
+        copyRedisCommand(key: key)
+        ToastManager.shared.show(message: "Command copied", type: .success)
+    }
+
+    private func copyCurrentValue() {
+        let text: String
+        switch viewModel.redisValue {
+        case .string(let val):
+            text = val
+        case .list(let list):
+            text = list.joined(separator: "\n")
+        case .set(let set):
+            text = set.joined(separator: "\n")
+        case .zset(let zitems):
+            text = zitems.map { "\($0.member)\t\($0.score)" }.joined(separator: "\n")
+        case .hash(let dict):
+            text = dict.map { "\($0.key)\t\($0.value)" }.joined(separator: "\n")
+        case .none, .unsupported:
+            ToastManager.shared.show(message: "No value to copy", type: .warning)
+            return
+        }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        ToastManager.shared.show(message: "Value copied", type: .success)
     }
     
     // 复制Redis命令到剪贴板

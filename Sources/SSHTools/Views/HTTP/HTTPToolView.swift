@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import CryptoKit
+import AppKit
 
 struct HeaderItem: Identifiable, Equatable, Codable {
     var id = UUID()
@@ -125,6 +126,57 @@ class HTTPToolViewModel: ObservableObject {
         let draft = HTTPRequestHistory(url: url, method: method, headers: headers, body: body, date: Date())
         if let encoded = try? JSONEncoder().encode(draft) {
             UserDefaults.standard.set(encoded, forKey: draftKey)
+        }
+    }
+
+    func buildCurl() -> String {
+        var parts: [String] = ["curl", "-X", method, "\"\(url)\""]
+        for header in headers where !header.key.isEmpty {
+            let value = header.value.replacingOccurrences(of: "\"", with: "\\\"")
+            parts.append("-H \"\(header.key): \(value)\"")
+        }
+        if !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let escaped = body.replacingOccurrences(of: "\"", with: "\\\"")
+            parts.append("--data \"\(escaped)\"")
+        }
+        return parts.joined(separator: " ")
+    }
+
+    func copyRequestCommand() {
+        let curl = buildCurl()
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(curl, forType: .string)
+        ToastManager.shared.show(message: "cURL copied", type: .success)
+    }
+
+    func copyResponse() {
+        let text = responseBodyFormatted.isEmpty ? responseBody : responseBodyFormatted
+        guard !text.isEmpty else {
+            ToastManager.shared.show(message: "No response", type: .warning)
+            return
+        }
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(text, forType: .string)
+        ToastManager.shared.show(message: "Response copied", type: .success)
+    }
+
+    func exportResponse() {
+        let text = responseBodyFormatted.isEmpty ? responseBody : responseBodyFormatted
+        guard !text.isEmpty else {
+            ToastManager.shared.show(message: "No response", type: .warning)
+            return
+        }
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "response.txt"
+        if panel.runModal() == .OK, let url = panel.url {
+            do {
+                try text.write(to: url, atomically: true, encoding: .utf8)
+                ToastManager.shared.show(message: "Response exported", type: .success)
+            } catch {
+                ToastManager.shared.show(message: error.localizedDescription, type: .error)
+            }
         }
     }
     
@@ -405,6 +457,27 @@ struct HTTPToolView: View {
                     }
                     .padding()
                 }
+
+                Button(action: { viewModel.copyRequestCommand() }) {
+                    Image(systemName: "terminal")
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                .help("Copy cURL")
+
+                Button(action: { viewModel.copyResponse() }) {
+                    Image(systemName: "doc.on.doc")
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                .help("Copy response")
+
+                Button(action: { viewModel.exportResponse() }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(ModernButtonStyle(variant: .secondary, size: .small))
+                .help("Export response")
                 
                 Picker("", selection: $viewModel.method) {
                     ForEach(viewModel.methods, id: \.self) { method in
