@@ -275,41 +275,65 @@ class SFTPService {
                 try? await SFTPService.shared.upload(sftp: sftp, localURL: localURL, remotePath: remotePath)
             }
         }
-        
-        // Open local file for reading
-        let localHandle = try FileHandle(forReadingFrom: localURL)
-        defer { try? localHandle.close() }
-        
-        // Open remote file for writing
-        let handle = try await sftp.openFile(filePath: remotePath, flags: [.write, .create, .truncate])
-        defer { Task { try? await handle.close() } }
-        
-        // Sequential streaming upload with throttled UI updates.
-        let chunkSize = max(Int(SettingsManager.shared.sftpUploadChunkBytes), 64 * 1024) // clamp to avoid tiny chunks
-        var bytesWritten: Int64 = 0
-        var offset: UInt64 = 0
-        var lastProgressUpdate = Date.distantPast
+
+        // Handle empty file quickly
+        if totalSize == 0 {
+            let handle = try await sftp.openFile(filePath: remotePath, flags: [.write, .create, .truncate])
+            try await handle.close()
+            TransferManager.shared.completeTask(id: taskID)
+            return
+        }
+
+        // Concurrent upload (per-chunk handles to avoid concurrent writes on a single handle)
+        let chunkSize: Int = max(Int(SettingsManager.shared.sftpUploadChunkBytes), 256 * 1024)
+        let maxConcurrency = 4
+        let progressTracker = ThreadSafeProgress(totalSize: totalSize, taskID: taskID)
+        var activeTasks = 0
 
         do {
-            while let data = try localHandle.read(upToCount: chunkSize), !data.isEmpty {
-                try await control.waitIfPaused()
-                let buffer = ByteBuffer(data: data)
-                try await handle.write(buffer, at: offset)
-                bytesWritten += Int64(data.count)
-                offset += UInt64(data.count)
+            try await withThrowingTaskGroup(of: Int64.self) { group in
+                for offset in stride(from: 0, to: totalSize, by: Int64(chunkSize)) {
+                    try await control.waitIfPaused()
+                    if activeTasks >= maxConcurrency {
+                        _ = try await group.next()
+                        activeTasks -= 1
+                    }
 
-                let now = Date()
-                let shouldUpdate = now.timeIntervalSince(lastProgressUpdate) >= 0.05
-                    || bytesWritten == totalSize
-                    || totalSize <= Int64(chunkSize)
-                if shouldUpdate {
-                    lastProgressUpdate = now
-                    let progress = totalSize > 0 ? Double(bytesWritten) / Double(totalSize) : 0
-                    TransferManager.shared.updateTask(id: taskID, progress: progress, transferredSize: bytesWritten)
+                    group.addTask {
+                        try await control.waitIfPaused()
+                        let localHandle = try FileHandle(forReadingFrom: localURL)
+                        defer { try? localHandle.close() }
+
+                        let handle = try await sftp.openFile(filePath: remotePath, flags: [.write, .create])
+                        defer { Task { try? await handle.close() } }
+
+                        let chunkStart = UInt64(offset)
+                        let chunkLen = min(Int64(chunkSize), totalSize - offset)
+
+                        try localHandle.seek(toOffset: chunkStart)
+                        guard let data = try localHandle.read(upToCount: Int(chunkLen)), !data.isEmpty else {
+                            return 0
+                        }
+
+                        let buffer = ByteBuffer(data: data)
+                        try await handle.write(buffer, at: chunkStart)
+                        await progressTracker.addBytes(Int64(data.count))
+                        return Int64(data.count)
+                    }
+                    activeTasks += 1
+                }
+
+                while let _ = try await group.next() {
+                    activeTasks -= 1
                 }
             }
-            
-            try await handle.close()
+
+            let finalBytes = await progressTracker.getCurrentBytes()
+            if finalBytes != totalSize {
+                let msg = "Upload incomplete (\(finalBytes)/\(totalSize) bytes)"
+                throw NSError(domain: "SFTPService", code: 3, userInfo: [NSLocalizedDescriptionKey: msg])
+            }
+
             TransferManager.shared.completeTask(id: taskID)
         } catch is CancellationError {
             TransferManager.shared.markCancelled(id: taskID)
