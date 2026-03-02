@@ -26,6 +26,9 @@ class SSHRunner: ObservableObject, Cleanable {
     private(set) var connectionID: UUID?
     private var terminalTask: Task<Void, Never>?
     private var keepAliveTask: Task<Void, Never>?
+    private var reconnectTask: Task<Void, Never>?
+    private var reconnectAttempts = 0
+    private let reconnectMaxDelay: TimeInterval = 30
     private var remoteShellPath: String?
     private var cwdHookInstalled = false
     private var needsInitialPromptCleanup = false
@@ -43,6 +46,7 @@ class SSHRunner: ObservableObject, Cleanable {
     private var lastActivity = Date()
     private let keepAliveInterval: TimeInterval = 30
     private let keepAliveIdleThreshold: TimeInterval = 45
+    private let autoReconnectEnabled = true
     private var isDisconnecting = false
     private var inputLineBuffer: String = ""
     private var inputHadTab: Bool = false
@@ -88,8 +92,10 @@ class SSHRunner: ObservableObject, Cleanable {
     func connect(connection: SSHConnection) {
         guard !isConnecting else { return }
         if isConnected || client != nil {
-            disconnect()
+            disconnect(reason: .user)
         }
+        reconnectTask?.cancel()
+        reconnectAttempts = 0
         isConnecting = true
         self.activeConnection = connection
         self.connectionID = connection.id
@@ -131,6 +137,7 @@ class SSHRunner: ObservableObject, Cleanable {
                 
                 // Consider connected once SFTP is open
                 self.isConnected = true
+                self.reconnectAttempts = 0
                 
                 // Best-effort: set initial path from remote `pwd` (more accurate than guessing /home/...).
                 if self.currentPath.isEmpty {
@@ -149,7 +156,7 @@ class SSHRunner: ObservableObject, Cleanable {
                 
                 // 2. Start Terminal Session
                 self.terminalTask = Task {
-                    defer { Task { @MainActor [weak self] in self?.disconnect() } }
+                    defer { Task { @MainActor [weak self] in self?.disconnect(reason: .error) } }
                     do { try await startTerminal(client: client) }
                     catch {
                         await MainActor.run {
@@ -165,7 +172,7 @@ class SSHRunner: ObservableObject, Cleanable {
                 self.error = error.localizedDescription
                 self.isConnected = false
                 Logger.log("SSH: Connection failed: \(error)", level: .error)
-                self.disconnect()
+                self.disconnect(reason: .error)
             }
             self.isConnecting = false
         }
@@ -191,7 +198,7 @@ class SSHRunner: ObservableObject, Cleanable {
                 } catch {
                     Logger.log("SSH: Keep-alive failed: \(error)", level: .debug)
                     if let runner = self {
-                        await MainActor.run { runner.disconnect() }
+                        await MainActor.run { runner.disconnect(reason: .error) }
                     }
                     break
                 }
@@ -495,7 +502,12 @@ class SSHRunner: ObservableObject, Cleanable {
         return outputBuffer.joined()
     }
     
-    func disconnect() {
+    enum DisconnectReason {
+        case user
+        case error
+    }
+
+    func disconnect(reason: DisconnectReason = .user) {
         if isDisconnecting { return }
         isDisconnecting = true
         defer { isDisconnecting = false }
@@ -505,6 +517,12 @@ class SSHRunner: ObservableObject, Cleanable {
         
         keepAliveTask?.cancel()
         keepAliveTask = nil
+
+        if reason == .user {
+            reconnectTask?.cancel()
+            reconnectTask = nil
+            reconnectAttempts = 0
+        }
         
         // Notify Manager to release reference using the exact key acquired at connect-time.
         if didAcquireClient,
@@ -525,6 +543,8 @@ class SSHRunner: ObservableObject, Cleanable {
             }
         }
 
+        let reconnectTarget = (reason == .error) ? activeConnection : nil
+
         // Release references
         client = nil
         sftp = nil
@@ -542,10 +562,28 @@ class SSHRunner: ObservableObject, Cleanable {
         didAcquireClient = false
         
         isConnected = false
+
+        if autoReconnectEnabled, let target = reconnectTarget {
+            scheduleReconnect(for: target)
+        }
+    }
+
+    private func scheduleReconnect(for connection: SSHConnection) {
+        reconnectTask?.cancel()
+        reconnectAttempts += 1
+        let delay = min(pow(2.0, Double(reconnectAttempts)), reconnectMaxDelay)
+        reconnectTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            guard let self else { return }
+            await MainActor.run {
+                self.error = "Reconnecting…"
+            }
+            self.connect(connection: connection)
+        }
     }
     
     func cleanup() {
-        disconnect()
+        disconnect(reason: .user)
     }
     
     func executeCommand(_ command: String) async throws -> String {
