@@ -317,11 +317,6 @@ struct TerminalFlowOverlay: View {
             .contentShape(Rectangle())
             .onHover { hovering in
                 isHoveringResize = hovering
-                if hovering {
-                    NSCursor.resizeDiagonal.push()
-                } else {
-                    NSCursor.pop()
-                }
             }
             .gesture(
                 DragGesture(minimumDistance: 1)
