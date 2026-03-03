@@ -89,6 +89,7 @@ struct TerminalFlowOverlay: View {
     @State private var panelWidth: CGFloat = 520
     @State private var panelHeight: CGFloat = 520
     @State private var resizeStart: CGSize? = nil
+    @State private var isHoveringResize: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -104,7 +105,7 @@ struct TerminalFlowOverlay: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.black.opacity(0.08), lineWidth: 0.5)
             )
-            .overlay(alignment: .bottomTrailing) {
+            .overlay(alignment: .topLeading) {
                 resizeHandle
             }
 
@@ -304,7 +305,7 @@ struct TerminalFlowOverlay: View {
     }
 
     private var resizeHandle: some View {
-        Image(systemName: "arrow.up.left.and.arrow.down.right")
+        Image(systemName: "arrow.down.right.and.arrow.up.left")
             .font(.system(size: 11, weight: .semibold))
             .foregroundColor(.secondary)
             .padding(6)
@@ -312,7 +313,16 @@ struct TerminalFlowOverlay: View {
             .clipShape(Circle())
             .overlay(Circle().stroke(Color.black.opacity(0.08), lineWidth: 0.5))
             .padding(8)
+            .opacity(isHoveringResize ? 1 : 0.2)
             .contentShape(Rectangle())
+            .onHover { hovering in
+                isHoveringResize = hovering
+                if hovering {
+                    NSCursor.resizeUpLeftDownRight.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
             .gesture(
                 DragGesture(minimumDistance: 1)
                     .onChanged { value in
@@ -320,8 +330,8 @@ struct TerminalFlowOverlay: View {
                             resizeStart = CGSize(width: panelWidth, height: panelHeight)
                         }
                         let base = resizeStart ?? CGSize(width: panelWidth, height: panelHeight)
-                        let newWidth = max(420, base.width + value.translation.width)
-                        let newHeight = max(320, base.height + value.translation.height)
+                        let newWidth = max(420, base.width - value.translation.width)
+                        let newHeight = max(320, base.height - value.translation.height)
                         panelWidth = newWidth
                         panelHeight = newHeight
                     }
