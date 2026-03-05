@@ -7,7 +7,7 @@ let package = Package(
     name: "SSHTools",
     defaultLocalization: "en",
     platforms: [
-        .macOS("15.0")
+        .macOS("14.5")
     ],
     products: [
         .executable(name: "SSHTools", targets: ["SSHTools"]),

@@ -5,6 +5,17 @@ import NIOSSH
 import NIO
 import AppKit
 
+enum SSHRunnerError: LocalizedError {
+    case unsupportedPlatform
+
+    var errorDescription: String? {
+        switch self {
+        case .unsupportedPlatform:
+            return "当前系统版本过低，终端会话仅支持 macOS 15.0 及以上。"
+        }
+    }
+}
+
 class SSHRunner: ObservableObject, Cleanable {
     @Published var isConnected: Bool = false
     @Published var isConnecting: Bool = false
@@ -225,6 +236,10 @@ class SSHRunner: ObservableObject, Cleanable {
             terminalPixelHeight: 0,
             terminalModes: SSHTerminalModes([:])
         )
+
+        guard #available(macOS 15.0, *) else {
+            throw SSHRunnerError.unsupportedPlatform
+        }
         
         try await client.withPTY(request, environment: envRequests) { inbound, outbound in
             await MainActor.run {
