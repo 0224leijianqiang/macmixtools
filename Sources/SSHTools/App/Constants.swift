@@ -40,6 +40,24 @@ enum AppConstants {
         static let tableMaxWidth: CGFloat = 1200
         static let searchDebounceInterval: TimeInterval = 0.3
     }
+
+    /// 更新相关
+    enum Update {
+        /// GitHub 仓库标识（owner/repo）
+        static let repository = "liam798/PrismShell"
+        /// GitHub Releases API 基础地址
+        static let releasesAPIBase = "https://api.github.com/repos"
+        /// GitHub raw 内容基础地址
+        static let rawContentBase = "https://raw.githubusercontent.com"
+        /// 描述文件所在分支
+        static let descriptorBranch = "main"
+        /// 版本描述文件相对路径（位于 default 分支根目录）
+        static let descriptorPath = "version-config.json"
+        /// 默认本地版本号（当 Info.plist 缺失时使用）
+        static let fallbackVersion = "1.0.0"
+        /// 自动检查的最小间隔（秒）
+        static let minimumCheckInterval: TimeInterval = 12 * 60 * 60
+    }
     
     /// 存储键
     struct StorageKeys {
@@ -47,6 +65,8 @@ enum AppConstants {
         static let defaultDownloadPath = "default_download_path"
         static let geminiApiKey = "gemini_api_key"
         static let terminalBackgroundImagePath = "terminal_background_image_path"
+        static let lastUpdateCheck = "last_update_check_timestamp"
+        static let lastNotifiedVersion = "last_notified_version"
     }
     
     /// 固定 ID 用于侧边栏和标签页匹配

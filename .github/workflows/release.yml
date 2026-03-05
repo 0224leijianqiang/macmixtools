@@ -1,0 +1,121 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-upload:
+    runs-on: macos-14
+    permissions:
+      contents: write
+
+    env:
+      APP_NAME: SSHTools
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: version
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          version="${tag#v}"
+          tag_message="$(git tag -l "$tag" --format='%(contents)')"
+          if [[ -z "$tag_message" ]]; then
+            tag_message="Automated release for $tag"
+          fi
+          {
+            echo "tag=$tag"
+            echo "version=$version"
+            echo "release_body<<'EOF'"
+            printf '%s\n' "$tag_message"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build universal app bundle
+        run: |
+          chmod +x build_app.sh
+          ./build_app.sh
+
+      - name: Create distributable archive
+        run: |
+          cd build
+          ARCHIVE_NAME="${APP_NAME}-${{ steps.version.outputs.version }}.zip"
+          ditto -c -k --sequesterRsrc --keepParent "${APP_NAME}.app" "$ARCHIVE_NAME"
+          echo "archive_path=${PWD}/${ARCHIVE_NAME}" >> $GITHUB_ENV
+          echo "archive_name=${ARCHIVE_NAME}" >> $GITHUB_ENV
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          release_name: ${{ steps.version.outputs.tag }}
+          body: ${{ steps.version.outputs.release_body }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.archive_path }}
+          asset_name: ${{ env.archive_name }}
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update version descriptor
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+          ARCHIVE_NAME: ${{ env.archive_name }}
+          REPO: ${{ github.repository }}
+          RELEASE_NOTES: ${{ steps.version.outputs.release_body }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+          git fetch origin "$DEFAULT_BRANCH"
+          git checkout "$DEFAULT_BRANCH"
+
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/${ARCHIVE_NAME}"
+          RELEASE_PAGE="https://github.com/${REPO}/releases/tag/${TAG}"
+          export DOWNLOAD_URL RELEASE_PAGE
+
+          python3 <<'PY'
+import json, os
+
+data = {
+    "latestVersion": os.environ["VERSION"],
+    "downloadURL": os.environ["DOWNLOAD_URL"],
+    "releasePage": os.environ["RELEASE_PAGE"],
+    "releaseNotes": os.environ.get("RELEASE_NOTES", "") or ""
+}
+
+with open("version-config.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+    f.write("\n")
+PY
+
+      - name: Commit version descriptor
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+          if git diff --quiet version-config.json; then
+              echo "version-config.json 无需更新"
+              exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version-config.json
+          git commit -m "chore: update version descriptor for ${VERSION}"
+          git push origin "$DEFAULT_BRANCH"

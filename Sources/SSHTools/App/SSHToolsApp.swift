@@ -45,6 +45,9 @@ struct SSHToolsApp: App {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(settings.userTheme.colorScheme)
+                .task {
+                    await UpdateChecker.shared.checkForUpdates()
+                }
         }
         .defaultSize(width: 1200, height: 800)
     }
