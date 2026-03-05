@@ -1,6 +1,6 @@
 {
   "latestVersion": "1.0.0",
-  "downloadURL": "https://github.com/liam798/PrismShell/releases/latest",
-  "releasePage": "https://github.com/liam798/PrismShell/releases/latest",
-  "releaseNotes": "当前提供的版本为 1.0.0。"
+  "downloadURL": "https://github.com/liam798/PrismShell/releases/download/v1.0.0/SSHTools-1.0.0.zip",
+  "releasePage": "https://github.com/liam798/PrismShell/releases/tag/v1.0.0",
+  "releaseNotes": "Release v1.0.0"
 }
