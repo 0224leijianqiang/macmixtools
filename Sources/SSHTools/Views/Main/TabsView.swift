@@ -31,29 +31,24 @@ struct TabsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 8) {
+            HStack(spacing: 12) {
                 Button(action: onToggleSidebar) {
                     Image(systemName: isSidebarCollapsed ? "sidebar.right" : "sidebar.left")
-                        .font(.system(size: 12, weight: .semibold))
-                        .frame(width: 20, height: 20)
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(width: 20, height: 16)
                 }
                 .buttonStyle(.plain)
                 .help(isSidebarCollapsed ? "展开侧边栏".localized : "收起侧边栏".localized)
-                .padding(.leading, isSidebarCollapsed ? 74 : 10)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 4) {
-                        ForEach(tabManager.tabs) { tab in
-                            TabButton(tab: tab, 
-                                      isSelected: tabManager.selectedTabID == tab.id,
-                                      onSelect: { selectTab(tab.id) },
-                                      onClose: { closeTabAndCleanSplits(tab.id) })
-                        }
+                .padding(.leading, isSidebarCollapsed ? 80 : 10)
+                
+                HStack(spacing: 4) {
+                    ForEach(tabManager.tabs) { tab in
+                        TabButton(tab: tab, 
+                                    isSelected: tabManager.selectedTabID == tab.id,
+                                    onSelect: { selectTab(tab.id) },
+                                    onClose: { closeTabAndCleanSplits(tab.id) })
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
                 }
-                .frame(width: tabStripWidth, alignment: .leading)
 
                 tabAddMenu
 
@@ -121,7 +116,7 @@ struct TabsView: View {
                 }
                 .padding(.trailing, 12)
             }
-            .frame(height: 44)
+            .frame(height: 40)
             .background(DesignSystem.Colors.contentPanel)
             .overlay(
                 Rectangle()
@@ -204,15 +199,13 @@ struct TabsView: View {
                 }
             }
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: 2) {
                 Image(systemName: "plus")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.system(size: 10, weight: .semibold))
             }
             .foregroundColor(DesignSystem.Colors.textSecondary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 5)
             .background(
                 RoundedRectangle(cornerRadius: 6)
                     .fill(DesignSystem.Colors.itemHover)
@@ -763,7 +756,7 @@ struct TabButton: View {
     @State private var isHovering = false
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 4) {
             Image(systemName: tab.content.icon)
                 .font(.system(size: 11))
                 .foregroundColor(isSelected ? DesignSystem.Colors.blue : DesignSystem.Colors.textSecondary)
@@ -786,7 +779,7 @@ struct TabButton: View {
                 .opacity(isSelected || isHovering ? 1 : 0)
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 6)
         .frame(height: 28)
         .background(
             RoundedRectangle(cornerRadius: 6)
