@@ -64,6 +64,12 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    @Published var isSidebarCollapsed: Bool {
+        didSet {
+            UserDefaults.standard.set(isSidebarCollapsed, forKey: AppConstants.StorageKeys.sidebarCollapsed)
+        }
+    }
+
     /// SFTP download chunk size in MB (tunable for throughput vs memory/latency).
     @Published var sftpDownloadChunkMB: Int {
         didSet {
@@ -111,6 +117,7 @@ class SettingsManager: ObservableObject {
         
         let savedTheme = UserDefaults.standard.string(forKey: "user_theme") ?? AppTheme.system.rawValue
         self.userTheme = AppTheme(rawValue: savedTheme) ?? .system
+        self.isSidebarCollapsed = UserDefaults.standard.bool(forKey: AppConstants.StorageKeys.sidebarCollapsed)
 
         let savedChunk = UserDefaults.standard.integer(forKey: "sftp_download_chunk_mb")
         self.sftpDownloadChunkMB = savedChunk <= 0 ? 4 : savedChunk

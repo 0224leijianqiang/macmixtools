@@ -67,6 +67,7 @@ enum AppConstants {
         static let terminalBackgroundImagePath = "terminal_background_image_path"
         static let lastUpdateCheck = "last_update_check_timestamp"
         static let lastNotifiedVersion = "last_notified_version"
+        static let sidebarCollapsed = "sidebar_collapsed"
     }
     
     /// 固定 ID 用于侧边栏和标签页匹配

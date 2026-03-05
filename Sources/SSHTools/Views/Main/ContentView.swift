@@ -5,12 +5,13 @@ struct ContentView: View {
     @StateObject private var tabManager = TabManager()
     private let minSidebarWidth: CGFloat = 180
     private let maxSidebarWidth: CGFloat = 340
+    @ObservedObject private var settings = SettingsManager.shared
     
     @State private var sidebarSelection: UUID?
     @State private var editingConnectionID: IdentifiableUUID?
     @State private var sidebarWidth: CGFloat = 216
     @State private var lastSidebarWidth: CGFloat = 216
-    @State private var isSidebarCollapsed = false
+    @State private var isSidebarCollapsed = SettingsManager.shared.isSidebarCollapsed
     @State private var isDraggingSidebar = false
     @State private var dragStartWidth: CGFloat = 220
     @State private var dragOffset: CGFloat = 0
@@ -74,6 +75,17 @@ struct ContentView: View {
         .background(DesignSystem.Colors.shellCanvas)
         .onChange(of: sidebarSelection) { oldValue, newValue in
             handleSelectionChange(newValue)
+        }
+        .onChange(of: settings.isSidebarCollapsed) { _, newValue in
+            guard newValue != isSidebarCollapsed else { return }
+            if newValue {
+                lastSidebarWidth = sidebarWidth
+                isDraggingSidebar = false
+                dragOffset = 0
+            } else {
+                sidebarWidth = min(max(lastSidebarWidth, minSidebarWidth), maxSidebarWidth)
+            }
+            isSidebarCollapsed = newValue
         }
         .sheet(item: $editingConnectionID) { identifiableUUID in
             ConnectionSettingsPresenter(store: store, 
@@ -149,6 +161,7 @@ struct ContentView: View {
                 isSidebarCollapsed = true
             }
         }
+        settings.isSidebarCollapsed = isSidebarCollapsed
     }
 }
 
