@@ -73,6 +73,10 @@ struct ContentView: View {
             }
         }
         .background(DesignSystem.Colors.shellCanvas)
+        .overlay(alignment: .topLeading) {
+            WindowTrafficLights()
+                .allowsHitTesting(true)
+        }
         .onChange(of: sidebarSelection) { oldValue, newValue in
             handleSelectionChange(newValue)
         }

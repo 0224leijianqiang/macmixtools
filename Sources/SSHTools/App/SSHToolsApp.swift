@@ -16,7 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Bring to front and focus
         NSApp.activate(ignoringOtherApps: true)
         
-        // Set window size to 90% of screen
+        // Set window size to 90% of screen，并隐藏系统默认红绿灯按钮（使用自定义实现）
         if let window = NSApp.windows.first,
            let screen = NSScreen.main {
             let screenFrame = screen.visibleFrame
@@ -29,10 +29,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             let newFrame = NSRect(x: windowX, y: windowY, width: windowWidth, height: windowHeight)
             window.setFrame(newFrame, display: true)
+            
+            // 隐藏系统自带的交通灯按钮，改用 SwiftUI 自定义按钮
+            [.closeButton, .miniaturizeButton, .zoomButton].forEach { type in
+                window.standardWindowButton(type)?.isHidden = true
+            }
+            
+            // Ensure the window can receive key events
+            window.makeKeyAndOrderFront(nil)
         }
-        
-        // Ensure the window can receive key events
-        NSApp.windows.first?.makeKeyAndOrderFront(nil)
     }
 }
 
