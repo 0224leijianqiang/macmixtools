@@ -32,7 +32,7 @@ jobs:
           {
             echo "tag=$tag"
             echo "version=$version"
-            echo "release_body<<'EOF'"
+            echo "release_body<<EOF"
             printf '%s\n' "$tag_message"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
