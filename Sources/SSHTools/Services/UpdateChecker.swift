@@ -52,15 +52,6 @@ final class UpdateChecker {
                 return
             }
 
-            if !force {
-                let lastNotified = defaults.string(forKey: AppConstants.StorageKeys.lastNotifiedVersion)
-                if lastNotified == latestVersion {
-                    return
-                }
-            }
-
-            defaults.set(latestVersion, forKey: AppConstants.StorageKeys.lastNotifiedVersion)
-
             let fallbackReleaseURL = "https://github.com/\(AppConstants.Update.repository)/releases/latest"
             let releaseURL = descriptor.releasePage ?? fallbackReleaseURL
             let downloadURL = descriptor.downloadURL ?? releaseURL
