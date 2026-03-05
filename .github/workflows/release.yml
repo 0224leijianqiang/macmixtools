@@ -89,20 +89,13 @@ jobs:
           RELEASE_PAGE="https://github.com/${REPO}/releases/tag/${TAG}"
           export DOWNLOAD_URL RELEASE_PAGE
 
-          python3 <<'PY'
-import json, os
-
-data = {
-    "latestVersion": os.environ["VERSION"],
-    "downloadURL": os.environ["DOWNLOAD_URL"],
-    "releasePage": os.environ["RELEASE_PAGE"],
-    "releaseNotes": os.environ.get("RELEASE_NOTES", "") or ""
-}
-
-with open("version-config.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
-    f.write("\n")
-PY
+          jq -n \
+            --arg ver "$VERSION" \
+            --arg dl "$DOWNLOAD_URL" \
+            --arg page "$RELEASE_PAGE" \
+            --arg notes "${RELEASE_NOTES:-}" \
+            '{latestVersion: $ver, downloadURL: $dl, releasePage: $page, releaseNotes: $notes}' \
+            > version-config.json
 
       - name: Commit version descriptor
         env:
