@@ -54,66 +54,21 @@ struct LocalTerminalView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "terminal.fill")
-                            .foregroundColor(DesignSystem.Colors.blue)
-                        Text(viewModel.connection.name)
-                            .font(.headline)
-                            .lineLimit(1)
-                    }
+        ZStack {
+            Color.black
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    if !viewModel.runner.currentPath.isEmpty {
-                        Button(action: {
-                            let pb = NSPasteboard.general
-                            pb.clearContents()
-                            pb.setString(viewModel.runner.currentPath, forType: .string)
-                        }) {
-                            Text(viewModel.runner.currentPath)
-                                .font(.system(size: 11))
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                                .lineLimit(1)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
+            XTermWebView(runner: viewModel.runner, tabID: tabID)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(12)
+                .clipped()
 
-                Spacer()
-
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(viewModel.runner.isConnected ? DesignSystem.Colors.green : DesignSystem.Colors.pink)
-                        .frame(width: 6, height: 6)
-                    Text(viewModel.runner.isConnected ? "Connected" : "Disconnected")
-                        .font(.system(size: 10))
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(DesignSystem.Colors.surfaceSecondary)
-                .cornerRadius(DesignSystem.Radius.small)
-            }
-            .padding(.horizontal, DesignSystem.Spacing.medium)
-            .frame(height: 44)
-            .background(DesignSystem.Colors.surface)
-
-            Divider()
-
-            ZStack {
-                XTermWebView(runner: viewModel.runner, tabID: tabID)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black)
-                    .clipped()
-
-                ReconnectOverlay(
-                    isConnected: viewModel.runner.isConnected,
-                    isConnecting: viewModel.runner.isConnecting,
-                    error: viewModel.runner.error,
-                    onReconnect: { viewModel.connect() }
-                )
-            }
+            ReconnectOverlay(
+                isConnected: viewModel.runner.isConnected,
+                isConnecting: viewModel.runner.isConnecting,
+                error: viewModel.runner.error,
+                onReconnect: { viewModel.connect() }
+            )
         }
         .onAppear { viewModel.connect() }
         .background(DesignSystem.Colors.background)

@@ -173,7 +173,7 @@ final class LocalTerminalRunner: ObservableObject, TerminalRunner, Cleanable {
 
     func notifyTerminalReady() {
         installCwdTrackingHookIfNeeded()
-        sendRaw("\r")
+        // 不发送 \r，避免执行空行产生多余空白行
         if let restore = pendingRestorePath?.trimmingCharacters(in: .whitespacesAndNewlines),
            !restore.isEmpty
         {
