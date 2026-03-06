@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-and-upload:
+    if: github.repository == '0224leijianqiang/macmixtools'
     runs-on: macos-15
     permissions:
       contents: write
