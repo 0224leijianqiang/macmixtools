@@ -810,6 +810,7 @@ struct TabContentView: View {
             HomeView()
         case .terminal(let connection):
             TerminalView(connection: connection, tabID: tab.id)
+                .id(tab.id)
         case .localTerminal(let connection):
             LocalTerminalView(connection: connection, tabID: tab.id)
         case .sftp(let connection):

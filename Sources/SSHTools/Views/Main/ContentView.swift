@@ -44,6 +44,7 @@ struct ContentView: View {
                          connections: $store.connections,
                          isSidebarCollapsed: isSidebarCollapsed,
                          onToggleSidebar: toggleSidebar)
+                    .id("main-tabs")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(DesignSystem.Colors.contentPanel)
                     .transaction { $0.animation = nil }

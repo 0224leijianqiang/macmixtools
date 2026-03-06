@@ -48,6 +48,13 @@ class TerminalViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+        
+        // Forward monitorService changes (isVisible 等) 到 ViewModel，否则 TerminalView 不会在弹窗开/关时重绘
+        monitorService.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
             
         // Handle success banner
         runner.$isConnected

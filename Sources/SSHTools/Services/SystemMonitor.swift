@@ -62,6 +62,7 @@ class SystemMonitorService: ObservableObject {
     func stopMonitoring() {
         timer?.invalidate()
         timer = nil
+        // 使用 async 延迟更新，避免在按钮 action 内同步修改 @Published 导致 SwiftUI 无法正确关闭弹窗
         DispatchQueue.main.async { [weak self] in
             self?.isVisible = false
         }
