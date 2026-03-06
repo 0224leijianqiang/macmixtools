@@ -85,6 +85,8 @@ struct TerminalFlowOverlay: View {
     let onExecuteStep: (TerminalFlowStep, UUID) -> Void
     let onExecuteGroup: (TerminalFlowGroup) -> Void
     let onExecuteAll: () -> Void
+    /// 嵌入式模式：作为底部面板内容，无悬浮卡片样式
+    var embedded: Bool = false
     @State private var searchText: String = ""
     @State private var panelWidth: CGFloat = 520
     @State private var panelHeight: CGFloat = 520
@@ -93,6 +95,26 @@ struct TerminalFlowOverlay: View {
     @State private var isHoveringResize: Bool = false
 
     var body: some View {
+        Group {
+            if embedded {
+                embeddedBody
+            } else {
+                overlayBody
+            }
+        }
+    }
+
+    private var embeddedBody: some View {
+        VStack(spacing: 0) {
+            headerView
+            Divider()
+            groupList
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DesignSystem.Colors.surface)
+    }
+
+    private var overlayBody: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
                 headerView
@@ -167,14 +189,16 @@ struct TerminalFlowOverlay: View {
                 .foregroundColor(.secondary)
             }
 
-            Button(action: { withAnimation { isPresented = false } }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.secondary)
-                    .padding(4)
-                    .contentShape(Rectangle())
+            if !embedded {
+                Button(action: { withAnimation { isPresented = false } }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.secondary)
+                        .padding(4)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -299,8 +323,9 @@ struct TerminalFlowOverlay: View {
             }
             .padding(12)
         }
-        .frame(height: max(240, panelHeight - 110))
-        .background(Color.white.opacity(0.95))
+        .frame(height: embedded ? nil : max(240, panelHeight - 110))
+        .frame(maxHeight: embedded ? .infinity : nil)
+        .background(embedded ? Color.clear : Color.white.opacity(0.95))
     }
 
     private var bubbleTail: some View {
