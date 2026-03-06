@@ -151,24 +151,6 @@ struct TabsView: View {
     private var tabAddMenu: some View {
         Menu {
             Button {
-                tabManager.openTab(content: .home)
-            } label: {
-                Label("Home".localized, systemImage: "house.fill")
-            }
-
-            Button {
-                tabManager.openTab(content: .httpClient)
-            } label: {
-                Label("HTTP Client".localized, systemImage: "network")
-            }
-
-            Button {
-                tabManager.openTab(content: .devToolbox)
-            } label: {
-                Label("Dev Toolbox".localized, systemImage: "wrench.and.screwdriver.fill")
-            }
-
-            Button {
                 var conn = SSHConnection(name: "Local Terminal".localized, host: "", username: "")
                 conn.type = .localTerminal
                 tabManager.openTab(content: .localTerminal(conn))
