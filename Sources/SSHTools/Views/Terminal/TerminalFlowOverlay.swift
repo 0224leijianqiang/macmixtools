@@ -150,7 +150,9 @@ struct TerminalFlowOverlay: View {
 
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 12) {
-            headerTitleRow
+            if !embedded {
+                headerTitleRow
+            }
             if isSingleGroupMode {
                 compactActionsRow
             } else {
