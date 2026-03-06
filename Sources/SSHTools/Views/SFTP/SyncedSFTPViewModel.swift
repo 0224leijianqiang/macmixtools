@@ -273,6 +273,19 @@ class SyncedSFTPViewModel: ObservableObject {
         }
     }
 
+    /// 列出指定路径下的子目录名（供左侧树形列表使用）
+    func listSubdirectories(at path: String) async -> [String] {
+        guard let sftp = runner.sftp else { return [] }
+        let normalized = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dirPath = normalized.isEmpty || normalized == "/" ? "/" : (normalized.hasSuffix("/") ? normalized : normalized + "/")
+        do {
+            let files = try await SFTPService.shared.listDirectory(sftp: sftp, at: dirPath)
+            return files.filter(\.isDirectory).map(\.name).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+        } catch {
+            return []
+        }
+    }
+
     private func persistPath() {
         guard let connectionID = runner.connectionID else { return }
         let key = persistenceKeyPrefix + connectionID.uuidString

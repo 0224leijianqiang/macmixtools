@@ -17,9 +17,16 @@ struct TerminalView: View {
             let totalHeight = geo.size.height
             let splitterHeight: CGFloat = DesignSystem.Layout.terminalSplitterHeight
             
-            // 计算高度
+            // 默认 1:1：未手动调整过时，终端与底部文件管理各占一半
+            let defaultSftpHeight = (totalHeight - splitterHeight) / 2
+            let effectiveSftpHeight = (viewModel.sftpHeight == DesignSystem.Layout.sftpDefaultHeight)
+                ? defaultSftpHeight
+                : viewModel.sftpHeight
+            
             let maxSftpHeight = totalHeight - DesignSystem.Layout.terminalMinHeight - splitterHeight
-            let constrainedSftpHeight = min(max(viewModel.sftpHeight, DesignSystem.Layout.sftpMinHeight), max(maxSftpHeight, DesignSystem.Layout.sftpMinHeight))
+            let sftpMin = DesignSystem.Layout.sftpMinHeight
+            let sftpMax = max(maxSftpHeight, sftpMin)
+            let constrainedSftpHeight = min(max(effectiveSftpHeight, sftpMin), sftpMax)
             let terminalHeight = max(0, totalHeight - constrainedSftpHeight - splitterHeight)
             
             VStack(spacing: 0) {
@@ -296,6 +303,11 @@ struct TerminalView: View {
                     }
                 }
                 .frame(height: constrainedSftpHeight)
+                .safeAreaInset(edge: .bottom) {
+                    if viewModel.showFlowPanel {
+                        Color.clear.frame(height: 200)
+                    }
+                }
                 .background(DesignSystem.Colors.surface)
             }
         }

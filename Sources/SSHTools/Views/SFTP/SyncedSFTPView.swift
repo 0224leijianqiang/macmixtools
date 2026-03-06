@@ -1,5 +1,159 @@
 import SwiftUI
 
+// MARK: - 左侧树形目录
+private struct SFTPTreeSidebar: View {
+    @ObservedObject var viewModel: SyncedSFTPViewModel
+    let currentPath: String
+    let onNavigate: (String) -> Void
+    
+    @State private var expandedPaths: Set<String> = ["/"]
+    @State private var loadedChildren: [String: [String]] = [:]
+    @State private var loadingPath: String?
+    
+    private let minWidth: CGFloat = 160
+    private let maxWidth: CGFloat = 320
+    
+    var body: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                treeRow(path: "/", name: "/", depth: 0)
+            }
+            .padding(.vertical, 6)
+        }
+        .frame(minWidth: minWidth, maxWidth: maxWidth)
+        .background(DesignSystem.Colors.surface.opacity(0.6))
+        .onAppear {
+            if loadedChildren["/"] == nil {
+                loadChildren(path: "/")
+            }
+        }
+    }
+    
+    private func treeRow(path: String, name: String, depth: Int) -> AnyView {
+        let children = loadedChildren[path] ?? []
+        let isExpanded = expandedPaths.contains(path)
+        let isLoading = loadingPath == path
+        let isSelected = normalizedCurrentPath == path || (path != "/" && normalizedCurrentPath.hasPrefix(path + "/"))
+        
+        return AnyView(
+            Group {
+                Button {
+                    onNavigate(path)
+                } label: {
+                    HStack(spacing: 4) {
+                        ForEach(0..<depth, id: \.self) { _ in
+                            Color.clear.frame(width: 12, height: 1)
+                        }
+                        if children.isEmpty && !isLoading {
+                            Image(systemName: "folder.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(DesignSystem.Colors.blue)
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Button {
+                                toggleExpand(path: path)
+                            } label: {
+                                Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 16, height: 16)
+                            }
+                            .buttonStyle(.plain)
+                            Image(systemName: "folder.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(DesignSystem.Colors.blue)
+                                .frame(width: 16, height: 16)
+                        }
+                        if isLoading {
+                            ProgressView().scaleEffect(0.5).frame(width: 12, height: 12)
+                        }
+                        Text(name)
+                            .font(.system(size: 12))
+                            .lineLimit(1)
+                            .foregroundColor(isSelected ? DesignSystem.Colors.blue : DesignSystem.Colors.text)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(isSelected ? DesignSystem.Colors.itemSelected : Color.clear)
+                }
+                .buttonStyle(.plain)
+                
+                if isExpanded {
+                    ForEach(children, id: \.self) { childName in
+                        let childPath = path == "/" ? "/" + childName : path + "/" + childName
+                        treeRow(path: childPath, name: childName, depth: depth + 1)
+                    }
+                }
+            }
+        )
+    }
+    
+    private var normalizedCurrentPath: String {
+        let p = currentPath.trimmingCharacters(in: .whitespacesAndNewlines)
+        if p.isEmpty { return "/" }
+        return p.hasSuffix("/") ? String(p.dropLast()) : p
+    }
+    
+    private func toggleExpand(path: String) {
+        if expandedPaths.contains(path) {
+            expandedPaths.remove(path)
+        } else {
+            expandedPaths.insert(path)
+            if loadedChildren[path] == nil {
+                loadChildren(path: path)
+            }
+        }
+    }
+    
+    private func loadChildren(path: String) {
+        loadingPath = path
+        Task {
+            let names = await viewModel.listSubdirectories(at: path)
+            await MainActor.run {
+                loadedChildren[path] = names
+                loadingPath = nil
+            }
+        }
+    }
+}
+
+private struct SFTPTreeResizer: View {
+    @Binding var width: CGFloat
+    let minWidth: CGFloat
+    let maxWidth: CGFloat
+    @State private var dragStartWidth: CGFloat = 0
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(DesignSystem.Colors.border.opacity(0.8))
+                .frame(width: 1)
+                .frame(maxHeight: .infinity)
+            Rectangle()
+                .fill(Color.clear)
+                .frame(width: 8)
+                .frame(maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .onHover { inside in
+                    if inside { NSCursor.resizeLeftRight.push() }
+                    else { NSCursor.pop() }
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            if dragStartWidth == 0 { dragStartWidth = width }
+                            let proposed = dragStartWidth + value.translation.width
+                            width = min(max(proposed, minWidth), maxWidth)
+                        }
+                        .onEnded { _ in
+                            dragStartWidth = 0
+                        }
+                )
+        }
+    }
+}
+
 struct SyncedSFTPView: View {
     let runner: SSHRunner
     let connectionID: UUID
@@ -11,6 +165,7 @@ struct SyncedSFTPView: View {
     @State private var editedPath: String = ""
     @State private var isShowingTasks = false // Use local state for popover
     @State private var isShowingSavedTasks = false
+    @State private var treeWidth: CGFloat = 200
     @ObservedObject private var transferManager = TransferManager.shared
     
     init(runner: SSHRunner, connectionID: UUID, path: Binding<String>, isExpanded: Binding<Bool>, onNavigate: @escaping (String) -> Void) {
@@ -143,10 +298,16 @@ struct SyncedSFTPView: View {
                     .padding()
                 Spacer()
             } else {
-                SFTPTableView(viewModel: viewModel, onNavigate: onNavigate)
-                .safeAreaInset(edge: .bottom) {
-                    Color.clear.frame(height: 10) // Reduced to 10pt
+                HStack(spacing: 0) {
+                    SFTPTreeSidebar(viewModel: viewModel, currentPath: viewModel.path, onNavigate: { viewModel.navigate(to: $0) })
+                        .frame(width: treeWidth)
+                    
+                    SFTPTreeResizer(width: $treeWidth, minWidth: 160, maxWidth: 320)
+                    
+                    SFTPTableView(viewModel: viewModel, onNavigate: onNavigate)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .frame(maxHeight: .infinity)
             }
         }
         .sheet(isPresented: $viewModel.isEditorOpen) {

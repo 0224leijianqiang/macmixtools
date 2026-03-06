@@ -68,7 +68,7 @@ struct SFTPTableView: NSViewRepresentable {
 
         let scrollView = NSScrollView()
         scrollView.documentView = tableView
-        scrollView.hasVerticalScroller = true
+        scrollView.hasVerticalScroller = false
         scrollView.drawsBackground = false
         scrollView.autohidesScrollers = true
         scrollView.contentView.postsBoundsChangedNotifications = true
@@ -279,24 +279,7 @@ struct SFTPTableView: NSViewRepresentable {
         }
 
         @objc func handleClick(_ sender: Any?) {
-            guard let tableView else { return }
-            guard let event = NSApp.currentEvent,
-                  event.type == .leftMouseUp || event.type == .leftMouseDown,
-                  event.clickCount == 1
-            else { return }
-
-            // Respect modifier-assisted multi-select clicks; only navigate on a plain click.
-            if !event.modifierFlags.intersection([.command, .shift, .option, .control]).isEmpty {
-                return
-            }
-
-            let row = tableView.clickedRow
-            guard row >= 0, row < viewModel.files.count else { return }
-            let file = viewModel.files[row]
-            guard file.isDirectory else { return }
-
-            let fullPath = viewModel.path.hasSuffix("/") ? viewModel.path + file.name : viewModel.path + "/" + file.name
-            viewModel.navigate(to: fullPath)
+            // 单击仅选择，不进入目录；双击由 handleDoubleClick 处理进入目录
         }
 
         private func fileForClickedRow() -> RemoteFile? {
