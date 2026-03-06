@@ -14,11 +14,8 @@ struct ContentView: View {
     @State private var isSidebarCollapsed = SettingsManager.shared.isSidebarCollapsed
     @State private var isDraggingSidebar = false
     @State private var dragStartWidth: CGFloat = 220
-    @State private var dragOffset: CGFloat = 0
     
     var body: some View {
-        let splitterWidth: CGFloat = DesignSystem.Layout.sidebarSplitterWidth
-
         ZStack(alignment: .leading) {
             HStack(spacing: 0) {
                 if !isSidebarCollapsed {
@@ -30,29 +27,17 @@ struct ContentView: View {
                         .background(DesignSystem.Colors.sidebarPanel)
                         .transaction { $0.animation = nil }
 
-                    VerticalDraggableSplitter(isDragging: $isDraggingSidebar)
-                        .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { value in
-                                    if !isDraggingSidebar {
-                                        isDraggingSidebar = true
-                                        dragStartWidth = sidebarWidth
-                                    }
-                                    let proposed = value.translation.width
-                                    let clamped = min(max(dragStartWidth + proposed, minSidebarWidth), maxSidebarWidth)
-                                    dragOffset = clamped - dragStartWidth
-                                }
-                                .onEnded { _ in
-                                    isDraggingSidebar = false
-                                    let finalWidth = min(max(dragStartWidth + dragOffset, minSidebarWidth), maxSidebarWidth)
-                                    withTransaction(Transaction(animation: nil)) {
-                                        sidebarWidth = finalWidth
-                                        lastSidebarWidth = finalWidth
-                                    }
-                                    dragOffset = 0
-                                }
-                        )
+                    VerticalDraggableSplitter(isDragging: $isDraggingSidebar,
+                        onDragStart: { dragStartWidth = sidebarWidth },
+                        onDragChanged: { translation in
+                            let clamped = min(max(dragStartWidth + translation, minSidebarWidth), maxSidebarWidth)
+                            withTransaction(Transaction(animation: nil)) {
+                                sidebarWidth = clamped
+                            }
+                        },
+                        onDragEnded: { _ in
+                            lastSidebarWidth = sidebarWidth
+                        })
                 }
 
                 TabsView(tabManager: tabManager,
@@ -62,14 +47,6 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(DesignSystem.Colors.contentPanel)
                     .transaction { $0.animation = nil }
-            }
-            
-            if isDraggingSidebar && !isSidebarCollapsed {
-                Rectangle()
-                    .fill(DesignSystem.Colors.blue.opacity(0.6))
-                    .frame(width: 2)
-                    .offset(x: sidebarWidth + dragOffset + (splitterWidth / 2 - 1))
-                    .allowsHitTesting(false)
             }
         }
         .background(DesignSystem.Colors.shellCanvas)
@@ -85,7 +62,6 @@ struct ContentView: View {
             if newValue {
                 lastSidebarWidth = sidebarWidth
                 isDraggingSidebar = false
-                dragOffset = 0
             } else {
                 sidebarWidth = min(max(lastSidebarWidth, minSidebarWidth), maxSidebarWidth)
             }
@@ -161,7 +137,6 @@ struct ContentView: View {
             } else {
                 lastSidebarWidth = sidebarWidth
                 isDraggingSidebar = false
-                dragOffset = 0
                 isSidebarCollapsed = true
             }
         }
