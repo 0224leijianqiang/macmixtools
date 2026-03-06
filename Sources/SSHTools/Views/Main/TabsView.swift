@@ -58,13 +58,13 @@ struct TabsView: View {
 
                 updateNoticeView
                 
-                // Split controls
+                // Split controls（用 Image + font 控制尺寸，macOS 上 Label 的 frame 常被忽略）
                 HStack(spacing: 6) {
                     Button {
                         addSplit()
                     } label: {
-                        Label("Split View".localized, systemImage: "square.split.2x1")
-                            .labelStyle(.iconOnly)
+                        Image(systemName: "square.split.2x1")
+                            .font(.system(size: 16, weight: .medium))
                             .frame(width: 24, height: 24)
                     }
                     .buttonStyle(.plain)
@@ -74,8 +74,8 @@ struct TabsView: View {
                     Button {
                         removeSplit()
                     } label: {
-                        Label("Close Split".localized, systemImage: "xmark.rectangle")
-                            .labelStyle(.iconOnly)
+                        Image(systemName: "xmark.rectangle")
+                            .font(.system(size: 16, weight: .medium))
                             .frame(width: 24, height: 24)
                     }
                     .buttonStyle(.plain)
@@ -85,8 +85,8 @@ struct TabsView: View {
                     Button {
                         resetLayout()
                     } label: {
-                        Label("Reset Layout".localized, systemImage: "arrow.uturn.backward")
-                            .labelStyle(.iconOnly)
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 16, weight: .medium))
                             .frame(width: 24, height: 24)
                     }
                     .buttonStyle(.plain)
@@ -97,6 +97,7 @@ struct TabsView: View {
                             nudgeSplit(deltaFraction: -0.03)
                         } label: {
                             Image(systemName: "arrow.left")
+                                .font(.system(size: 16, weight: .medium))
                                 .frame(width: 20, height: 20)
                         }
                         .buttonStyle(.plain)
@@ -107,6 +108,7 @@ struct TabsView: View {
                             nudgeSplit(deltaFraction: 0.03)
                         } label: {
                             Image(systemName: "arrow.right")
+                                .font(.system(size: 16, weight: .medium))
                                 .frame(width: 20, height: 20)
                         }
                         .buttonStyle(.plain)
@@ -199,13 +201,13 @@ struct TabsView: View {
                 }
             }
         } label: {
+            // macOS Menu 会忽略对 Image 的尺寸修饰符，用 Text(Image(...)) + font 才能放大图标
             HStack(spacing: 2) {
-                Image(systemName: "plus")
+                Text(Image(systemName: "plus"))
                     .font(.system(size: 16, weight: .semibold))
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 10, weight: .semibold))
+                Text(Image(systemName: "chevron.down"))
+                    .font(.system(size: 14, weight: .semibold))
             }
-            .foregroundColor(DesignSystem.Colors.textSecondary)
             .background(
                 RoundedRectangle(cornerRadius: 6)
                     .fill(DesignSystem.Colors.itemHover)
@@ -756,16 +758,24 @@ struct TabButton: View {
     @State private var isHovering = false
     
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: tab.content.icon)
-                .font(.system(size: 11))
-                .foregroundColor(isSelected ? DesignSystem.Colors.blue : DesignSystem.Colors.textSecondary)
-            
-            Text(tab.content.title)
-                .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
-                .foregroundColor(isSelected ? DesignSystem.Colors.text : DesignSystem.Colors.textSecondary)
-                .lineLimit(1)
-            
+        HStack(spacing: 0) {
+            Spacer(minLength: 0)
+            HStack(spacing: 4) {
+                Image(systemName: tab.content.icon)
+                    .font(.system(size: 11))
+                    .foregroundColor(isSelected ? DesignSystem.Colors.blue : DesignSystem.Colors.textSecondary)
+                Text(tab.content.title)
+                    .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(isSelected ? DesignSystem.Colors.text : DesignSystem.Colors.textSecondary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 6)
+        .frame(width: 200)
+        .frame(height: 28)
+        .contentShape(Rectangle())
+        .overlay(alignment: .trailing) {
             if tab.content != .home {
                 Button(action: onClose) {
                     Image(systemName: "xmark")
@@ -777,11 +787,9 @@ struct TabButton: View {
                 }
                 .buttonStyle(.plain)
                 .opacity(isSelected || isHovering ? 1 : 0)
+                .padding(.trailing, 6)
             }
         }
-        .padding(.horizontal, 6)
-        .frame(minWidth: 100)
-        .frame(height: 28)
         .background(
             RoundedRectangle(cornerRadius: 6)
                 .fill(isSelected ? DesignSystem.Colors.itemSelected : (isHovering ? DesignSystem.Colors.itemHover : Color.clear))

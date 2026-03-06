@@ -55,7 +55,12 @@ struct SSHToolsApp: App {
                         window.titleVisibility = .hidden
                         window.titlebarAppearsTransparent = true
                         window.styleMask.insert(.fullSizeContentView)
-                        window.isMovableByWindowBackground = true
+                        // 仅标题栏空白处可拖动窗口；标题栏内 TitlebarBlankArea 的 NSView 会处理拖动
+                        window.isMovableByWindowBackground = false
+                        // 每次窗口显示时都隐藏系统红绿灯（含从 Dock 重新打开的新窗口）
+                        [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton].forEach { type in
+                            window.standardWindowButton(type)?.isHidden = true
+                        }
                     }
                 )
                 .ignoresSafeArea(.container, edges: .top)

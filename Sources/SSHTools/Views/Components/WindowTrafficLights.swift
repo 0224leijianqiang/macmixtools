@@ -95,7 +95,7 @@ struct WindowTrafficLights: View {
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .center)) {
             Color.clear.frame(width: 1, height: 40)
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 TrafficLightButton(kind: .close, isActive: focus.isActive, isGroupHovering: isHoveringGroup)
                 TrafficLightButton(kind: .minimize, isActive: focus.isActive, isGroupHovering: isHoveringGroup)
                 TrafficLightButton(kind: .zoom, isActive: focus.isActive, isGroupHovering: isHoveringGroup)
