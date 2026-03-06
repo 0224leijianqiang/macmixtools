@@ -71,6 +71,8 @@ struct DesignSystem {
         static let rowHeight: CGFloat = 28
         static let terminalMinHeight: CGFloat = 100
         static let sftpMinHeight: CGFloat = 30
+        /// 一键缩小后底部面板高度（仅显示路径栏）
+        static let sftpCollapsedHeight: CGFloat = 44
         static let sftpDefaultHeight: CGFloat = 250
         static let sidebarSplitterWidth: CGFloat = 12
         static let terminalSplitterHeight: CGFloat = 12

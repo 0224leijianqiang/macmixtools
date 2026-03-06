@@ -57,7 +57,7 @@ struct TerminalView: View {
                     .frame(height: terminalHeight)
                     .zIndex(25)
                     
-                    // Quick Actions - 右下角
+                    // Quick Actions - 右下角（Flow 已移至底部面板 tab）
                     VStack {
                         Spacer()
                         HStack {
@@ -65,34 +65,7 @@ struct TerminalView: View {
                             HStack(spacing: 8) {
                                 Button(action: { 
                                     withAnimation(.spring()) {
-                                        viewModel.showFlowPanel.toggle()
-                                        if viewModel.showFlowPanel {
-                                            viewModel.showAIHelper = false
-                                        }
-                                    }
-                                }) {
-                                    HStack {
-                                        Image(systemName: "list.bullet.rectangle")
-                                        Text("Flow")
-                                    }
-                                    .font(.system(size: 11, weight: .bold))
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(viewModel.showFlowPanel ? DesignSystem.Colors.blue : DesignSystem.Colors.blue.opacity(0.8))
-                                    .foregroundColor(.white)
-                                    .cornerRadius(16)
-                                    .shadow(radius: 4)
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                                .allowsHitTesting(true)
-
-                                Button(action: { 
-                                    withAnimation(.spring()) {
                                         viewModel.showAIHelper.toggle()
-                                        if viewModel.showAIHelper {
-                                            viewModel.showFlowPanel = false
-                                        }
                                     }
                                 }) {
                                     HStack {
@@ -217,55 +190,15 @@ struct TerminalView: View {
                 )
                 .frame(height: splitterHeight)
                 
-                // 3. SFTP 区域
-                Group {
-                    if viewModel.runner.isConnected {
-                        SyncedSFTPView(
-                            runner: viewModel.runner,
-                            connectionID: viewModel.connection.id,
-                            path: $viewModel.runner.currentPath,
-                            isExpanded: Binding(get: { viewModel.isSFTPViewExpanded }, set: { viewModel.toggleSFTP(expanded: $0) }),
-                            onNavigate: { dir in
-                                viewModel.runner.currentPath = dir
-                            }
-                        )
-                    } else {
-                        VStack {
-                            if let error = viewModel.runner.error {
-                                Text(error).foregroundColor(.red).padding()
-                            } else {
-                                ProgressView("Connecting...").padding()
-                            }
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                }
-                .frame(height: constrainedSftpHeight)
-                .safeAreaInset(edge: .bottom) {
-                    if viewModel.showFlowPanel {
-                        Color.clear.frame(height: 200)
-                    }
-                }
-                .background(DesignSystem.Colors.surface)
+                // 3. 底部面板（文件夹 + Flow 任务 tab 切换）
+                TerminalBottomPanel(
+                    viewModel: viewModel,
+                    height: constrainedSftpHeight
+                )
             }
         }
         .onAppear { viewModel.connect() }
         .background(DesignSystem.Colors.background)
-        .overlay(alignment: .bottomTrailing) {
-            if viewModel.showFlowPanel {
-                TerminalFlowOverlay(
-                    isPresented: $viewModel.showFlowPanel,
-                    groups: $viewModel.flowGroups,
-                    stopOnError: $viewModel.stopFlowOnError,
-                    onExecuteStep: viewModel.executeFlowStep,
-                    onExecuteGroup: viewModel.executeFlowGroup,
-                    onExecuteAll: viewModel.executeAllFlowGroups
-                )
-                .padding(.trailing, 20)
-                .padding(.bottom, 16)
-                .zIndex(100)
-            }
-        }
     }
     
     private func copyHostToClipboard() {
@@ -297,5 +230,113 @@ struct TerminalView: View {
                 .background(Color.green.opacity(0.8)).cornerRadius(12)
         }
     }
+}
 
+// MARK: - 底部面板（文件夹 / Flow tab）
+private struct TerminalBottomPanel: View {
+    @ObservedObject var viewModel: TerminalViewModel
+    let height: CGFloat
+
+    private var sftpViewModel: SyncedSFTPViewModel {
+        let path = viewModel.runner.currentPath.trimmingCharacters(in: .whitespacesAndNewlines)
+        let initialPath = path.isEmpty ? "/" : path
+        return SyncedSFTPViewModelStore.shared.viewModel(
+            runner: viewModel.runner,
+            initialPath: initialPath,
+            onNavigate: { viewModel.runner.currentPath = $0 }
+        )
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // 路径栏（最小化时仅显示此项）
+            if viewModel.runner.isConnected {
+                SFTPPathBar(
+                    viewModel: sftpViewModel,
+                    isExpanded: Binding(get: { viewModel.isSFTPViewExpanded }, set: { viewModel.toggleSFTP(expanded: $0) }),
+                    connectionID: viewModel.connection.id,
+                    runner: viewModel.runner,
+                    onNavigate: { viewModel.runner.currentPath = $0 }
+                )
+            }
+            if viewModel.isSFTPViewExpanded {
+                tabBar
+                Divider()
+                tabContent
+                    .frame(maxHeight: .infinity)
+            }
+        }
+        .frame(height: height)
+        .background(DesignSystem.Colors.surface)
+    }
+
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(TerminalViewModel.BottomPanelTab.allCases, id: \.self) { tab in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewModel.bottomPanelTab = tab
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: tab == .folder ? "folder.fill" : "list.bullet.rectangle")
+                            .font(.system(size: 12))
+                        Text(tab == .folder ? "文件夹".localized : "Flow")
+                            .font(.system(size: 12, weight: .medium))
+                    }
+                    .foregroundColor(viewModel.bottomPanelTab == tab ? DesignSystem.Colors.blue : DesignSystem.Colors.textSecondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(viewModel.bottomPanelTab == tab ? DesignSystem.Colors.itemSelected : Color.clear)
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
+        }
+        .background(DesignSystem.Colors.surface)
+    }
+
+    @ViewBuilder
+    private var tabContent: some View {
+        if viewModel.bottomPanelTab == .folder {
+            folderContent
+        } else {
+            flowContent
+        }
+    }
+
+    @ViewBuilder
+    private var folderContent: some View {
+        if viewModel.runner.isConnected {
+            SyncedSFTPView(
+                runner: viewModel.runner,
+                connectionID: viewModel.connection.id,
+                path: $viewModel.runner.currentPath,
+                isExpanded: Binding(get: { viewModel.isSFTPViewExpanded }, set: { viewModel.toggleSFTP(expanded: $0) }),
+                onNavigate: { viewModel.runner.currentPath = $0 },
+                hidePathBar: true
+            )
+        } else {
+            VStack {
+                if let error = viewModel.runner.error {
+                    Text(error).foregroundColor(.red).padding()
+                } else {
+                    ProgressView("Connecting...".localized).padding()
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var flowContent: some View {
+        TerminalFlowOverlay(
+            isPresented: .constant(true),
+            groups: $viewModel.flowGroups,
+            stopOnError: $viewModel.stopFlowOnError,
+            onExecuteStep: viewModel.executeFlowStep,
+            onExecuteGroup: viewModel.executeFlowGroup,
+            onExecuteAll: viewModel.executeAllFlowGroups,
+            embedded: true
+        )
+    }
 }
