@@ -40,6 +40,7 @@ struct TabsView: View {
                 .buttonStyle(.plain)
                 .help(isSidebarCollapsed ? "展开侧边栏".localized : "收起侧边栏".localized)
                 .padding(.leading, isSidebarCollapsed ? 80 : 10)
+                .zIndex(1)
                 
                 HStack(spacing: 4) {
                     ForEach(tabManager.tabs) { tab in
@@ -49,14 +50,15 @@ struct TabsView: View {
                                     onClose: { closeTabAndCleanSplits(tab.id) })
                     }
                 }
+                .zIndex(1)
 
                 tabAddMenu
+                .zIndex(1)
 
-                TitlebarBlankArea {
-                    handleTitlebarDoubleClick()
-                }
+                TitlebarBlankArea()
 
                 updateNoticeView
+                    .zIndex(1)
                 
                 // Split controls（用 Image + font 控制尺寸，macOS 上 Label 的 frame 常被忽略）
                 HStack(spacing: 6) {
@@ -117,6 +119,7 @@ struct TabsView: View {
                     }
                 }
                 .padding(.trailing, 12)
+                .zIndex(1)
             }
             .frame(height: 40)
             .background(DesignSystem.Colors.contentPanel)
@@ -163,6 +166,14 @@ struct TabsView: View {
                 tabManager.openTab(content: .devToolbox)
             } label: {
                 Label("Dev Toolbox".localized, systemImage: "wrench.and.screwdriver.fill")
+            }
+
+            Button {
+                var conn = SSHConnection(name: "Local Terminal".localized, host: "", username: "")
+                conn.type = .localTerminal
+                tabManager.openTab(content: .localTerminal(conn))
+            } label: {
+                Label("New Terminal Tab".localized, systemImage: "terminal")
             }
 
             if !terminalConnections.isEmpty {
@@ -631,8 +642,42 @@ struct TabsView: View {
         normalizeWidths()
     }
 
+}
+
+private struct TitlebarBlankArea: View {
+    var body: some View {
+        Color.clear
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(TitlebarInteractionView())
+    }
+}
+
+private struct TitlebarInteractionView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        TitlebarInteractionNSView()
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+private final class TitlebarInteractionNSView: NSView {
+    override var mouseDownCanMoveWindow: Bool { true }
+
+    /// 仅当点击在自身 bounds 内时响应，避免拦截标签等控件
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        if event.clickCount == 2 {
+            handleTitlebarDoubleClick()
+            return
+        }
+        window?.performDrag(with: event)
+    }
+
     private func handleTitlebarDoubleClick() {
-        guard let window = NSApp.keyWindow ?? NSApp.mainWindow else { return }
+        guard let window = window ?? NSApp.keyWindow ?? NSApp.mainWindow else { return }
         let global = UserDefaults.standard.persistentDomain(forName: UserDefaults.globalDomain)
         if let miniaturize = global?["AppleMiniaturizeOnDoubleClick"] as? Bool, miniaturize {
             window.miniaturize(nil)
@@ -645,55 +690,11 @@ struct TabsView: View {
                 return
             }
             if normalized.contains("maximize") || normalized.contains("zoom") {
-                // Use native zoom API to fill available screen area instead of entering macOS full-screen space.
                 window.performZoom(nil)
                 return
             }
         }
         window.performZoom(nil)
-    }
-}
-
-private struct TitlebarBlankArea: View {
-    let onDoubleClick: () -> Void
-
-    var body: some View {
-        Color.clear
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(
-                TitlebarInteractionView(onDoubleClick: onDoubleClick)
-            )
-    }
-}
-
-private struct TitlebarInteractionView: NSViewRepresentable {
-    let onDoubleClick: () -> Void
-
-    func makeNSView(context: Context) -> NSView {
-        let view = TitlebarInteractionNSView()
-        view.onDoubleClick = onDoubleClick
-        return view
-    }
-
-    func updateNSView(_ nsView: NSView, context: Context) {
-        guard let view = nsView as? TitlebarInteractionNSView else { return }
-        view.onDoubleClick = onDoubleClick
-    }
-}
-
-private final class TitlebarInteractionNSView: NSView {
-    var onDoubleClick: (() -> Void)?
-
-    override var mouseDownCanMoveWindow: Bool { true }
-
-    override func hitTest(_ point: NSPoint) -> NSView? { self }
-
-    override func mouseDown(with event: NSEvent) {
-        if event.clickCount == 2 {
-            onDoubleClick?()
-            return
-        }
-        window?.performDrag(with: event)
     }
 }
 

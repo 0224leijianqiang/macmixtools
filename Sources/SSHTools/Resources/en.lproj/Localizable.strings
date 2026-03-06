@@ -45,6 +45,7 @@
 /* Terminal / Tabs */
 "Settings" = "Settings";
 "No Open Tabs" = "No Open Tabs";
+"New Terminal Tab" = "New Terminal Tab";
 "Split View" = "Split View";
 "Close Split" = "Close Split";
 "Reset Layout" = "Reset Layout";

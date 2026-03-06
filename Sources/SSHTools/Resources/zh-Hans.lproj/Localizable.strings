@@ -45,6 +45,7 @@
 /* Terminal / Tabs */
 "Settings" = "设置";
 "No Open Tabs" = "无打开的标签页";
+"New Terminal Tab" = "新建终端标签";
 "Split View" = "分屏";
 "Close Split" = "关闭分屏";
 "Reset Layout" = "重置布局";
