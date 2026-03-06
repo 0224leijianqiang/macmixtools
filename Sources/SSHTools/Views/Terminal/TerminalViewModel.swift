@@ -20,6 +20,12 @@ class TerminalViewModel: ObservableObject {
     @Published var isAIGenerating = false
     @Published var aiSteps: [AIStep] = []
 
+    /// 底部面板 tab：文件夹 或 Flow 任务
+    enum BottomPanelTab: String, CaseIterable {
+        case folder
+        case flow
+    }
+    @Published var bottomPanelTab: BottomPanelTab = .folder
     @Published var showFlowPanel = false
     @Published var flowGroups: [TerminalFlowGroup] = []
     @Published var isFlowRunning = false
@@ -246,13 +252,13 @@ class TerminalViewModel: ObservableObject {
             let calculatedHeight = sftpHeight - translation
             dragOffset = 0
             
-            if calculatedHeight > (DesignSystem.Layout.sftpMinHeight + 10) {
+            if calculatedHeight > (DesignSystem.Layout.sftpCollapsedHeight + 10) {
                 isSFTPViewExpanded = true
                 lastSftpHeight = calculatedHeight
                 sftpHeight = calculatedHeight
             } else {
                 isSFTPViewExpanded = false
-                sftpHeight = DesignSystem.Layout.sftpMinHeight
+                sftpHeight = DesignSystem.Layout.sftpCollapsedHeight
             }
         } else {
             isDragging = true
@@ -267,7 +273,7 @@ class TerminalViewModel: ObservableObject {
                 sftpHeight = max(lastSftpHeight, 200)
             } else {
                 lastSftpHeight = max(sftpHeight, 200)
-                sftpHeight = DesignSystem.Layout.sftpMinHeight
+                sftpHeight = DesignSystem.Layout.sftpCollapsedHeight
             }
         }
     }

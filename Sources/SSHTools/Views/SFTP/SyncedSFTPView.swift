@@ -118,6 +118,112 @@ private struct SFTPTreeSidebar: View {
     }
 }
 
+// MARK: - 路径与操作栏（可独立置于 tab 栏上方）
+struct SFTPPathBar: View {
+    @ObservedObject var viewModel: SyncedSFTPViewModel
+    @Binding var isExpanded: Bool
+    let connectionID: UUID
+    let runner: SSHRunner
+    let onNavigate: (String) -> Void
+
+    @State private var editedPath: String = ""
+    @State private var isShowingTasks = false
+    @State private var isShowingSavedTasks = false
+    @ObservedObject private var transferManager = TransferManager.shared
+
+    var body: some View {
+        HStack(spacing: 8) {
+            TextField("Path".localized, text: $editedPath, onCommit: {
+                viewModel.navigate(to: editedPath)
+            })
+            .textFieldStyle(.plain)
+            .font(DesignSystem.Typography.monospace)
+            .foregroundColor(DesignSystem.Colors.text)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(DesignSystem.Colors.surfaceSecondary)
+            .cornerRadius(6)
+            .frame(maxWidth: .infinity)
+
+            HStack(spacing: 10) {
+                HStack(spacing: 4) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                    TextField("Filter".localized, text: $viewModel.searchText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 11))
+                        .frame(width: 80)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(DesignSystem.Colors.surfaceSecondary)
+                .cornerRadius(6)
+
+                Button(action: { isShowingTasks.toggle() }) {
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "arrow.up.arrow.down.circle")
+                            .font(.system(size: 13))
+                            .foregroundColor(transferManager.tasks.isEmpty ? .secondary : .blue)
+                        if !transferManager.tasks.isEmpty {
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 6, height: 6)
+                                .offset(x: 2, y: -2)
+                        }
+                    }
+                }
+                .buttonStyle(.borderless)
+                .popover(isPresented: $isShowingTasks) { TransferListView() }
+                .help("Transfer Tasks".localized)
+
+                Button(action: { isShowingSavedTasks.toggle() }) {
+                    Image(systemName: "pin.circle")
+                        .font(.system(size: 13))
+                        .foregroundColor(transferManager.savedTasks(for: connectionID).isEmpty ? .secondary : .blue)
+                }
+                .buttonStyle(.borderless)
+                .popover(isPresented: $isShowingSavedTasks) {
+                    SavedUploadTasksView(connectionID: connectionID, runner: runner)
+                }
+                .help("Saved Uploads".localized)
+
+                Button(action: { viewModel.showHiddenFiles.toggle() }) {
+                    Image(systemName: viewModel.showHiddenFiles ? "eye.fill" : "eye.slash.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(viewModel.showHiddenFiles ? .blue : .secondary)
+                }
+                .buttonStyle(.borderless)
+                .help("Show Hidden Files".localized)
+
+                if viewModel.isLoading {
+                    ProgressView().scaleEffect(0.5).frame(width: 16, height: 16)
+                }
+
+                Button(action: viewModel.refresh) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.borderless)
+
+                Button(action: { isExpanded.toggle() }) {
+                    Image(systemName: isExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.borderless)
+                .help(isExpanded ? "Collapse".localized : "Expand".localized)
+            }
+            .frame(height: 26)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .frame(height: 40)
+        .background(DesignSystem.Colors.surface)
+        .onAppear { editedPath = viewModel.path }
+        .onChange(of: viewModel.path) { _, newValue in editedPath = newValue }
+    }
+}
+
 private struct SFTPTreeResizer: View {
     @Binding var width: CGFloat
     let minWidth: CGFloat
@@ -158,22 +264,25 @@ struct SyncedSFTPView: View {
     let runner: SSHRunner
     let connectionID: UUID
     @Binding var path: String
-    @Binding var isExpanded: Bool // New binding for expansion state
+    @Binding var isExpanded: Bool
     let onNavigate: (String) -> Void
-    
+    /// 为 true 时不渲染路径栏（由外部如 TerminalBottomPanel 置于 tab 上方）
+    var hidePathBar: Bool = false
+
     @StateObject private var viewModel: SyncedSFTPViewModel
     @State private var editedPath: String = ""
-    @State private var isShowingTasks = false // Use local state for popover
+    @State private var isShowingTasks = false
     @State private var isShowingSavedTasks = false
     @State private var treeWidth: CGFloat = 200
     @ObservedObject private var transferManager = TransferManager.shared
-    
-    init(runner: SSHRunner, connectionID: UUID, path: Binding<String>, isExpanded: Binding<Bool>, onNavigate: @escaping (String) -> Void) {
+
+    init(runner: SSHRunner, connectionID: UUID, path: Binding<String>, isExpanded: Binding<Bool>, onNavigate: @escaping (String) -> Void, hidePathBar: Bool = false) {
         self.runner = runner
         self.connectionID = connectionID
         self._path = path
         self._isExpanded = isExpanded
         self.onNavigate = onNavigate
+        self.hidePathBar = hidePathBar
         let initialPath = {
             let val = path.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines)
             if !val.isEmpty { return val }
@@ -194,103 +303,16 @@ struct SyncedSFTPView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Path and Control Bar
-            HStack(spacing: 8) {
-                TextField("Path".localized, text: $editedPath, onCommit: {
-                    viewModel.navigate(to: editedPath)
-                })
-                .textFieldStyle(.plain)
-                .font(DesignSystem.Typography.monospace)
-                .foregroundColor(DesignSystem.Colors.text)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-                .background(DesignSystem.Colors.surfaceSecondary)
-                .cornerRadius(6)
-                .frame(maxWidth: .infinity)
-                
-                HStack(spacing: 10) {
-                    // Search/Filter
-                    HStack(spacing: 4) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 11))
-                            .foregroundColor(.secondary)
-                        TextField("Filter".localized, text: $viewModel.searchText)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 11))
-                            .frame(width: 80)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(DesignSystem.Colors.surfaceSecondary)
-                    .cornerRadius(6)
-                    
-                    // Transfer Tasks Button
-                    Button(action: { isShowingTasks.toggle() }) {
-                        ZStack(alignment: .topTrailing) {
-                            Image(systemName: "arrow.up.arrow.down.circle")
-                                .font(.system(size: 13))
-                                .foregroundColor(transferManager.tasks.isEmpty ? .secondary : .blue)
-                            
-                            if !transferManager.tasks.isEmpty {
-                                Circle()
-                                    .fill(Color.red)
-                                    .frame(width: 6, height: 6)
-                                    .offset(x: 2, y: -2)
-                            }
-                        }
-                    }
-                    .buttonStyle(.borderless)
-                    .popover(isPresented: $isShowingTasks) {
-                        TransferListView()
-                    }
-                    .help("Transfer Tasks".localized)
-
-                    Button(action: { isShowingSavedTasks.toggle() }) {
-                        Image(systemName: "pin.circle")
-                            .font(.system(size: 13))
-                            .foregroundColor(transferManager.savedTasks(for: connectionID).isEmpty ? .secondary : .blue)
-                    }
-                    .buttonStyle(.borderless)
-                    .popover(isPresented: $isShowingSavedTasks) {
-                        SavedUploadTasksView(connectionID: connectionID, runner: runner)
-                    }
-                    .help("Saved Uploads".localized)
-                    
-                    // Show Hidden Toggle
-                    Button(action: { viewModel.showHiddenFiles.toggle() }) {
-                        Image(systemName: viewModel.showHiddenFiles ? "eye.fill" : "eye.slash.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(viewModel.showHiddenFiles ? .blue : .secondary)
-                    }
-                    .buttonStyle(.borderless)
-                    .help("Show Hidden Files".localized)
-
-                    if viewModel.isLoading {
-                        ProgressView().scaleEffect(0.5)
-                            .frame(width: 16, height: 16)
-                    }
-                    
-                    Button(action: viewModel.refresh) {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.borderless)
-                    
-                    // Collapse/Expand Button
-                    Button(action: { isExpanded.toggle() }) {
-                        Image(systemName: isExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.borderless)
-                    .help(isExpanded ? "Collapse".localized : "Expand".localized)
-                }
-                .frame(height: 26)
+            if !hidePathBar {
+                SFTPPathBar(
+                    viewModel: viewModel,
+                    isExpanded: $isExpanded,
+                    connectionID: connectionID,
+                    runner: runner,
+                    onNavigate: onNavigate
+                )
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .frame(height: 40)
-            .background(DesignSystem.Colors.surface)
-            
+
             if let error = viewModel.errorMessage {
                 Text(error)
                     .foregroundColor(.red)
