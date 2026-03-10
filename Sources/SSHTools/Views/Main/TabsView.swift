@@ -739,12 +739,10 @@ struct TabButton: View {
     let onClose: () -> Void
     
     @State private var isHovering = false
-    @State private var suppressNextSelectAction = false
     
     var body: some View {
-        Button(action: handleSelect) {
-            HStack(spacing: 0) {
-                Spacer(minLength: 0)
+        HStack(spacing: 0) {
+            Spacer(minLength: 0)
             HStack(spacing: 4) {
                 Image(systemName: tab.content.icon)
                     .font(.system(size: 11))
@@ -753,48 +751,34 @@ struct TabButton: View {
                     .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
                     .foregroundColor(isSelected ? DesignSystem.Colors.text : DesignSystem.Colors.textSecondary)
                     .lineLimit(1)
-                }
-                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 6)
-            .frame(width: 200)
-            .frame(height: 28)
-            .contentShape(Rectangle())
-            .overlay(alignment: .trailing) {
-                if tab.content != .home {
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 6)
+        .frame(width: 200)
+        .frame(height: 28)
+        .contentShape(Rectangle())
+        .overlay(alignment: .trailing) {
+            if tab.content != .home {
+                Button(action: onClose) {
                     Image(systemName: "xmark")
                         .font(.system(size: 8, weight: .bold))
                         .foregroundColor(DesignSystem.Colors.textSecondary)
                         .padding(4)
                         .background(isHovering ? DesignSystem.Colors.itemHover : Color.clear)
                         .clipShape(Circle())
-                        .opacity(isSelected || isHovering ? 1 : 0)
-                        .contentShape(Circle())
-                        .highPriorityGesture(
-                            TapGesture().onEnded {
-                                suppressNextSelectAction = true
-                                onClose()
-                            }
-                        )
-                        .padding(.trailing, 6)
                 }
+                .buttonStyle(.plain)
+                .opacity(isSelected || isHovering ? 1 : 0)
+                .padding(.trailing, 6)
             }
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(isSelected ? DesignSystem.Colors.itemSelected : (isHovering ? DesignSystem.Colors.itemHover : Color.clear))
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 6))
         }
-        .buttonStyle(.plain)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(isSelected ? DesignSystem.Colors.itemSelected : (isHovering ? DesignSystem.Colors.itemHover : Color.clear))
+        )
+        .onTapGesture { onSelect() }
         .onHover { isHovering = $0 }
-    }
-
-    private func handleSelect() {
-        if suppressNextSelectAction {
-            suppressNextSelectAction = false
-            return
-        }
-        onSelect()
     }
 }
 
