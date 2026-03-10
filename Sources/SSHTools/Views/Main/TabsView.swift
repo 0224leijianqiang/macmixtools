@@ -776,8 +776,8 @@ struct TabButton: View {
                                 onClose()
                             }
                         )
-                        .padding(.trailing, 6)
                 }
+                .padding(.trailing, 6)
             }
             .background(
                 RoundedRectangle(cornerRadius: 6)
